@@ -2,10 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tema escuro do projeto */
 :root {
   --color-primary: #0a1a3a;      /* Azul escuro */
-  --color-secondary: #f2c200;    /* Amarelo */
+  --color-secondary: #f2c200;    /* Amarelo torrado */
   --color-accent: #e67e22;       /* Laranja */
-  --color-bg: #f8f9fc;           /* Fundo claro */
-  --color-text: #1a1a1a;         /* Texto */
+  --color-bg: #0f1b2d;           /* Fundo escuro */
+  --color-text: #ffffff;         /* Texto branco */
+}
+
+/* Inputs e selects com tema escuro */
+input,
+select,
+textarea {
+  @apply bg-bg text-text border border-primary rounded px-3 py-2;
+}
+
+/* Placeholder visível */
+input::placeholder,
+textarea::placeholder {
+  @apply text-gray-400;
+}
+
+/* Focus */
+input:focus,
+select:focus,
+textarea:focus {
+  @apply outline-none ring-2 ring-secondary;
 }
