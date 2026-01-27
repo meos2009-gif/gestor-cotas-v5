@@ -11,11 +11,18 @@
   --color-text: #ffffff;         /* Texto branco */
 }
 
+/* Fundo global da aplicação */
+body {
+  @apply bg-bg text-text;
+}
+
 /* Inputs e selects com tema escuro */
 input,
 select,
 textarea {
   @apply bg-bg text-text border border-primary rounded px-3 py-2;
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
 }
 
 /* Placeholder visível */
@@ -29,4 +36,10 @@ input:focus,
 select:focus,
 textarea:focus {
   @apply outline-none ring-2 ring-secondary;
+}
+
+/* Corrigir autofill do Chrome (que fica amarelo) */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg) inset !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }

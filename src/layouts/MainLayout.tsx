@@ -1,8 +1,11 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import logo from "../assets/logo.png";
+import { useState } from "react";
 
 export default function MainLayout() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   async function handleLogout() {
     await supabase.auth.signOut();
     window.location.href = "/login";
@@ -28,8 +31,16 @@ export default function MainLayout() {
           </div>
         </div>
 
-        {/* MENU HORIZONTAL */}
-        <nav className="flex space-x-6 text-sm font-medium">
+        {/* BOTÃO HAMBÚRGUER (mobile) */}
+        <button
+          className="md:hidden text-white text-3xl"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          ☰
+        </button>
+
+        {/* MENU HORIZONTAL (desktop) */}
+        <nav className="hidden md:flex space-x-6 text-sm font-medium">
           {[
             ["Sócios", "/socios"],
             ["Pagamentos", "/pagamentos"],
@@ -53,17 +64,52 @@ export default function MainLayout() {
           ))}
         </nav>
 
-        {/* LOGOUT */}
+        {/* LOGOUT (desktop) */}
         <button
           onClick={handleLogout}
-          className="bg-accent hover:bg-secondary text-white px-4 py-2 rounded transition text-sm font-medium"
+          className="hidden md:block bg-accent hover:bg-secondary text-white px-4 py-2 rounded transition text-sm font-medium"
         >
           Terminar Sessão
         </button>
       </header>
 
+      {/* MENU MOBILE */}
+      {menuOpen && (
+        <div className="md:hidden bg-primary text-white flex flex-col px-6 py-4 space-y-4 shadow-lg">
+          {[
+            ["Sócios", "/socios"],
+            ["Pagamentos", "/pagamentos"],
+            ["Relatório", "/relatorio"],
+            ["Dashboard", "/dashboard"],
+            ["Configurações", "/config"],
+          ].map(([label, path]) => (
+            <NavLink
+              key={path}
+              to={path}
+              onClick={() => setMenuOpen(false)}
+              className={({ isActive }) =>
+                `py-2 rounded transition ${
+                  isActive
+                    ? "text-secondary font-semibold"
+                    : "hover:text-gray-300"
+                }`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+
+          <button
+            onClick={handleLogout}
+            className="bg-accent hover:bg-secondary text-white px-4 py-2 rounded transition text-sm font-medium"
+          >
+            Terminar Sessão
+          </button>
+        </div>
+      )}
+
       {/* CONTEÚDO */}
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-6 overflow-auto pt-24 md:pt-6">
         <Outlet />
       </main>
     </div>
