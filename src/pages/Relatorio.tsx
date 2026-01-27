@@ -269,7 +269,7 @@ export default function Relatorio() {
       {showReport && (
         <table className="w-full border text-center mt-6 text-xs leading-tight">
           <thead>
-            <tr className="bg-gray-100">
+  <tr className="bg-gray-800 text-white">
               <th className="border p-1 text-left">Sócio</th>
               {[
                 "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
