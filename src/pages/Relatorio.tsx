@@ -223,10 +223,9 @@ export default function Relatorio() {
       (p: any) => p.member_id === memberId && p.month === month
     );
   }
-
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos</h1>
+      <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos (versão nova)</h1>
 
       {error && <div className="text-red-600 mb-2">{error}</div>}
       {success && <div className="text-green-600 mb-2">{success}</div>}
