@@ -239,15 +239,7 @@ export default function Relatorio() {
 
       <div className="mb-4 space-y-2">
         <label className="block font-semibold">Importar Excel:</label>
-
-        <input
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={handleFileUpload}
-          className="border p-2 bg-bg text-text rounded"
-          style={{ colorScheme: "dark" }}
-        />
-
+       <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} className="border border-gray-600 p-2 bg-gray-800 text-white rounded w-full cursor-pointer" />
         <label className="block font-semibold mt-4">Ano:</label>
 
         <select
