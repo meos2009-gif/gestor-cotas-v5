@@ -21,7 +21,6 @@ export default function Relatorio() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // NOVO: controlar visibilidade do relatório
   const [showReport, setShowReport] = useState(false);
 
   useEffect(() => {
@@ -232,7 +231,6 @@ export default function Relatorio() {
       {error && <div className="text-red-600 mb-2">{error}</div>}
       {success && <div className="text-green-600 mb-2">{success}</div>}
 
-      {/* BOTÃO MOSTRAR/ESCONDER RELATÓRIO */}
       <button
         onClick={() => setShowReport(!showReport)}
         className="bg-gray-700 text-white px-4 py-2 rounded mb-4"
@@ -240,21 +238,23 @@ export default function Relatorio() {
         {showReport ? "Esconder Relatório" : "Visualizar Relatório"}
       </button>
 
-      {/* IMPORTAÇÃO E ANO (sempre visíveis) */}
       <div className="mb-4 space-y-2">
         <label className="block font-semibold">Importar Excel:</label>
+
         <input
           type="file"
           accept=".xlsx, .xls"
           onChange={handleFileUpload}
-          className="border p-2"
+          className="border p-2 bg-bg text-text rounded"
+          style={{ colorScheme: "dark" }}
         />
 
         <label className="block font-semibold mt-4">Ano:</label>
+
         <select
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
-          className="border p-2"
+          className="border p-2 bg-bg text-text rounded appearance-none"
         >
           {Array.from({ length: 5 }).map((_, i) => {
             const y = new Date().getFullYear() - i;
@@ -267,7 +267,6 @@ export default function Relatorio() {
         </select>
       </div>
 
-      {/* RELATÓRIO (ESCONDIDO POR PADRÃO) */}
       {showReport && (
         <table className="w-full border text-center mt-6 text-xs leading-tight">
           <thead>
