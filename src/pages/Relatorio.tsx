@@ -223,7 +223,6 @@ export default function Relatorio() {
       (p: any) => p.member_id === memberId && p.month === month
     );
   }
-
   return (
     <div className="p-6 font-sans text-base">
       <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos</h1>
@@ -253,7 +252,7 @@ export default function Relatorio() {
           onChange={(e) => setYear(Number(e.target.value))}
           className="border p-2 bg-bg text-text rounded appearance-none"
         >
-          {Array.from({ length: 5 }).
+          {Array.from({ length: 5 }).map((_, i) => {
             const y = new Date().getFullYear() - i;
             return (
               <option key={y} value={y}>
@@ -265,10 +264,10 @@ export default function Relatorio() {
       </div>
 
       {showReport && (
-        <div className="overflow-x-auto rounded border border-gray-700 mt-6">
-          <table className="min-w-[900px] w-full text-center text-xs leading-tight">
-            <thead className="sticky top-0 z-10">
-              <tr style={{ backgroundColor: "#002b5c", color: "white" }}>
+        <div className="relative isolate overflow-x-auto w-full rounded border border-gray-700 mt-6">
+          <table className="min-w-[900px] w-full text-center text-xs leading-tight table-fixed">
+            <thead className="sticky top-0 z-20 bg-[#002b5c] text-white">
+              <tr>
                 <th className="border p-1 text-left">Sócio</th>
                 {[
                   "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
@@ -280,7 +279,6 @@ export default function Relatorio() {
                 ))}
               </tr>
             </thead>
-
             <tbody>
               {members.map((member, idx) => (
                 <tr
@@ -289,7 +287,10 @@ export default function Relatorio() {
                 >
                   <td className="border p-1 text-left">{member.name}</td>
                   {Array.from({ length: 12 }).map((_, monthIndex) => (
-                    <td key={monthIndex} className="border p-1">
+                    <td
+                      key={monthIndex}
+                      className="border p-1 text-green-600 font-bold text-base"
+                    >
                       {hasPayment(member.id, monthIndex + 1) ? "✔" : "—"}
                     </td>
                   ))}
