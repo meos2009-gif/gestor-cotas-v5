@@ -225,7 +225,7 @@ export default function Relatorio() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 font-sans text-base">
       <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos</h1>
 
       {error && <div className="text-red-600 mb-2">{error}</div>}
@@ -253,7 +253,7 @@ export default function Relatorio() {
           onChange={(e) => setYear(Number(e.target.value))}
           className="border p-2 bg-bg text-text rounded appearance-none"
         >
-          {Array.from({ length: 5 }).map((_, i) => {
+          {Array.from({ length: 5 }).
             const y = new Date().getFullYear() - i;
             return (
               <option key={y} value={y}>
