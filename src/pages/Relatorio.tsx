@@ -294,11 +294,15 @@ export default function Relatorio() {
 </td>
 
                   {Array.from({ length: 12 }).map((_, monthIndex) => (
-              <td
+  <td
   key={monthIndex}
   className="border p-1 font-bold text-base w-[36px] text-center text-white"
 >
-  {hasPayment(member.id, monthIndex + 1) ? "✓" : "–"}
+  {hasPayment(member.id, monthIndex + 1) ? (
+    <span className="text-green-400">✓</span>
+  ) : (
+    <span className="text-white">–</span>
+  )}
 </td>
 
 
