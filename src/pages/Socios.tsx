@@ -146,10 +146,10 @@ export default function Socios() {
           <tbody>
             {members.map((m: any) => (
               <tr key={m.id}>
-                <td className="border p-2 text-xs">{m.name}</td>
-                <td className="border p-2 text-xs">{m.contact || "—"}</td>
-                <td className="border p-2 text-xs">{m.monthly_fee || "—"}</td>
-                <td className="border p-2 text-xs">{m.start_date || "—"}</td>
+                <td className="border p-2 text-xs" translate="no">{m.name}</td>
+                <td className="border p-2 text-xs" translate="no">{m.contact || "—"}</td>
+                <td className="border p-2 text-xs" translate="no">{m.monthly_fee || "—"}</td>
+                <td className="border p-2 text-xs" translate="no">{m.start_date || "—"}</td>
 
                 <td className="border p-2 space-x-2">
                   <button
