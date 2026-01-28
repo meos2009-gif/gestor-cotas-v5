@@ -267,9 +267,10 @@ export default function Relatorio() {
       {showReport && (
         <div className="w-full overflow-x-scroll rounded border border-gray-700 mt-6 bg-primary p-2">
          <table className="table-fixed text-center text-xs leading-tight w-fit min-w-max bg-white">
-            <thead className="bg-primary text-white font-semibold">
+            <thead className="bg-primary text-white font-semibold" translate="no">
   <tr>
-    <th className="border p-1 text-left w-[200px]">Sócio</th>
+    <th className="border p-1 text-left w-[200px]" translate="no">Sócio</th>
+
     {[
       "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
       "Jul", "Ago", "Set", "Out", "Nov", "Dez",
@@ -277,6 +278,7 @@ export default function Relatorio() {
       <th
         key={i}
         className="border p-1 text-center w-[36px]"
+        translate="no"
       >
         {m}
       </th>
