@@ -224,17 +224,9 @@ export default function Relatorio() {
     );
   }
 
-  // DEBUG
-  console.log("Membros:", members);
-  console.log("Pagamentos:", payments);
-
   return (
     <div className="p-6">
-
-      {/* TESTE MARIO — para confirmar se este ficheiro é o certo */}
-      <h1 style={{ color: "red", fontSize: "32px" }}>TESTE MARIO</h1>
-
-      <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos (versão nova)</h1>
+      <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos</h1>
 
       {error && <div className="text-red-600 mb-2">{error}</div>}
       {success && <div className="text-green-600 mb-2">{success}</div>}
@@ -275,8 +267,8 @@ export default function Relatorio() {
       {showReport && (
         <div className="overflow-x-auto rounded border border-gray-700 mt-6">
           <table className="min-w-[900px] w-full text-center text-xs leading-tight">
-            <thead>
-              <tr className="bg-gray-800 text-white">
+            <thead className="sticky top-0 z-10">
+              <tr style={{ backgroundColor: "#002b5c", color: "white" }}>
                 <th className="border p-1 text-left">Sócio</th>
                 {[
                   "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
@@ -290,8 +282,11 @@ export default function Relatorio() {
             </thead>
 
             <tbody>
-              {members.map((member) => (
-                <tr key={member.id} className="hover:bg-gray-50">
+              {members.map((member, idx) => (
+                <tr
+                  key={member.id}
+                  className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                >
                   <td className="border p-1 text-left">{member.name}</td>
                   {Array.from({ length: 12 }).map((_, monthIndex) => (
                     <td key={monthIndex} className="border p-1">
