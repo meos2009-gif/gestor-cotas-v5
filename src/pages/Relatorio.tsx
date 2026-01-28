@@ -266,7 +266,7 @@ export default function Relatorio() {
 
       {showReport && (
         <div className="w-full overflow-x-scroll rounded border border-gray-700 mt-6 bg-primary p-2">
-         <table className="table-fixed text-center text-xs leading-tight w-fit min-w-max bg-white">
+         <table className="table-fixed text-center text-xs leading-tight w-fit min-w-max bg-primary text-white">
             <thead className="bg-primary text-white font-semibold" translate="no">
   <tr>
     <th className="border p-1 text-left w-[200px]" translate="no">Sócio</th>
