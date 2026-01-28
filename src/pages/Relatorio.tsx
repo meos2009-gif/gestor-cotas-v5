@@ -230,6 +230,10 @@ export default function Relatorio() {
 
   return (
     <div className="p-6">
+
+      {/* TESTE MARIO — para confirmar se este ficheiro é o certo */}
+      <h1 style={{ color: "red", fontSize: "32px" }}>TESTE MARIO</h1>
+
       <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos (versão nova)</h1>
 
       {error && <div className="text-red-600 mb-2">{error}</div>}
