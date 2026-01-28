@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import logo from "../assets/logo.png";
 import { useState } from "react";
+import AppShell from "./AppShell";
 
 export default function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,7 +16,7 @@ export default function MainLayout() {
     <div className="flex flex-col h-screen bg-bg text-text">
 
       {/* BARRA SUPERIOR */}
-      <header className="w-full bg-primary text-white px-6 py-3 flex items-center justify-between shadow-md">
+      <header className="w-full bg-primary text-white px-6 py-3 flex items-center justify-between shadow-md fixed top-0 left-0 z-20">
 
         {/* LOGO + TÍTULO */}
         <div className="flex items-center space-x-3">
@@ -75,7 +76,7 @@ export default function MainLayout() {
 
       {/* MENU MOBILE */}
       {menuOpen && (
-        <div className="md:hidden bg-primary text-white flex flex-col px-6 py-4 space-y-4 shadow-lg">
+        <div className="md:hidden bg-primary text-white flex flex-col px-6 py-4 space-y-4 shadow-lg fixed top-[72px] left-0 w-full z-10">
           {[
             ["Sócios", "/socios"],
             ["Pagamentos", "/pagamentos"],
@@ -109,8 +110,10 @@ export default function MainLayout() {
       )}
 
       {/* CONTEÚDO */}
-      <main className="flex-1 p-6 overflow-auto pt-24 md:pt-6">
-        <Outlet />
+      <main className="flex-1 overflow-auto pt-24 md:pt-24">
+        <AppShell>
+          <Outlet />
+        </AppShell>
       </main>
     </div>
   );
