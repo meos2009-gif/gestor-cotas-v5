@@ -135,11 +135,11 @@ export default function Socios() {
         <table className="w-full border mt-4">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border p-2">Nome</th>
-              <th className="border p-2">Contacto</th>
-              <th className="border p-2">Cota (€)</th>
-              <th className="border p-2">Admissão</th>
-              <th className="border p-2">Ações</th>
+              <th className="border p-2 text-left font-semibold text-gray-900">Nome</th>              
+              <th className="border p-2 text-gray-900">Contacto</th>
+              <th className="border p-2 text-gray-900">Cota (€)</th>
+              <th className="border p-2 text-gray-900">Admissão</th>
+              <th className="border p-2 text-gray-900">Ações</th>
             </tr>
           </thead>
 

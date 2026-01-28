@@ -223,19 +223,20 @@ export default function Relatorio() {
       (p: any) => p.member_id === memberId && p.month === month
     );
   }
+
   return (
-    <div className="p-6 font-sans text-base">
+    <div className="p-6 bg-bg text-text min-h-screen font-sans text-base">
       <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos</h1>
 
       {error && <div className="text-red-600 mb-2">{error}</div>}
       {success && <div className="text-green-600 mb-2">{success}</div>}
 
       <button
-        onClick={() => setShowReport(!showReport)}
-        className="bg-gray-700 text-white px-4 py-2 rounded mb-4"
-      >
-        {showReport ? "Esconder Relatório" : "Visualizar Relatório"}
-      </button>
+  onClick={() => setShowReport(!showReport)}
+  className="bg-secondary text-primary font-semibold px-4 py-2 rounded shadow hover:bg-accent transition mb-4"
+>
+  {showReport ? "Esconder Relatório" : "Visualizar Relatório"}
+</button>
 
       <div className="mb-4 space-y-2">
         <label className="block font-semibold">Importar Excel:</label>
@@ -253,46 +254,52 @@ export default function Relatorio() {
           className="border p-2 bg-bg text-text rounded appearance-none"
         >
           {Array.from({ length: 5 }).map((_, i) => {
-            const y = new Date().getFullYear() - i;
-            return (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            );
-          })}
+  const y = new Date().getFullYear() - i;
+  return (
+    <option key={y} value={y}>
+      {y}
+    </option>
+  );
+})}
         </select>
       </div>
 
       {showReport && (
-        <div className="relative isolate overflow-x-auto w-full rounded border border-gray-700 mt-6">
-          <table className="min-w-[900px] w-full text-center text-xs leading-tight table-fixed">
-            <thead className="sticky top-0 z-20 bg-[#002b5c] text-white">
-              <tr>
-                <th className="border p-1 text-left">Sócio</th>
-                {[
-                  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-                  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
-                ].map((m, i) => (
-                  <th key={i} className="border p-1">
-                    {m}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+        <div className="w-full overflow-x-auto rounded border border-gray-700 mt-6 bg-primary p-2">
+         <table className="table-fixed text-center text-xs leading-tight w-fit min-w-0 bg-primary text-white">
+            <thead className="bg-primary text-white font-semibold">
+  <tr>
+    <th className="border p-1 text-left w-[200px]">Sócio</th>
+    {[
+      "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+      "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+    ].map((m, i) => (
+      <th
+        key={i}
+        className="border p-1 text-center w-[36px]"
+      >
+        {m}
+      </th>
+    ))}
+  </tr>
+</thead>
+
             <tbody>
               {members.map((member, idx) => (
-                <tr
-                  key={member.id}
-                  className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                >
-                  <td className="border p-1 text-left">{member.name}</td>
+                <tr key={member.id}>
+             <td className="border p-1 text-left text-white w-[260px] max-w-[260px] break-words">
+  {member.name}
+</td>
+
                   {Array.from({ length: 12 }).map((_, monthIndex) => (
-                    <td
-                      key={monthIndex}
-                      className="border p-1 text-green-600 font-bold text-base"
-                    >
-                      {hasPayment(member.id, monthIndex + 1) ? "✔" : "—"}
-                    </td>
+              <td
+  key={monthIndex}
+  className="border p-1 font-bold text-base w-[36px] text-center text-white"
+>
+  {hasPayment(member.id, monthIndex + 1) ? "✓" : "–"}
+</td>
+
+
                   ))}
                 </tr>
               ))}

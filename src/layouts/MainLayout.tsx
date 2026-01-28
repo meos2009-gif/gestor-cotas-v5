@@ -110,7 +110,7 @@ export default function MainLayout() {
       )}
 
       {/* CONTEÚDO */}
-      <main className="flex-1 overflow-auto pt-24 md:pt-24">
+      <main className="flex-1 overflow-x-visible overflow-y-auto pt-24 md:pt-24">
         <AppShell>
           <Outlet />
         </AppShell>
