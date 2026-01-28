@@ -224,7 +224,7 @@ export default function Relatorio() {
     );
   }
 
-  // 🔍 DEBUG: ver dados antes de renderizar
+  // DEBUG
   console.log("Membros:", members);
   console.log("Pagamentos:", payments);
 
