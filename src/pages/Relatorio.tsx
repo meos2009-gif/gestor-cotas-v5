@@ -239,13 +239,18 @@ export default function Relatorio() {
 </button>
 
       <div className="mb-4 space-y-2">
-        <label className="block font-semibold">Importar Excel:</label>
-        <input
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={handleFileUpload}
-          className="border border-gray-600 p-2 bg-gray-800 text-white rounded w-full cursor-pointer"
-        />
+       {/* Importar Excel escondido */}
+{false && (
+  <>
+    <label className="block font-semibold">Importar Excel:</label>
+    <input
+      type="file"
+      accept=".xlsx, .xls"
+      onChange={handleFileUpload}
+      className="border border-gray-600 p-2 bg-gray-800 text-white rounded w-full cursor-pointer"
+    />
+  </>
+)}
 
         <label className="block font-semibold mt-4">Ano:</label>
         <select
