@@ -13,15 +13,27 @@ export default function RelatorioJantares() {
   async function loadData() {
     setError("");
 
-    const { data: membersData } = await supabase
+    // Carregar sócios
+    const { data: membersData, error: membersError } = await supabase
       .from("members")
       .select("*")
       .order("name", { ascending: true });
 
-    const { data: dinnersData } = await supabase
+    if (membersError) {
+      setError("Erro ao carregar sócios.");
+      return;
+    }
+
+    // Carregar pagamentos de jantar
+    const { data: dinnersData, error: dinnersError } = await supabase
       .from("dinner_payments")
-      .select("*")
+      .select("id, member_id, date, opponent, value")
       .order("date", { ascending: true });
+
+    if (dinnersError) {
+      setError("Erro ao carregar pagamentos de jantar.");
+      return;
+    }
 
     setMembers(membersData || []);
     setDinners(dinnersData || []);
@@ -31,11 +43,17 @@ export default function RelatorioJantares() {
     return dinners.filter((d) => d.member_id === id);
   }
 
-  const totalPago = dinners.length * 20;
+  // Soma robusta (funciona mesmo se algum registo antigo não tiver value)
+  const totalPago = dinners.reduce(
+    (sum, d) => sum + (typeof d.value === "number" ? d.value : 20),
+    0
+  );
 
   return (
     <div className="p-6 bg-bg text-text min-h-screen">
       <h1 className="text-xl font-bold mb-4">Relatório de Jantares</h1>
+
+      {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <div className="overflow-x-auto rounded border border-gray-700 bg-primary p-2">
         <table className="w-full text-left text-white text-sm">
@@ -52,6 +70,7 @@ export default function RelatorioJantares() {
             {members.map((m) => {
               const pagos = getPaymentsForMember(m.id);
 
+              // Sócio sem pagamentos
               if (pagos.length === 0) {
                 return (
                   <tr key={m.id} translate="no">
@@ -63,6 +82,7 @@ export default function RelatorioJantares() {
                 );
               }
 
+              // Sócio com pagamentos
               return pagos.map((p, i) => (
                 <tr key={p.id} translate="no">
                   {i === 0 && (
@@ -82,6 +102,7 @@ export default function RelatorioJantares() {
         </table>
       </div>
 
+      {/* TOTAL */}
       <div className="mt-4 text-lg font-bold text-secondary">
         Total pago: {totalPago}€
       </div>
