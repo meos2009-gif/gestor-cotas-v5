@@ -3,14 +3,20 @@ import { supabase } from "../supabaseClient";
 
 export default function Jantar() {
   const [members, setMembers] = useState([]);
+  const [dinners, setDinners] = useState([]);
+
   const [memberId, setMemberId] = useState("");
   const [date, setDate] = useState("");
   const [opponent, setOpponent] = useState("");
+
+  const [editId, setEditId] = useState(null);
+
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     loadMembers();
+    loadDinners();
   }, []);
 
   async function loadMembers() {
@@ -22,6 +28,32 @@ export default function Jantar() {
     if (!error) setMembers(data);
   }
 
+  async function loadDinners() {
+    const { data, error } = await supabase
+      .from("dinner_payments")
+      .select("*")
+      .order("date", { ascending: true });
+
+    if (!error) setDinners(data);
+  }
+
+  function getMemberName(id) {
+    const m = members.find((x) => x.id === id);
+    return m ? m.name : "—";
+  }
+
+  function startEdit(d) {
+    setEditId(d.id);
+    setMemberId(d.member_id);
+    setDate(d.date);
+    setOpponent(d.opponent);
+  }
+
+  async function deleteDinner(id) {
+    await supabase.from("dinner_payments").delete().eq("id", id);
+    loadDinners();
+  }
+
   async function saveDinner() {
     setError("");
     setSuccess("");
@@ -31,19 +63,37 @@ export default function Jantar() {
       return;
     }
 
-    const { error } = await supabase.from("dinner_payments").insert({
-      member_id: memberId,
-      value: 20,
-      date,
-      opponent,
-    });
+    if (editId) {
+      // EDITAR
+      const { error } = await supabase
+        .from("dinner_payments")
+        .update({
+          member_id: memberId,
+          date,
+          opponent,
+        })
+        .eq("id", editId);
 
-    if (error) {
-      setError("Erro ao registar jantar.");
-      return;
+      if (!error) {
+        setSuccess("Jantar atualizado com sucesso!");
+        setEditId(null);
+        loadDinners();
+      }
+    } else {
+      // INSERIR
+      const { error } = await supabase.from("dinner_payments").insert({
+        member_id: memberId,
+        value: 20,
+        date,
+        opponent,
+      });
+
+      if (!error) {
+        setSuccess("Jantar registado com sucesso!");
+        loadDinners();
+      }
     }
 
-    setSuccess("Jantar registado com sucesso!");
     setMemberId("");
     setDate("");
     setOpponent("");
@@ -56,6 +106,7 @@ export default function Jantar() {
       {error && <div className="text-red-500 mb-2">{error}</div>}
       {success && <div className="text-green-500 mb-2">{success}</div>}
 
+      {/* FORMULÁRIO */}
       <label className="block mb-2">Sócio:</label>
       <select
         value={memberId}
@@ -90,8 +141,59 @@ export default function Jantar() {
         onClick={saveDinner}
         className="bg-secondary text-primary font-semibold px-4 py-2 rounded shadow hover:bg-accent transition"
       >
-        Registar Jantar
+        {editId ? "Guardar Alterações" : "Registar Jantar"}
       </button>
+
+      {/* LISTA DE PAGAMENTOS */}
+      <h2 className="text-lg font-bold mt-6 mb-2">Pagamentos registados</h2>
+
+      <div className="overflow-x-auto rounded border border-gray-700 bg-primary p-2">
+        <table className="w-full text-left text-white text-sm">
+          <thead className="bg-primary text-white font-semibold" translate="no">
+            <tr>
+              <th className="border p-2">Sócio</th>
+              <th className="border p-2">Data</th>
+              <th className="border p-2">Adversário</th>
+              <th className="border p-2">Valor</th>
+              <th className="border p-2">Ações</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {dinners.map((d) => (
+              <tr key={d.id} translate="no">
+                <td className="border p-2">{getMemberName(d.member_id)}</td>
+                <td className="border p-2">{d.date}</td>
+                <td className="border p-2">{d.opponent}</td>
+                <td className="border p-2">20€</td>
+                <td className="border p-2 space-x-2">
+                  <button
+                    onClick={() => startEdit(d)}
+                    className="bg-secondary text-primary px-2 py-1 rounded text-xs"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    onClick={() => deleteDinner(d.id)}
+                    className="bg-red-600 text-white px-2 py-1 rounded text-xs"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+
+            {dinners.length === 0 && (
+              <tr>
+                <td className="border p-2 text-center" colSpan={5}>
+                  Nenhum jantar registado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
