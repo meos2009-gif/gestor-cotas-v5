@@ -6,6 +6,8 @@ import AppShell from "./AppShell";
 
 export default function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [paymentsOpen, setPaymentsOpen] = useState(false); // submenu desktop
+  const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false); // submenu mobile
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -41,30 +43,95 @@ export default function MainLayout() {
         </button>
 
         {/* MENU HORIZONTAL (desktop) */}
-        <nav className="hidden md:flex space-x-6 text-sm font-medium">
-          {[
-            ["Sócios", "/socios"],
-            ["Pagamentos", "/pagamentos"],
-            ["Jantar", "/jantar"],
-            ["Relatório", "/relatorio"],
-            ["Relatório Jantares", "/relatorio-jantares"],
-            ["Dashboard", "/dashboard"],
-            ["Configurações", "/config"],
-          ].map(([label, path]) => (
-            <NavLink
-              key={path}
-              to={path}
-              className={({ isActive }) =>
-                `px-2 py-1 rounded transition ${
-                  isActive
-                    ? "text-secondary font-semibold"
-                    : "hover:text-gray-300"
-                }`
-              }
+        <nav className="hidden md:flex space-x-6 text-sm font-medium items-center">
+
+          {/* Sócios */}
+          <NavLink
+            to="/socios"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Sócios
+          </NavLink>
+
+          {/* PAGAMENTOS (submenu) */}
+          <div className="relative">
+            <button
+              onClick={() => setPaymentsOpen(!paymentsOpen)}
+              className="px-2 py-1 rounded hover:text-gray-300 transition flex items-center space-x-1"
             >
-              {label}
-            </NavLink>
-          ))}
+              <span className="font-medium">Pagamentos</span>
+              <span className="text-xs">{paymentsOpen ? "▲" : "▼"}</span>
+            </button>
+
+            {paymentsOpen && (
+              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-40 z-30">
+                <NavLink
+                  to="/pagamentos"
+                  className="px-4 py-2 hover:bg-secondary hover:text-primary transition"
+                >
+                  Cotas
+                </NavLink>
+
+                <NavLink
+                  to="/jantar"
+                  className="px-4 py-2 hover:bg-secondary hover:text-primary transition"
+                >
+                  Jantar
+                </NavLink>
+              </div>
+            )}
+          </div>
+
+          {/* Relatórios */}
+          <NavLink
+            to="/relatorio"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Relatório
+          </NavLink>
+
+          <NavLink
+            to="/relatorio-jantares"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Relatório Jantares
+          </NavLink>
+
+          {/* Dashboard */}
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Dashboard
+          </NavLink>
+
+          {/* Config */}
+          <NavLink
+            to="/config"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Configurações
+          </NavLink>
         </nav>
 
         {/* LOGOUT (desktop) */}
@@ -79,30 +146,75 @@ export default function MainLayout() {
       {/* MENU MOBILE */}
       {menuOpen && (
         <div className="md:hidden bg-primary text-white flex flex-col px-6 py-4 space-y-4 shadow-lg fixed top-[72px] left-0 w-full z-10">
-          {[
-            ["Sócios", "/socios"],
-            ["Pagamentos", "/pagamentos"],
-            ["Jantar", "/jantar"],
-            ["Relatório", "/relatorio"],
-            ["Relatório Jantares", "/relatorio-jantares"],
-            ["Dashboard", "/dashboard"],
-            ["Configurações", "/config"],
-          ].map(([label, path]) => (
-            <NavLink
-              key={path}
-              to={path}
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `py-2 rounded transition ${
-                  isActive
-                    ? "text-secondary font-semibold"
-                    : "hover:text-gray-300"
-                }`
-              }
-            >
-              {label}
-            </NavLink>
-          ))}
+
+          <NavLink
+            to="/socios"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Sócios
+          </NavLink>
+
+          {/* PAGAMENTOS MOBILE */}
+          <button
+            onClick={() => setPaymentsMobileOpen(!paymentsMobileOpen)}
+            className="py-2 flex justify-between items-center"
+          >
+            <span>Pagamentos</span>
+            <span>{paymentsMobileOpen ? "▲" : "▼"}</span>
+          </button>
+
+          {paymentsMobileOpen && (
+            <div className="ml-4 flex flex-col space-y-2">
+              <NavLink
+                to="/pagamentos"
+                onClick={() => setMenuOpen(false)}
+                className="py-1 hover:text-secondary"
+              >
+                Cotas
+              </NavLink>
+
+              <NavLink
+                to="/jantar"
+                onClick={() => setMenuOpen(false)}
+                className="py-1 hover:text-secondary"
+              >
+                Jantar
+              </NavLink>
+            </div>
+          )}
+
+          <NavLink
+            to="/relatorio"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Relatório
+          </NavLink>
+
+          <NavLink
+            to="/relatorio-jantares"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Relatório Jantares
+          </NavLink>
+
+          <NavLink
+            to="/dashboard"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Dashboard
+          </NavLink>
+
+          <NavLink
+            to="/config"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Configurações
+          </NavLink>
 
           <button
             onClick={handleLogout}
