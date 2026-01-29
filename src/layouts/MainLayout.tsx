@@ -45,7 +45,9 @@ export default function MainLayout() {
           {[
             ["Sócios", "/socios"],
             ["Pagamentos", "/pagamentos"],
+            ["Jantar", "/jantar"],
             ["Relatório", "/relatorio"],
+            ["Relatório Jantares", "/relatorio-jantares"],
             ["Dashboard", "/dashboard"],
             ["Configurações", "/config"],
           ].map(([label, path]) => (
@@ -80,7 +82,9 @@ export default function MainLayout() {
           {[
             ["Sócios", "/socios"],
             ["Pagamentos", "/pagamentos"],
+            ["Jantar", "/jantar"],
             ["Relatório", "/relatorio"],
+            ["Relatório Jantares", "/relatorio-jantares"],
             ["Dashboard", "/dashboard"],
             ["Configurações", "/config"],
           ].map(([label, path]) => (

@@ -9,6 +9,10 @@ import Dashboard from "./pages/Dashboard";
 import Config from "./pages/Config";
 import Relatorio from "./pages/Relatorio";
 
+// IMPORTA AS NOVAS PÁGINAS
+import Jantar from "./pages/Jantar";
+import RelatorioJantares from "./pages/RelatorioJantares";
+
 export default function App() {
   return (
     <Routes>
@@ -30,6 +34,10 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/config" element={<Config />} />
         <Route path="/relatorio" element={<Relatorio />} />
+
+        {/* 🔵 NOVAS ROTAS */}
+        <Route path="/jantar" element={<Jantar />} />
+        <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
       </Route>
 
       {/* CATCH-ALL PARA EVITAR 404 */}
