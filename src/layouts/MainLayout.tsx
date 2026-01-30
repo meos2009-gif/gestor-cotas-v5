@@ -6,8 +6,11 @@ import AppShell from "./AppShell";
 
 export default function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [paymentsOpen, setPaymentsOpen] = useState(false); // submenu desktop
-  const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false); // submenu mobile
+  const [paymentsOpen, setPaymentsOpen] = useState(false); 
+  const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false); 
+
+  const [reportsOpen, setReportsOpen] = useState(false); // submenu relatórios desktop
+  const [reportsMobileOpen, setReportsMobileOpen] = useState(false); // submenu relatórios mobile
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -86,28 +89,34 @@ export default function MainLayout() {
             )}
           </div>
 
-          {/* Relatórios */}
-          <NavLink
-            to="/relatorio"
-            className={({ isActive }) =>
-              `px-2 py-1 rounded transition ${
-                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
-              }`
-            }
-          >
-            Relatório
-          </NavLink>
+          {/* RELATÓRIOS (submenu) */}
+          <div className="relative">
+            <button
+              onClick={() => setReportsOpen(!reportsOpen)}
+              className="px-2 py-1 rounded hover:text-gray-300 transition flex items-center space-x-1"
+            >
+              <span className="font-medium">Relatórios</span>
+              <span className="text-xs">{reportsOpen ? "▲" : "▼"}</span>
+            </button>
 
-          <NavLink
-            to="/relatorio-jantares"
-            className={({ isActive }) =>
-              `px-2 py-1 rounded transition ${
-                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
-              }`
-            }
-          >
-            Relatório Jantares
-          </NavLink>
+            {reportsOpen && (
+              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-30">
+                <NavLink
+                  to="/relatorio"
+                  className="px-4 py-2 hover:bg-secondary hover:text-primary transition"
+                >
+                  Relatório de Cotas
+                </NavLink>
+
+                <NavLink
+                  to="/relatorio-jantares"
+                  className="px-4 py-2 hover:bg-secondary hover:text-primary transition"
+                >
+                  Relatório de Jantares
+                </NavLink>
+              </div>
+            )}
+          </div>
 
           {/* Dashboard */}
           <NavLink
@@ -184,21 +193,34 @@ export default function MainLayout() {
             </div>
           )}
 
-          <NavLink
-            to="/relatorio"
-            onClick={() => setMenuOpen(false)}
-            className="py-2 hover:text-secondary"
+          {/* RELATÓRIOS MOBILE */}
+          <button
+            onClick={() => setReportsMobileOpen(!reportsMobileOpen)}
+            className="py-2 flex justify-between items-center"
           >
-            Relatório
-          </NavLink>
+            <span>Relatórios</span>
+            <span>{reportsMobileOpen ? "▲" : "▼"}</span>
+          </button>
 
-          <NavLink
-            to="/relatorio-jantares"
-            onClick={() => setMenuOpen(false)}
-            className="py-2 hover:text-secondary"
-          >
-            Relatório Jantares
-          </NavLink>
+          {reportsMobileOpen && (
+            <div className="ml-4 flex flex-col space-y-2">
+              <NavLink
+                to="/relatorio"
+                onClick={() => setMenuOpen(false)}
+                className="py-1 hover:text-secondary"
+              >
+                Relatório de Cotas
+              </NavLink>
+
+              <NavLink
+                to="/relatorio-jantares"
+                onClick={() => setMenuOpen(false)}
+                className="py-1 hover:text-secondary"
+              >
+                Relatório de Jantares
+              </NavLink>
+            </div>
+          )}
 
           <NavLink
             to="/dashboard"
