@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['logo192.png', 'logo512.png'], // <--- ESSENCIAL
       manifest: {
         name: 'Gestor de Cotas - UD Fafe A60',
         short_name: 'UD Fafe A60',
