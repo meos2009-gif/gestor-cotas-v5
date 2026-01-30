@@ -12,6 +12,7 @@ import Relatorio from "./pages/Relatorio";
 // IMPORTA AS NOVAS PÁGINAS
 import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
+import Tesouraria from "./pages/Tesouraria";   // 🔵 NOVO IMPORT
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
         {/* 🔵 NOVAS ROTAS */}
         <Route path="/jantar" element={<Jantar />} />
         <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
+        <Route path="/tesouraria" element={<Tesouraria />} />   {/* 🔵 NOVA ROTA */}
       </Route>
 
       {/* CATCH-ALL PARA EVITAR 404 */}

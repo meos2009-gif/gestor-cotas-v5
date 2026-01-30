@@ -9,8 +9,8 @@ export default function MainLayout() {
   const [paymentsOpen, setPaymentsOpen] = useState(false); 
   const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false); 
 
-  const [reportsOpen, setReportsOpen] = useState(false); // submenu relatórios desktop
-  const [reportsMobileOpen, setReportsMobileOpen] = useState(false); // submenu relatórios mobile
+  const [reportsOpen, setReportsOpen] = useState(false);
+  const [reportsMobileOpen, setReportsMobileOpen] = useState(false);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -60,7 +60,7 @@ export default function MainLayout() {
             Sócios
           </NavLink>
 
-          {/* PAGAMENTOS (submenu) */}
+          {/* PAGAMENTOS */}
           <div className="relative">
             <button
               onClick={() => setPaymentsOpen(!paymentsOpen)}
@@ -89,7 +89,7 @@ export default function MainLayout() {
             )}
           </div>
 
-          {/* RELATÓRIOS (submenu) */}
+          {/* RELATÓRIOS */}
           <div className="relative">
             <button
               onClick={() => setReportsOpen(!reportsOpen)}
@@ -117,6 +117,18 @@ export default function MainLayout() {
               </div>
             )}
           </div>
+
+          {/* TESOURARIA — NOVO ITEM */}
+          <NavLink
+            to="/tesouraria"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Tesouraria
+          </NavLink>
 
           {/* Dashboard */}
           <NavLink
@@ -221,6 +233,15 @@ export default function MainLayout() {
               </NavLink>
             </div>
           )}
+
+          {/* TESOURARIA MOBILE — NOVO ITEM */}
+          <NavLink
+            to="/tesouraria"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Tesouraria
+          </NavLink>
 
           <NavLink
             to="/dashboard"
