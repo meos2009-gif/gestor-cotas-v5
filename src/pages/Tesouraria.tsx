@@ -130,8 +130,8 @@ export default function Tesouraria() {
       </div>
 
       {/* TABELA */}
-      <div className="bg-primary text-white rounded-lg shadow-md overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="bg-primary text-white rounded-lg shadow-md overflow-hidden overflow-x-auto">
+  <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-secondary text-primary">
             <tr>
               <th className="p-3 text-left">Data</th>
