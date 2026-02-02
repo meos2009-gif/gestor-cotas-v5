@@ -1,4 +1,3 @@
-// TESTE MARIO 123
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -8,6 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['logo192.png', 'logo512.png'],
       manifest: {
         name: 'Gestor de Cotas - UD Fafe A60',
         short_name: 'UD Fafe A60',
@@ -17,12 +17,12 @@ export default defineConfig({
         theme_color: '#0A2A43',
         icons: [
           {
-            src: new URL('./src/assets/logo192.png', import.meta.url).toString(),
+            src: '/logo192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: new URL('./src/assets/logo512.png', import.meta.url).toString(),
+            src: '/logo512.png',
             sizes: '512x512',
             type: 'image/png'
           }
