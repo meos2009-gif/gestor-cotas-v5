@@ -8,7 +8,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo192.png', 'logo512.png'], // <--- ESSENCIAL
       manifest: {
         name: 'Gestor de Cotas - UD Fafe A60',
         short_name: 'UD Fafe A60',
@@ -18,12 +17,12 @@ export default defineConfig({
         theme_color: '#0A2A43',
         icons: [
           {
-            src: 'logo192.png',
+            src: new URL('./src/assets/logo192.png', import.meta.url).toString(),
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'logo512.png',
+            src: new URL('./src/assets/logo512.png', import.meta.url).toString(),
             sizes: '512x512',
             type: 'image/png'
           }
