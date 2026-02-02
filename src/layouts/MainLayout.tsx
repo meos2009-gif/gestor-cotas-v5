@@ -1,13 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import logo from "../assets/logo.png";
 import { useState } from "react";
 import AppShell from "./AppShell";
 
 export default function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [paymentsOpen, setPaymentsOpen] = useState(false); 
-  const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false); 
+  const [paymentsOpen, setPaymentsOpen] = useState(false);
+  const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
   const [reportsOpen, setReportsOpen] = useState(false);
   const [reportsMobileOpen, setReportsMobileOpen] = useState(false);
@@ -26,7 +25,7 @@ export default function MainLayout() {
         {/* LOGO + TÍTULO */}
         <div className="flex items-center space-x-3">
           <img
-            src={logo}
+            src="/logo192.png"
             alt="Logo"
             className="w-12 h-12 rounded-full object-cover border-2 border-secondary"
           />
@@ -48,7 +47,6 @@ export default function MainLayout() {
         {/* MENU HORIZONTAL (desktop) */}
         <nav className="hidden md:flex space-x-6 text-sm font-medium items-center">
 
-          {/* Sócios */}
           <NavLink
             to="/socios"
             className={({ isActive }) =>
@@ -118,7 +116,6 @@ export default function MainLayout() {
             )}
           </div>
 
-          {/* TESOURARIA — NOVO ITEM */}
           <NavLink
             to="/tesouraria"
             className={({ isActive }) =>
@@ -130,7 +127,6 @@ export default function MainLayout() {
             Tesouraria
           </NavLink>
 
-          {/* Dashboard */}
           <NavLink
             to="/dashboard"
             className={({ isActive }) =>
@@ -142,7 +138,6 @@ export default function MainLayout() {
             Dashboard
           </NavLink>
 
-          {/* Config */}
           <NavLink
             to="/config"
             className={({ isActive }) =>
@@ -234,7 +229,6 @@ export default function MainLayout() {
             </div>
           )}
 
-          {/* TESOURARIA MOBILE — NOVO ITEM */}
           <NavLink
             to="/tesouraria"
             onClick={() => setMenuOpen(false)}
