@@ -132,7 +132,27 @@ export default function Tesouraria() {
           {saldo.toFixed(2)} €
         </p>
       </div>
+{/* TOTAIS DO MÊS */}
+<div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
+  <h2 className="text-xl font-bold">Totais do Mês</h2>
 
+  <div className="mt-4 space-y-2">
+    <p className="text-lg">
+      <span className="font-semibold text-green-400">Entradas:</span>{" "}
+      {totalEntradasMes.toFixed(2)} €
+    </p>
+
+    <p className="text-lg">
+      <span className="font-semibold text-red-400">Saídas:</span>{" "}
+      {totalSaidasMes.toFixed(2)} €
+    </p>
+
+    <p className="text-xl font-bold mt-2">
+      <span className="text-secondary">Saldo Mensal:</span>{" "}
+      {saldoMensal.toFixed(2)} €
+    </p>
+  </div>
+</div>
       {/* TOTAIS DO MÊS */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-bold">Totais do Mês</h2>
