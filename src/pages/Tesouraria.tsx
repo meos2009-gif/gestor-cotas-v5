@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 export default function Tesouraria() {
+  const [allMovements, setAllMovements] = useState([]);
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,40 +19,50 @@ export default function Tesouraria() {
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState(new Date().getFullYear());
 
+  // CARREGAR TODOS OS MOVIMENTOS (SEM FILTRO)
   async function loadMovements() {
     setLoading(true);
 
-    let query = supabase
+    const { data, error } = await supabase
       .from("treasury_movements")
       .select("*")
       .order("date", { ascending: true });
 
-    // FILTRAR POR MÊS E ANO
-    if (mes) {
-      const inicio = `${ano}-${mes}-01`;
-      const fim = `${ano}-${mes}-31`;
-
-      query = query
-        .gte("date", inicio)
-        .lte("date", fim);
+    if (!error && data) {
+      setAllMovements(data);
     }
 
-    const { data, error } = await query;
-
-    if (!error) setMovements(data);
     setLoading(false);
   }
 
   useEffect(() => {
     loadMovements();
-  }, [mes, ano]);
+  }, []);
+
+  // FILTRAR NO FRONTEND
+  useEffect(() => {
+    if (!mes) {
+      setMovements(allMovements);
+      return;
+    }
+
+    const filtered = allMovements.filter((m) => {
+      const d = new Date(m.date);
+      const mMes = String(d.getMonth() + 1).padStart(2, "0");
+      const mAno = d.getFullYear();
+
+      return mMes === mes && mAno === Number(ano);
+    });
+
+    setMovements(filtered);
+  }, [mes, ano, allMovements]);
 
   // SALDO TOTAL
-  const saldo = movements.reduce((acc, m) => {
+  const saldo = allMovements.reduce((acc, m) => {
     return m.type === "entrada" ? acc + Number(m.value) : acc - Number(m.value);
   }, 0);
 
-  // TOTAIS DO MÊS
+  // TOTAIS DO MÊS (baseados em movements filtrados)
   const totalEntradasMes = movements
     .filter((m) => m.type === "entrada")
     .reduce((acc, m) => acc + Number(m.value), 0);
@@ -132,27 +143,7 @@ export default function Tesouraria() {
           {saldo.toFixed(2)} €
         </p>
       </div>
-{/* TOTAIS DO MÊS */}
-<div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
-  <h2 className="text-xl font-bold">Totais do Mês</h2>
 
-  <div className="mt-4 space-y-2">
-    <p className="text-lg">
-      <span className="font-semibold text-green-400">Entradas:</span>{" "}
-      {totalEntradasMes.toFixed(2)} €
-    </p>
-
-    <p className="text-lg">
-      <span className="font-semibold text-red-400">Saídas:</span>{" "}
-      {totalSaidasMes.toFixed(2)} €
-    </p>
-
-    <p className="text-xl font-bold mt-2">
-      <span className="text-secondary">Saldo Mensal:</span>{" "}
-      {saldoMensal.toFixed(2)} €
-    </p>
-  </div>
-</div>
       {/* TOTAIS DO MÊS */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-bold">Totais do Mês</h2>
@@ -178,7 +169,6 @@ export default function Tesouraria() {
       {/* FILTROS */}
       <div className="flex space-x-4 mb-6">
 
-        {/* MÊS */}
         <select
           value={mes}
           onChange={(e) => setMes(e.target.value)}
@@ -199,7 +189,6 @@ export default function Tesouraria() {
           <option value="12">Dezembro</option>
         </select>
 
-        {/* ANO */}
         <select
           value={ano}
           onChange={(e) => setAno(e.target.value)}
