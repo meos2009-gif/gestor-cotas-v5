@@ -18,8 +18,10 @@ export default function Tesouraria() {
   // FILTROS
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState(new Date().getFullYear());
+  const [categoriaFiltro, setCategoriaFiltro] = useState("");
+  const [tipoFiltro, setTipoFiltro] = useState("");
 
-  // CARREGAR TODOS OS MOVIMENTOS (SEM FILTRO)
+  // CARREGAR TODOS OS MOVIMENTOS
   async function loadMovements() {
     setLoading(true);
 
@@ -39,30 +41,39 @@ export default function Tesouraria() {
     loadMovements();
   }, []);
 
-  // FILTRAR NO FRONTEND
+  // FILTRAGEM NO FRONTEND
   useEffect(() => {
-    if (!mes) {
-      setMovements(allMovements);
-      return;
+    let filtered = [...allMovements];
+
+    // FILTRO MÊS/ANO
+    if (mes) {
+      filtered = filtered.filter((m) => {
+        const d = new Date(m.date);
+        const mMes = String(d.getMonth() + 1).padStart(2, "0");
+        const mAno = d.getFullYear();
+        return mMes === mes && mAno === Number(ano);
+      });
     }
 
-    const filtered = allMovements.filter((m) => {
-      const d = new Date(m.date);
-      const mMes = String(d.getMonth() + 1).padStart(2, "0");
-      const mAno = d.getFullYear();
+    // FILTRO CATEGORIA
+    if (categoriaFiltro) {
+      filtered = filtered.filter((m) => m.category === categoriaFiltro);
+    }
 
-      return mMes === mes && mAno === Number(ano);
-    });
+    // FILTRO TIPO (entrada/saida)
+    if (tipoFiltro) {
+      filtered = filtered.filter((m) => m.type === tipoFiltro);
+    }
 
     setMovements(filtered);
-  }, [mes, ano, allMovements]);
+  }, [mes, ano, categoriaFiltro, tipoFiltro, allMovements]);
 
   // SALDO TOTAL
   const saldo = allMovements.reduce((acc, m) => {
     return m.type === "entrada" ? acc + Number(m.value) : acc - Number(m.value);
   }, 0);
 
-  // TOTAIS DO MÊS (baseados em movements filtrados)
+  // TOTAIS DO MÊS
   const totalEntradasMes = movements
     .filter((m) => m.type === "entrada")
     .reduce((acc, m) => acc + Number(m.value), 0);
@@ -169,6 +180,7 @@ export default function Tesouraria() {
       {/* FILTROS */}
       <div className="flex space-x-4 mb-6">
 
+        {/* MÊS */}
         <select
           value={mes}
           onChange={(e) => setMes(e.target.value)}
@@ -189,6 +201,7 @@ export default function Tesouraria() {
           <option value="12">Dezembro</option>
         </select>
 
+        {/* ANO */}
         <select
           value={ano}
           onChange={(e) => setAno(e.target.value)}
@@ -197,6 +210,31 @@ export default function Tesouraria() {
           <option value={2024}>2024</option>
           <option value={2025}>2025</option>
           <option value={2026}>2026</option>
+        </select>
+
+        {/* CATEGORIA */}
+        <select
+          value={categoriaFiltro}
+          onChange={(e) => setCategoriaFiltro(e.target.value)}
+          className="border p-2 rounded bg-white text-black"
+        >
+          <option value="">Todas as categorias</option>
+          <option value="jantar">Jantar</option>
+          <option value="cotas">Cotas</option>
+          <option value="combustivel">Combustível</option>
+          <option value="material">Material</option>
+          <option value="outros">Outros</option>
+        </select>
+
+        {/* TIPO */}
+        <select
+          value={tipoFiltro}
+          onChange={(e) => setTipoFiltro(e.target.value)}
+          className="border p-2 rounded bg-white text-black"
+        >
+          <option value="">Entradas + Saídas</option>
+          <option value="entrada">Só Entradas</option>
+          <option value="saida">Só Saídas</option>
         </select>
       </div>
 
