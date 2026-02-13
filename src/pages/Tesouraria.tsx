@@ -14,12 +14,29 @@ export default function Tesouraria() {
   const [value, setValue] = useState("");
   const [date, setDate] = useState("");
 
+  // FILTROS
+  const [mes, setMes] = useState("");
+  const [ano, setAno] = useState(new Date().getFullYear());
+
   async function loadMovements() {
     setLoading(true);
-    const { data, error } = await supabase
+
+    let query = supabase
       .from("treasury_movements")
       .select("*")
       .order("date", { ascending: true });
+
+    // FILTRAR POR MÊS E ANO
+    if (mes) {
+      const inicio = `${ano}-${mes}-01`;
+      const fim = `${ano}-${mes}-31`;
+
+      query = query
+        .gte("date", inicio)
+        .lte("date", fim);
+    }
+
+    const { data, error } = await query;
 
     if (!error) setMovements(data);
     setLoading(false);
@@ -27,11 +44,23 @@ export default function Tesouraria() {
 
   useEffect(() => {
     loadMovements();
-  }, []);
+  }, [mes, ano]);
 
+  // SALDO TOTAL
   const saldo = movements.reduce((acc, m) => {
     return m.type === "entrada" ? acc + Number(m.value) : acc - Number(m.value);
   }, 0);
+
+  // TOTAIS DO MÊS
+  const totalEntradasMes = movements
+    .filter((m) => m.type === "entrada")
+    .reduce((acc, m) => acc + Number(m.value), 0);
+
+  const totalSaidasMes = movements
+    .filter((m) => m.type === "saida")
+    .reduce((acc, m) => acc + Number(m.value), 0);
+
+  const saldoMensal = totalEntradasMes - totalSaidasMes;
 
   async function saveMovement() {
     if (!value || !date) return;
@@ -96,12 +125,70 @@ export default function Tesouraria() {
   return (
     <div className="p-6">
 
-      {/* SALDO */}
+      {/* SALDO TOTAL */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-bold">Saldo Atual</h2>
         <p className="text-3xl font-bold mt-2 text-secondary">
           {saldo.toFixed(2)} €
         </p>
+      </div>
+
+      {/* TOTAIS DO MÊS */}
+      <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
+        <h2 className="text-xl font-bold">Totais do Mês</h2>
+
+        <div className="mt-4 space-y-2">
+          <p className="text-lg">
+            <span className="font-semibold text-green-400">Entradas:</span>{" "}
+            {totalEntradasMes.toFixed(2)} €
+          </p>
+
+          <p className="text-lg">
+            <span className="font-semibold text-red-400">Saídas:</span>{" "}
+            {totalSaidasMes.toFixed(2)} €
+          </p>
+
+          <p className="text-xl font-bold mt-2">
+            <span className="text-secondary">Saldo Mensal:</span>{" "}
+            {saldoMensal.toFixed(2)} €
+          </p>
+        </div>
+      </div>
+
+      {/* FILTROS */}
+      <div className="flex space-x-4 mb-6">
+
+        {/* MÊS */}
+        <select
+          value={mes}
+          onChange={(e) => setMes(e.target.value)}
+          className="border p-2 rounded bg-white text-black"
+        >
+          <option value="">Todos os meses</option>
+          <option value="01">Janeiro</option>
+          <option value="02">Fevereiro</option>
+          <option value="03">Março</option>
+          <option value="04">Abril</option>
+          <option value="05">Maio</option>
+          <option value="06">Junho</option>
+          <option value="07">Julho</option>
+          <option value="08">Agosto</option>
+          <option value="09">Setembro</option>
+          <option value="10">Outubro</option>
+          <option value="11">Novembro</option>
+          <option value="12">Dezembro</option>
+        </select>
+
+        {/* ANO */}
+        <select
+          value={ano}
+          onChange={(e) => setAno(e.target.value)}
+          className="border p-2 rounded bg-white text-black"
+        >
+          <option value={2024}>2024</option>
+          <option value={2025}>2025</option>
+          <option value={2026}>2026</option>
+        </select>
       </div>
 
       {/* BOTÕES */}
@@ -131,7 +218,7 @@ export default function Tesouraria() {
 
       {/* TABELA */}
       <div className="bg-primary text-white rounded-lg shadow-md overflow-hidden overflow-x-auto">
-  <table className="w-full text-sm min-w-[600px]">
+        <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-secondary text-primary">
             <tr>
               <th className="p-3 text-left">Data</th>
@@ -174,7 +261,6 @@ export default function Tesouraria() {
                     {Number(m.value).toFixed(2)} €
                   </td>
 
-                  {/* BOTÃO EDITAR */}
                   <td className="p-3 text-right">
                     <button
                       onClick={() => openEditModal(m)}
