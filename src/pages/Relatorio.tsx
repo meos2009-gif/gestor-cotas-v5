@@ -22,6 +22,9 @@ export default function Relatorio() {
   const [success, setSuccess] = useState("");
   const [showReport, setShowReport] = useState(false);
 
+  // NOVO: filtro por sócio
+  const [socioFiltro, setSocioFiltro] = useState("");
+
   useEffect(() => {
     load();
   }, [year]);
@@ -224,6 +227,11 @@ export default function Relatorio() {
     );
   }
 
+  // NOVO: lista filtrada de sócios
+  const membersFiltrados = socioFiltro
+    ? members.filter((m) => m.id === socioFiltro)
+    : members;
+
   return (
     <div className="p-6 bg-bg text-text min-h-screen font-sans text-base">
       <h1 className="text-xl font-bold mb-4">Relatório de Pagamentos</h1>
@@ -232,26 +240,31 @@ export default function Relatorio() {
       {success && <div className="text-green-600 mb-2">{success}</div>}
 
       <button
-  onClick={() => setShowReport(!showReport)}
-  className="bg-secondary text-primary font-semibold px-4 py-2 rounded shadow hover:bg-accent transition mb-4"
->
-  {showReport ? "Esconder Relatório" : "Visualizar Relatório"}
-</button>
+        onClick={() => setShowReport(!showReport)}
+        className="bg-secondary text-primary font-semibold px-4 py-2 rounded shadow hover:bg-accent transition mb-4"
+      >
+        {showReport ? "Esconder Relatório" : "Visualizar Relatório"}
+      </button>
 
+      {/* FILTROS */}
       <div className="mb-4 space-y-2">
-       {/* Importar Excel escondido */}
-{false && (
-  <>
-    <label className="block font-semibold">Importar Excel:</label>
-    <input
-      type="file"
-      accept=".xlsx, .xls"
-      onChange={handleFileUpload}
-      className="border border-gray-600 p-2 bg-gray-800 text-white rounded w-full cursor-pointer"
-    />
-  </>
-)}
 
+        {/* FILTRO POR SÓCIO */}
+        <label className="block font-semibold">Sócio:</label>
+        <select
+          value={socioFiltro}
+          onChange={(e) => setSocioFiltro(e.target.value)}
+          className="border p-2 bg-bg text-text rounded appearance-none"
+        >
+          <option value="">Todos os sócios</option>
+          {members.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+
+        {/* FILTRO POR ANO */}
         <label className="block font-semibold mt-4">Ano:</label>
         <select
           value={year}
@@ -259,58 +272,58 @@ export default function Relatorio() {
           className="border p-2 bg-bg text-text rounded appearance-none"
         >
           {Array.from({ length: 5 }).map((_, i) => {
-  const y = new Date().getFullYear() - i;
-  return (
-    <option key={y} value={y}>
-      {y}
-    </option>
-  );
-})}
+            const y = new Date().getFullYear() - i;
+            return (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            );
+          })}
         </select>
       </div>
 
       {showReport && (
         <div className="w-full overflow-x-scroll rounded border border-gray-700 mt-6 bg-primary p-2">
-         <table className="table-fixed text-center text-xs leading-tight w-fit min-w-max bg-primary text-white">
+          <table className="table-fixed text-center text-xs leading-tight w-fit min-w-max bg-primary text-white">
             <thead className="bg-primary text-white font-semibold" translate="no">
-  <tr>
-    <th className="border p-1 text-left w-[200px]" translate="no">Sócio</th>
+              <tr>
+                <th className="border p-1 text-left w-[200px]" translate="no">
+                  Sócio
+                </th>
 
-    {[
-      "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-      "Jul", "Ago", "Set", "Out", "Nov", "Dez",
-    ].map((m, i) => (
-      <th
-        key={i}
-        className="border p-1 text-center w-[36px]"
-        translate="no"
-      >
-        {m}
-      </th>
-    ))}
-  </tr>
-</thead>
+                {[
+                  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+                  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+                ].map((m, i) => (
+                  <th
+                    key={i}
+                    className="border p-1 text-center w-[36px]"
+                    translate="no"
+                  >
+                    {m}
+                  </th>
+                ))}
+              </tr>
+            </thead>
 
             <tbody>
-              {members.map((member, idx) => (
+              {membersFiltrados.map((member) => (
                 <tr key={member.id}>
-             <td className="border p-1 text-left text-white w-[260px] max-w-[260px] break-words">
-  {member.name}
-</td>
+                  <td className="border p-1 text-left text-white w-[260px] max-w-[260px] break-words">
+                    {member.name}
+                  </td>
 
                   {Array.from({ length: 12 }).map((_, monthIndex) => (
-  <td
-  key={monthIndex}
-  className="border p-1 font-bold text-base w-[36px] text-center text-white"
->
-  {hasPayment(member.id, monthIndex + 1) ? (
-    <span className="text-green-400">✓</span>
-  ) : (
-    <span className="text-white">–</span>
-  )}
-</td>
-
-
+                    <td
+                      key={monthIndex}
+                      className="border p-1 font-bold text-base w-[36px] text-center text-white"
+                    >
+                      {hasPayment(member.id, monthIndex + 1) ? (
+                        <span className="text-green-400">✓</span>
+                      ) : (
+                        <span className="text-white">–</span>
+                      )}
+                    </td>
                   ))}
                 </tr>
               ))}
