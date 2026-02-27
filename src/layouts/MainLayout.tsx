@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useState } from "react";
 import AppShell from "./AppShell";
@@ -127,6 +127,18 @@ export default function MainLayout() {
             Tesouraria
           </NavLink>
 
+          {/* CALENDÁRIO (DESKTOP) */}
+          <NavLink
+            to="/calendario"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Calendário
+          </NavLink>
+
           <NavLink
             to="/dashboard"
             className={({ isActive }) =>
@@ -244,7 +256,15 @@ export default function MainLayout() {
           >
             Dashboard
           </NavLink>
-          <Link to="/calendario">Calendário</Link>
+
+          {/* CALENDÁRIO (MOBILE) */}
+          <NavLink
+            to="/calendario"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Calendário
+          </NavLink>
 
           <NavLink
             to="/config"
