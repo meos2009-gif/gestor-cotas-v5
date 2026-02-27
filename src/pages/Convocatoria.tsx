@@ -163,8 +163,17 @@ export default function Convocatoria() {
                 Presente
               </label>
 
-              {/* Minutos */}
-              <label className="flex items-center gap-2 mt-2">
+              {/* Minutos com + e - */}
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() =>
+                    updateField(m.id, "minutes", Math.max(0, att.minutes - 1))
+                  }
+                  className="px-2 bg-gray-600 rounded"
+                >
+                  -
+                </button>
+
                 <input
                   type="number"
                   min={0}
@@ -173,13 +182,32 @@ export default function Convocatoria() {
                   onChange={(e) =>
                     updateField(m.id, "minutes", Number(e.target.value))
                   }
-                  className="w-20 p-1 text-black rounded"
+                  className="w-20 p-1 text-black rounded text-center"
                 />
-                Minutos
-              </label>
 
-              {/* Golos */}
-              <label className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() =>
+                    updateField(m.id, "minutes", att.minutes + 1)
+                  }
+                  className="px-2 bg-gray-600 rounded"
+                >
+                  +
+                </button>
+
+                <span>Minutos</span>
+              </div>
+
+              {/* Golos com + e - */}
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() =>
+                    updateField(m.id, "goals", Math.max(0, att.goals - 1))
+                  }
+                  className="px-2 bg-gray-600 rounded"
+                >
+                  -
+                </button>
+
                 <input
                   type="number"
                   min={0}
@@ -187,10 +215,20 @@ export default function Convocatoria() {
                   onChange={(e) =>
                     updateField(m.id, "goals", Number(e.target.value))
                   }
-                  className="w-20 p-1 text-black rounded"
+                  className="w-20 p-1 text-black rounded text-center"
                 />
-                Golos
-              </label>
+
+                <button
+                  onClick={() =>
+                    updateField(m.id, "goals", att.goals + 1)
+                  }
+                  className="px-2 bg-gray-600 rounded"
+                >
+                  +
+                </button>
+
+                <span>Golos</span>
+              </div>
             </div>
           );
         })}
