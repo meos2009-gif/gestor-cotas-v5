@@ -17,9 +17,23 @@ type Attendance = {
 
 export default function Convocatoria() {
   const { gameId } = useParams();
+
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance>>({});
+  const [game, setGame] = useState<any>(null);
 
+  // Carregar jogo (inclui resultado)
+  async function loadGame() {
+    const { data } = await supabase
+      .from("games")
+      .select("*")
+      .eq("id", gameId)
+      .single();
+
+    if (data) setGame(data);
+  }
+
+  // Carregar membros e convocatória
   async function loadData() {
     const { data: membersData } = await supabase
       .from("members")
@@ -49,9 +63,11 @@ export default function Convocatoria() {
   }
 
   useEffect(() => {
+    loadGame();
     loadData();
   }, [gameId]);
 
+  // Atualizar campos da convocatória
   async function updateField(memberId: string, field: string, value: any) {
     setAttendance((prev) => ({
       ...prev,
@@ -65,10 +81,48 @@ export default function Convocatoria() {
       .eq("member_id", memberId);
   }
 
+  // Atualizar resultado do jogo
+  async function updateGame(field: string, value: number) {
+    await supabase
+      .from("games")
+      .update({ [field]: value })
+      .eq("id", gameId);
+
+    setGame((prev: any) => ({ ...prev, [field]: value }));
+  }
+
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Convocatória</h1>
 
+      {/* Resultado do jogo */}
+      {game && (
+        <div className="flex gap-6 mb-6 bg-secondary text-primary p-4 rounded shadow">
+          <label className="flex items-center gap-2">
+            <input
+              type="number"
+              min={0}
+              value={game.goals_home ?? 0}
+              onChange={(e) => updateGame("goals_home", Number(e.target.value))}
+              className="w-20 p-1 text-black rounded"
+            />
+            Golos Fafe
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="number"
+              min={0}
+              value={game.goals_away ?? 0}
+              onChange={(e) => updateGame("goals_away", Number(e.target.value))}
+              className="w-20 p-1 text-black rounded"
+            />
+            Golos Adversário
+          </label>
+        </div>
+      )}
+
+      {/* Lista de jogadores */}
       <div className="space-y-4">
         {members.map((m) => {
           const att = attendance[m.id] || {

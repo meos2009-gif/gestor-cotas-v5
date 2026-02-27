@@ -8,6 +8,8 @@ type GameDB = {
   opponent: string;
   location: string | null;
   competition: string | null;
+  goals_home: number | null;
+  goals_away: number | null;
 };
 
 export default function Calendario() {
@@ -29,6 +31,14 @@ export default function Calendario() {
     loadJogosDB();
   }, []);
 
+  // Função para aplicar cor ao resultado
+  function getResultadoColor(jogo: any) {
+    if (jogo.goals_home == null || jogo.goals_away == null) return "";
+    if (jogo.goals_home > jogo.goals_away) return "text-green-400"; // vitória
+    if (jogo.goals_home < jogo.goals_away) return "text-red-400";   // derrota
+    return "text-yellow-300"; // empate
+  }
+
   // Apenas jogos da BD
   const jogosCompletos = useMemo(() => {
     return jogosDB
@@ -36,7 +46,9 @@ export default function Calendario() {
         data: j.game_date,
         adversario: j.opponent,
         local: j.location || "",
-        id: j.id
+        id: j.id,
+        goals_home: j.goals_home,
+        goals_away: j.goals_away
       }))
       .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
   }, [jogosDB]);
@@ -78,6 +90,14 @@ export default function Calendario() {
           <p className="mt-2 font-semibold">{proximoJogo.adversario}</p>
           <p>{proximoJogo.data}</p>
           <p className="text-sm">{proximoJogo.local || "—"}</p>
+
+          {/* Resultado se existir */}
+          {proximoJogo.goals_home !== null &&
+            proximoJogo.goals_away !== null && (
+              <p className={`text-lg font-bold mt-2 ${getResultadoColor(proximoJogo)}`}>
+                Resultado: {proximoJogo.goals_home} - {proximoJogo.goals_away}
+              </p>
+            )}
         </div>
       )}
 
@@ -125,6 +145,14 @@ export default function Calendario() {
                 {isCasa ? "Casa" : "Fora"} — {j.local || "—"}
               </p>
 
+              {/* Resultado */}
+              {j.goals_home !== null && j.goals_away !== null && (
+                <p className={`text-lg font-bold mt-2 ${getResultadoColor(j)}`}>
+                  Resultado: {j.goals_home} - {j.goals_away}
+                </p>
+              )}
+
+              {/* Botões */}
               <div className="flex gap-3 mt-3">
                 <button
                   onClick={() => navigate(`/convocatoria/${j.id}`)}
