@@ -10,19 +10,21 @@ import Dashboard from "./pages/Dashboard";
 import Config from "./pages/Config";
 import Relatorio from "./pages/Relatorio";
 
-// IMPORTA AS NOVAS PÁGINAS
 import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
 import Tesouraria from "./pages/Tesouraria";
 
-// 🔵 IMPORTA O CALENDÁRIO
 import Calendario from "./pages/Calendario";
+
+// 🔵 IMPORTA AS NOVAS PÁGINAS (FALTAVAM ESTES!)
+import Convocatoria from "./pages/Convocatoria";
+import Estatisticas from "./pages/Estatisticas";
 
 export default function App() {
   return (
     <Routes>
 
-      {/* LOGIN — tem de vir ANTES de tudo */}
+      {/* LOGIN */}
       <Route path="/login" element={<Login />} />
 
       {/* ROTAS PROTEGIDAS */}
@@ -34,26 +36,32 @@ export default function App() {
         }
       >
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
         <Route path="/socios" element={<Socios />} />
         <Route path="/pagamentos" element={<Pagamentos />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/config" element={<Config />} />
         <Route path="/relatorio" element={<Relatorio />} />
 
-        {/* 🔵 NOVAS ROTAS */}
+        {/* NOVAS ROTAS */}
         <Route path="/jantar" element={<Jantar />} />
         <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
         <Route path="/tesouraria" element={<Tesouraria />} />
-        <Route path="/calendario" element={<Calendario />} />
-        <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
-        <Route path="/estatisticas" element={<Estatisticas />} />
 
-        {/* 🔵 ROTA DO CALENDÁRIO */}
+        {/* CALENDÁRIO */}
         <Route path="/calendario" element={<Calendario />} />
+
+        {/* CONVOCATÓRIA */}
+        <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
+
+        {/* ESTATÍSTICAS */}
+        <Route path="/estatisticas" element={<Estatisticas />} />
       </Route>
+
+      {/* CALENDÁRIO 2026 (fora do layout) */}
       <Route path="/calendario-2026" element={<Calendario2026 />} />
-     
-      {/* CATCH-ALL PARA EVITAR 404 */}
+
+      {/* CATCH-ALL */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
     </Routes>
