@@ -1,14 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
-import { useSearchParams } from "react-router-dom";
-
-type TeamStats = {
-  jogos: number;
-  jogos_jogados: number;
-  media_convocados: number;
-  media_presencas: number;
-  assiduidade_global: number;
-};
 
 type MemberStats = {
   id: string;
@@ -17,97 +8,62 @@ type MemberStats = {
   presencas: number;
   minutos_totais: number;
   media_minutos: number;
+  golos_totais: number;
+  media_golos: number;
   percentagem: number;
 };
 
-export default function Estatisticas() {
-  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
-  const [members, setMembers] = useState<MemberStats[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function EstatisticasIndividuais() {
+  const [stats, setStats] = useState<MemberStats[]>([]);
 
-  const [params] = useSearchParams();
-  const gameId = params.get("gameId");
-
-  async function loadTeamStats() {
-    const { data, error } = await supabase.rpc("get_team_stats");
-    if (!error && data && data.length > 0) {
-      setTeamStats(data[0]);
-    }
-  }
-
-  async function loadMemberStats() {
-    const { data, error } = await supabase
+  async function loadStats() {
+    const { data } = await supabase
       .from("member_stats")
       .select("*")
-      .order("percentagem", { ascending: false });
+      .order("golos_totais", { ascending: false });
 
-    if (!error && data) setMembers(data);
+    if (data) setStats(data);
   }
 
   useEffect(() => {
-    async function loadAll() {
-      setLoading(true);
-      await loadTeamStats();
-      await loadMemberStats();
-      setLoading(false);
-    }
-    loadAll();
+    loadStats();
   }, []);
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-6">Estatísticas</h1>
+      <h1 className="text-xl font-bold mb-4">Estatísticas Individuais</h1>
 
-      {loading && <p>A carregar...</p>}
+      <div className="space-y-4">
+        {stats.map((m) => (
+          <div
+            key={m.id}
+            className="p-4 bg-primary text-white rounded shadow border border-gray-700"
+          >
+            <h2 className="text-lg font-bold">{m.name}</h2>
 
-      {!loading && (
-        <>
-          {/* ESTATÍSTICAS GERAIS */}
-          {teamStats && (
-            <div className="bg-primary text-white p-4 rounded shadow mb-6">
-              <h2 className="text-lg font-bold mb-2">Estatísticas da Equipa</h2>
+            <p><strong>Convocado:</strong> {m.convocado}</p>
+            <p><strong>Presenças:</strong> {m.presencas}</p>
+            <p><strong>Minutos Totais:</strong> {m.minutos_totais}</p>
+            <p><strong>Média de Minutos:</strong> {Math.round(m.media_minutos || 0)}</p>
 
-              <p><strong>Jogos totais:</strong> {teamStats.jogos}</p>
-              <p><strong>Jogos já realizados:</strong> {teamStats.jogos_jogados}</p>
-              <p><strong>Média de convocados:</strong> {teamStats.media_convocados?.toFixed(1)}</p>
-              <p><strong>Média de presenças:</strong> {teamStats.media_presencas?.toFixed(1)}</p>
-              <p><strong>Assiduidade global:</strong> {teamStats.assiduidade_global?.toFixed(1)}%</p>
-            </div>
-          )}
+            <p className="mt-2 text-yellow-300">
+              <strong>Golos Totais:</strong> {m.golos_totais}
+            </p>
 
-          {/* RANKING DE ASSIDUIDADE */}
-          <div className="bg-secondary text-primary p-4 rounded shadow mb-6">
-            <h2 className="text-lg font-bold mb-3">Ranking de Assiduidade</h2>
+            <p className="text-yellow-300">
+              <strong>Média de Golos:</strong> {m.media_golos?.toFixed(2)}
+            </p>
 
-            {members.length === 0 && <p>Nenhum dado disponível.</p>}
-
-            <div className="space-y-3">
-              {members.map((m, i) => (
-                <div
-                  key={m.id}
-                  className="p-3 bg-white text-black rounded shadow border border-gray-300"
-                >
-                  <p className="font-bold">
-                    {i + 1}. {m.name}
-                  </p>
-                  <p><strong>Convocado:</strong> {m.convocado}</p>
-                  <p><strong>Presenças:</strong> {m.presencas}</p>
-                  <p><strong>Minutos:</strong> {m.minutos_totais}</p>
-                  <p><strong>Assiduidade:</strong> {m.percentagem?.toFixed(1)}%</p>
-                </div>
-              ))}
-            </div>
+            <p className="mt-2">
+              <strong>Percentagem Presença:</strong> {m.percentagem.toFixed(1)}%
+            </p>
           </div>
+        ))}
 
-          {/* ESTATÍSTICAS DE UM JOGO ESPECÍFICO (SE VIER gameId) */}
-          {gameId && (
-            <div className="bg-yellow-100 text-black p-4 rounded shadow">
-              <h2 className="text-lg font-bold mb-2">Estatísticas do Jogo</h2>
-              <p>Em breve: estatísticas específicas do jogo {gameId}.</p>
-            </div>
-          )}
-        </>
-      )}
+        {stats.length === 0 && (
+          <p className="text-gray-500">Sem estatísticas disponíveis.</p>
+        )}
+      </div>
     </div>
   );
 }
