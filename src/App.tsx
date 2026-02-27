@@ -44,6 +44,9 @@ export default function App() {
         <Route path="/jantar" element={<Jantar />} />
         <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
         <Route path="/tesouraria" element={<Tesouraria />} />
+        <Route path="/calendario" element={<Calendario />} />
+        <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
+        <Route path="/estatisticas" element={<Estatisticas />} />
 
         {/* 🔵 ROTA DO CALENDÁRIO */}
         <Route path="/calendario" element={<Calendario />} />

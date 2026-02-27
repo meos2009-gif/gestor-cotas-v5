@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "../supabase";
+import { useNavigate } from "react-router-dom";
 
-// JOGOS 2025
+// JOGOS ESTÁTICOS 2025
 const jogos2025 = [
   { data: "2025-09-13", adversario: "MARINHAS", local: "MARINHAS" },
   { data: "2025-09-27", adversario: "MOURISQUENSE", local: "FAFE" },
@@ -13,7 +15,7 @@ const jogos2025 = [
   { data: "2025-12-20", adversario: "Jantar de Natal", local: "" }
 ];
 
-// JOGOS 2026
+// JOGOS ESTÁTICOS 2026
 const jogos2026 = [
   { data: "2026-01-10", adversario: "AMIGOS S.ROMÃO", local: "FAFE" },
   { data: "2026-01-17", adversario: "PALMEIRAS", local: "PALMEIRAS" },
@@ -32,20 +34,62 @@ const jogos2026 = [
   { data: "2026-06-27", adversario: "BUSTELO", local: "FAFE" }
 ];
 
-const todosJogos = [...jogos2025, ...jogos2026];
+const jogosEstaticos = [...jogos2025, ...jogos2026];
+
+type GameDB = {
+  id: string;
+  game_date: string;
+  opponent: string;
+  location: string | null;
+  competition: string | null;
+};
 
 export default function Calendario() {
   const [ano, setAno] = useState("");
   const [mes, setMes] = useState("");
+  const [jogosDB, setJogosDB] = useState<GameDB[]>([]);
+  const navigate = useNavigate();
+
+  async function loadJogosDB() {
+    const { data } = await supabase
+      .from("games")
+      .select("*")
+      .order("game_date", { ascending: true });
+
+    if (data) setJogosDB(data);
+  }
+
+  useEffect(() => {
+    loadJogosDB();
+  }, []);
+
+  // Junta jogos estáticos + jogos da BD
+  const jogosCompletos = useMemo(() => {
+    const convertidosDB = jogosDB.map(j => ({
+      data: j.game_date,
+      adversario: j.opponent,
+      local: j.location || "",
+      id: j.id
+    }));
+
+    const convertidosEstaticos = jogosEstaticos.map(j => ({
+      ...j,
+      id: null
+    }));
+
+    return [...convertidosDB, ...convertidosEstaticos].sort(
+      (a, b) => new Date(a.data).getTime() - new Date(b.data).getTime()
+    );
+  }, [jogosDB]);
 
   // Próximo jogo
   const proximoJogo = useMemo(() => {
     const hoje = new Date();
-    return todosJogos.find(j => new Date(j.data) >= hoje);
-  }, []);
+    return jogosCompletos.find(j => new Date(j.data) >= hoje);
+  }, [jogosCompletos]);
 
   // Filtros
-  const jogosFiltrados = todosJogos.filter((j) => {
+  const jogosFiltrados = jogosCompletos.filter((j) => {
     const d = new Date(j.data);
     const anoJogo = d.getFullYear().toString();
     const mesJogo = String(d.getMonth() + 1).padStart(2, "0");
@@ -59,6 +103,14 @@ export default function Calendario() {
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Calendário de Jogos</h1>
+
+      {/* Estatísticas gerais */}
+      <button
+        onClick={() => navigate("/estatisticas")}
+        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        Estatísticas da Equipa
+      </button>
 
       {/* Próximo jogo */}
       {proximoJogo && (
@@ -113,6 +165,25 @@ export default function Calendario() {
               <p className={isCasa ? "text-green-400" : "text-red-400"}>
                 {isCasa ? "Casa" : "Fora"} — {j.local || "—"}
               </p>
+
+              {/* Botões apenas para jogos da BD */}
+              {j.id && (
+                <div className="flex gap-3 mt-3">
+                  <button
+                    onClick={() => navigate(`/convocatoria/${j.id}`)}
+                    className="px-3 py-1 bg-yellow-500 text-black rounded"
+                  >
+                    Convocatória
+                  </button>
+
+                  <button
+                    onClick={() => navigate(`/estatisticas?gameId=${j.id}`)}
+                    className="px-3 py-1 bg-blue-500 text-white rounded"
+                  >
+                    Estatísticas
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
