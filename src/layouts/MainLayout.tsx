@@ -24,7 +24,7 @@ export default function MainLayout() {
     <div className="flex flex-col h-screen bg-bg text-text">
 
       {/* BARRA SUPERIOR */}
-      <header className="w-full bg-primary text-white px-6 py-3 flex items-center justify-between shadow-md fixed top-0 left-0 z-20">
+      <header className="w-full bg-primary text-white px-6 py-3 flex items-center justify-between shadow-md fixed top-0 left-0 z-50">
 
         {/* LOGO + TÍTULO */}
         <div className="flex items-center space-x-3">
@@ -73,7 +73,7 @@ export default function MainLayout() {
             </button>
 
             {paymentsOpen && (
-              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-40 z-30">
+              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-40 z-50">
                 <NavLink to="/pagamentos" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Cotas</NavLink>
                 <NavLink to="/jantar" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Jantar</NavLink>
               </div>
@@ -91,7 +91,7 @@ export default function MainLayout() {
             </button>
 
             {reportsOpen && (
-              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-30">
+              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-50">
                 <NavLink to="/relatorio" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Relatório de Cotas</NavLink>
                 <NavLink to="/relatorio-jantares" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Relatório de Jantares</NavLink>
               </div>
@@ -109,13 +109,18 @@ export default function MainLayout() {
             </button>
 
             {calendarOpen && (
-              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-30">
+              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-50">
                 <NavLink to="/calendario" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
                   Época 2025/2026
                 </NavLink>
 
                 <NavLink to="/calendario-2026" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
                   Época 2026/2027
+                </NavLink>
+
+                {/* NOVO ITEM: ESTATÍSTICAS */}
+                <NavLink to="/estatisticas" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
+                  Estatísticas da Equipa
                 </NavLink>
 
                 <div className="px-4 py-2 text-gray-400 text-sm">Épocas futuras…</div>
@@ -139,7 +144,7 @@ export default function MainLayout() {
 
       {/* MENU MOBILE */}
       {menuOpen && (
-        <div className="md:hidden bg-primary text-white flex flex-col px-6 py-4 space-y-4 shadow-lg fixed top-[72px] left-0 w-full z-10">
+        <div className="md:hidden bg-primary text-white flex flex-col px-6 py-4 space-y-4 shadow-lg fixed top-[72px] left-0 w-full z-40">
 
           <NavLink to="/socios" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">Sócios</NavLink>
 
@@ -177,8 +182,19 @@ export default function MainLayout() {
 
           {calendarMobileOpen && (
             <div className="ml-4 flex flex-col space-y-2">
-              <NavLink to="/calendario" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">Época 2025/2026</NavLink>
-              <NavLink to="/calendario-2026" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">Época 2026/2027</NavLink>
+              <NavLink to="/calendario" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
+                Época 2025/2026
+              </NavLink>
+
+              <NavLink to="/calendario-2026" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
+                Época 2026/2027
+              </NavLink>
+
+              {/* NOVO ITEM MOBILE */}
+              <NavLink to="/estatisticas" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
+                Estatísticas da Equipa
+              </NavLink>
+
               <div className="py-1 text-gray-400 text-sm">Épocas futuras…</div>
             </div>
           )}
@@ -197,7 +213,7 @@ export default function MainLayout() {
       )}
 
       {/* CONTEÚDO */}
-      <main className="flex-1 overflow-x-visible overflow-y-auto pt-24 md:pt-24">
+      <main className="flex-1 overflow-x-visible overflow-y-auto pt-24 md:pt-24 relative z-0">
         <AppShell>
           <Outlet />
         </AppShell>
