@@ -2,40 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabase";
 import { useNavigate } from "react-router-dom";
 
-// JOGOS ESTÁTICOS 2025
-const jogos2025 = [
-  { data: "2025-09-13", adversario: "MARINHAS", local: "MARINHAS" },
-  { data: "2025-09-27", adversario: "MOURISQUENSE", local: "FAFE" },
-  { data: "2025-10-11", adversario: "AMIGOS S.ROMÃO", local: "S.ROMÃO" },
-  { data: "2025-10-25", adversario: "PESQUEIRA", local: "FAFE" },
-  { data: "2025-11-08", adversario: "TORCATENSE", local: "S.TORCATO" },
-  { data: "2025-11-15", adversario: "MARINHAS", local: "FAFE" },
-  { data: "2025-11-22", adversario: "MONDINENSE", local: "MONDIM" },
-  { data: "2025-12-13", adversario: "VILA REAL", local: "FAFE" },
-  { data: "2025-12-20", adversario: "Jantar de Natal", local: "" }
-];
-
-// JOGOS ESTÁTICOS 2026
-const jogos2026 = [
-  { data: "2026-01-10", adversario: "AMIGOS S.ROMÃO", local: "FAFE" },
-  { data: "2026-01-17", adversario: "PALMEIRAS", local: "PALMEIRAS" },
-  { data: "2026-01-31", adversario: "GIL VICENTE", local: "BARCELOS" },
-  { data: "2026-02-07", adversario: "FERROVIÁRIO FONTAINHAS", local: "P.VARZIM" },
-  { data: "2026-02-21", adversario: "MONDINENSE", local: "FAFE" },
-  { data: "2026-02-28", adversario: "BUSTELO", local: "BUSTELO" },
-  { data: "2026-03-07", adversario: "TAIPAS *", local: "FAFE" },
-  { data: "2026-03-14", adversario: "VILA REAL", local: "VILA REAL" },
-  { data: "2026-03-28", adversario: "VISTA ALEGRE", local: "FAFE" },
-  { data: "2026-04-11", adversario: "PESQUEIRA", local: "PESQUEIRA" },
-  { data: "2026-04-25", adversario: "TORNEIO CIDADE DE FAFE", local: "" },
-  { data: "2026-05-09", adversario: "PALMEIRAS", local: "FAFE" },
-  { data: "2026-05-23", adversario: "MOURISQUENSE", local: "MOURISCA" },
-  { data: "2026-06-20", adversario: "VISTA ALEGRE", local: "AVEIRO" },
-  { data: "2026-06-27", adversario: "BUSTELO", local: "FAFE" }
-];
-
-const jogosEstaticos = [...jogos2025, ...jogos2026];
-
 type GameDB = {
   id: string;
   game_date: string;
@@ -63,23 +29,16 @@ export default function Calendario() {
     loadJogosDB();
   }, []);
 
-  // Junta jogos estáticos + jogos da BD
+  // Apenas jogos da BD
   const jogosCompletos = useMemo(() => {
-    const convertidosDB = jogosDB.map(j => ({
-      data: j.game_date,
-      adversario: j.opponent,
-      local: j.location || "",
-      id: j.id
-    }));
-
-    const convertidosEstaticos = jogosEstaticos.map(j => ({
-      ...j,
-      id: null
-    }));
-
-    return [...convertidosDB, ...convertidosEstaticos].sort(
-      (a, b) => new Date(a.data).getTime() - new Date(b.data).getTime()
-    );
+    return jogosDB
+      .map(j => ({
+        data: j.game_date,
+        adversario: j.opponent,
+        local: j.location || "",
+        id: j.id
+      }))
+      .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
   }, [jogosDB]);
 
   // Próximo jogo
@@ -152,12 +111,12 @@ export default function Calendario() {
 
       {/* Lista de jogos */}
       <div className="space-y-3">
-        {jogosFiltrados.map((j, i) => {
+        {jogosFiltrados.map((j) => {
           const isCasa = j.local.toUpperCase() === "FAFE";
 
           return (
             <div
-              key={i}
+              key={j.id}
               className="p-4 bg-primary text-white rounded shadow border border-gray-700"
             >
               <p className="text-lg font-bold">{j.adversario}</p>
@@ -166,24 +125,21 @@ export default function Calendario() {
                 {isCasa ? "Casa" : "Fora"} — {j.local || "—"}
               </p>
 
-              {/* Botões apenas para jogos da BD */}
-              {j.id && (
-                <div className="flex gap-3 mt-3">
-                  <button
-                    onClick={() => navigate(`/convocatoria/${j.id}`)}
-                    className="px-3 py-1 bg-yellow-500 text-black rounded"
-                  >
-                    Convocatória
-                  </button>
+              <div className="flex gap-3 mt-3">
+                <button
+                  onClick={() => navigate(`/convocatoria/${j.id}`)}
+                  className="px-3 py-1 bg-yellow-500 text-black rounded"
+                >
+                  Convocatória
+                </button>
 
-                  <button
-                    onClick={() => navigate(`/estatisticas?gameId=${j.id}`)}
-                    className="px-3 py-1 bg-blue-500 text-white rounded"
-                  >
-                    Estatísticas
-                  </button>
-                </div>
-              )}
+                <button
+                  onClick={() => navigate(`/estatisticas?gameId=${j.id}`)}
+                  className="px-3 py-1 bg-blue-500 text-white rounded"
+                >
+                  Estatísticas
+                </button>
+              </div>
             </div>
           );
         })}
