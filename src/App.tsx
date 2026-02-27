@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import RequireAuth from "./lib/RequireAuth";
 
+import Calendario2026 from "./pages/Calendario2026";
 import Login from "./pages/Login";
 import Socios from "./pages/Socios";
 import Pagamentos from "./pages/Pagamentos";
@@ -47,7 +48,8 @@ export default function App() {
         {/* 🔵 ROTA DO CALENDÁRIO */}
         <Route path="/calendario" element={<Calendario />} />
       </Route>
-
+      <Route path="/calendario-2026" element={<Calendario2026 />} />
+     
       {/* CATCH-ALL PARA EVITAR 404 */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
