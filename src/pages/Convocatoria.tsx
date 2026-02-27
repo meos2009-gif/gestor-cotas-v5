@@ -104,27 +104,28 @@ export default function Convocatoria() {
 
                 {att && (
                   <div className="mt-3 space-y-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={att.called}
-                        onChange={(e) =>
-                          updateField(m.id, "called", e.target.checked)
-                        }
-                      />
-                      Vai ao jogo
-                    </label>
+                   
+<label className="flex items-center gap-2">
+  <input
+    type="checkbox"
+    checked={!att.called}
+    onChange={(e) =>
+      updateField(m.id, "called", !e.target.checked)
+    }
+  />
+  Indisponível
+</label>
 
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={att.present}
-                        onChange={(e) =>
-                          updateField(m.id, "present", e.target.checked)
-                        }
-                      />
-                      Presente
-                    </label>
+<label className="flex items-center gap-2">
+  <input
+    type="checkbox"
+    checked={att.present}
+    onChange={(e) =>
+      updateField(m.id, "present", e.target.checked)
+    }
+  />
+  Presente
+</label>
 
                     <div>
                       <label className="block mb-1">Minutos jogados</label>
