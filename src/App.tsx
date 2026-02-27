@@ -12,7 +12,10 @@ import Relatorio from "./pages/Relatorio";
 // IMPORTA AS NOVAS PÁGINAS
 import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
-import Tesouraria from "./pages/Tesouraria";   // 🔵 NOVO IMPORT
+import Tesouraria from "./pages/Tesouraria";
+
+// 🔵 IMPORTA O CALENDÁRIO
+import Calendario from "./pages/Calendario";
 
 export default function App() {
   return (
@@ -39,7 +42,10 @@ export default function App() {
         {/* 🔵 NOVAS ROTAS */}
         <Route path="/jantar" element={<Jantar />} />
         <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
-        <Route path="/tesouraria" element={<Tesouraria />} />   {/* 🔵 NOVA ROTA */}
+        <Route path="/tesouraria" element={<Tesouraria />} />
+
+        {/* 🔵 ROTA DO CALENDÁRIO */}
+        <Route path="/calendario" element={<Calendario />} />
       </Route>
 
       {/* CATCH-ALL PARA EVITAR 404 */}

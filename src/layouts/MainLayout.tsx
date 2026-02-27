@@ -244,6 +244,7 @@ export default function MainLayout() {
           >
             Dashboard
           </NavLink>
+          <Link to="/calendario">Calendário</Link>
 
           <NavLink
             to="/config"
