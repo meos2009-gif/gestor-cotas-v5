@@ -11,10 +11,10 @@ type MemberStats = {
   golos_totais: number;
   media_golos: number;
   percentagem: number;
-  capitao: number; // <--- AGORA É NÚMERO
+  capitao: number; // agora é número
 };
 
-export default function EstatisticasIndividuais() {
+export default function Estatisticas() {
   const [stats, setStats] = useState<MemberStats[]>([]);
 
   async function loadStats() {
