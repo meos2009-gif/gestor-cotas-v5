@@ -11,14 +11,34 @@ type MemberStats = {
   golos_totais: number;
   media_golos: number;
   percentagem: number;
-  capitao: boolean; // <-- NOVO CAMPO
+  capitao: boolean;
 };
 
 export default function EstatisticasIndividuais() {
-  const { data } = await supabase
-  .from("member_stats")
-  .select("id, name, convocado, presencas, minutos_totais, media_minutos, golos_totais, media_golos, percentagem, capitao")
-  .order("golos_totais", { ascending: false });
+  const [stats, setStats] = useState<MemberStats[]>([]);
+
+  async function loadStats() {
+    const { data, error } = await supabase
+      .from("member_stats")
+      .select(`
+        id,
+        name,
+        convocado,
+        presencas,
+        minutos_totais,
+        media_minutos,
+        golos_totais,
+        media_golos,
+        percentagem,
+        capitao
+      `)
+      .order("golos_totais", { ascending: false });
+
+    if (error) {
+      console.error("Erro ao carregar estatísticas:", error);
+      return;
+    }
+
     if (data) setStats(data);
   }
 
@@ -36,7 +56,6 @@ export default function EstatisticasIndividuais() {
             key={m.id}
             className="p-4 bg-primary text-white rounded shadow border border-gray-700"
           >
-            {/* Nome + Capitão */}
             <h2 className="text-lg font-bold flex items-center gap-2">
               {m.name}
 
@@ -57,8 +76,7 @@ export default function EstatisticasIndividuais() {
             </p>
 
             <p className="text-yellow-300">
-              <strong>Média de Golos:</strong> {m.media_golos?.toFixed(2)}
-            </p>
+              <strong>Média de Golos:</strong> {m.media_golos?.toFixed(2)}</p>
 
             <p className="mt-2">
               <strong>Percentagem Presença:</strong> {m.percentagem.toFixed(1)}%
