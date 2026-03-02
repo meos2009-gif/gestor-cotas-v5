@@ -11,7 +11,7 @@ type MemberStats = {
   golos_totais: number;
   media_golos: number;
   percentagem: number;
-  capitao: boolean;
+  capitao: number; // <--- AGORA É NÚMERO
 };
 
 export default function EstatisticasIndividuais() {
@@ -56,12 +56,13 @@ export default function EstatisticasIndividuais() {
             key={m.id}
             className="p-4 bg-primary text-white rounded shadow border border-gray-700"
           >
+            {/* Nome + Capitão */}
             <h2 className="text-lg font-bold flex items-center gap-2">
               {m.name}
 
-              {m.capitao && (
+              {m.capitao > 0 && (
                 <span className="px-2 py-1 bg-yellow-500 text-black rounded text-sm">
-                  Capitão
+                  Capitão {m.capitao}x
                 </span>
               )}
             </h2>
