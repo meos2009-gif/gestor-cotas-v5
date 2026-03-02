@@ -11,17 +11,14 @@ type MemberStats = {
   golos_totais: number;
   media_golos: number;
   percentagem: number;
+  capitao: boolean; // <-- NOVO CAMPO
 };
 
 export default function EstatisticasIndividuais() {
-  const [stats, setStats] = useState<MemberStats[]>([]);
-
-  async function loadStats() {
-    const { data } = await supabase
-      .from("member_stats")
-      .select("*")
-      .order("golos_totais", { ascending: false });
-
+  const { data } = await supabase
+  .from("member_stats")
+  .select("id, name, convocado, presencas, minutos_totais, media_minutos, golos_totais, media_golos, percentagem, capitao")
+  .order("golos_totais", { ascending: false });
     if (data) setStats(data);
   }
 
@@ -39,7 +36,16 @@ export default function EstatisticasIndividuais() {
             key={m.id}
             className="p-4 bg-primary text-white rounded shadow border border-gray-700"
           >
-            <h2 className="text-lg font-bold">{m.name}</h2>
+            {/* Nome + Capitão */}
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              {m.name}
+
+              {m.capitao && (
+                <span className="px-2 py-1 bg-yellow-500 text-black rounded text-sm">
+                  Capitão
+                </span>
+              )}
+            </h2>
 
             <p><strong>Convocado:</strong> {m.convocado}</p>
             <p><strong>Presenças:</strong> {m.presencas}</p>
