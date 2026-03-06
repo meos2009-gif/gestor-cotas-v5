@@ -200,6 +200,7 @@ if (categoriaFiltro) {
           <option value="portagens">Portagens</option>
           <option value="combustivel">Combustível</option>
           <option value="outros">Outros</option>
+          <option value="cotas">Cotas</option>
         </select>
 
         <select value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)} className="border p-2 rounded bg-white text-black">
