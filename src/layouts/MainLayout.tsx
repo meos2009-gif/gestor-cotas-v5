@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Link } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useState } from "react";
 import AppShell from "./AppShell";
@@ -98,7 +98,7 @@ export default function MainLayout() {
             )}
           </div>
 
-          {/* CALENDÁRIO (DESKTOP) */}
+          {/* CALENDÁRIO */}
           <div className="relative">
             <button
               onClick={() => setCalendarOpen(!calendarOpen)}
@@ -118,7 +118,6 @@ export default function MainLayout() {
                   Época 2026/2027
                 </NavLink>
 
-                {/* NOVO ITEM: ESTATÍSTICAS */}
                 <NavLink to="/estatisticas" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
                   Estatísticas da Equipa
                 </NavLink>
@@ -128,9 +127,31 @@ export default function MainLayout() {
             )}
           </div>
 
-          <NavLink to="/tesouraria" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>Tesouraria</NavLink>
-          <NavLink to="/dashboard" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>Dashboard</NavLink>
-          <NavLink to="/config" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>Configurações</NavLink>
+          {/* TESOURARIA */}
+          <NavLink to="/tesouraria" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>
+            Tesouraria
+          </NavLink>
+
+          {/* CONTABILIDADE (NOVO) */}
+          <NavLink
+            to="/contabilidade"
+            className={({ isActive }) =>
+              `px-2 py-1 rounded transition ${
+                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
+              }`
+            }
+          >
+            Contabilidade
+          </NavLink>
+
+          {/* DASHBOARD */}
+          <NavLink to="/dashboard" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>
+            Dashboard
+          </NavLink>
+
+          <NavLink to="/config" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>
+            Configurações
+          </NavLink>
         </nav>
 
         {/* LOGOUT */}
@@ -190,7 +211,6 @@ export default function MainLayout() {
                 Época 2026/2027
               </NavLink>
 
-              {/* NOVO ITEM MOBILE */}
               <NavLink to="/estatisticas" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
                 Estatísticas da Equipa
               </NavLink>
@@ -199,9 +219,28 @@ export default function MainLayout() {
             </div>
           )}
 
-          <NavLink to="/tesouraria" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">Tesouraria</NavLink>
-          <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">Dashboard</NavLink>
-          <NavLink to="/config" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">Configurações</NavLink>
+          {/* TESOURARIA */}
+          <NavLink to="/tesouraria" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">
+            Tesouraria
+          </NavLink>
+
+          {/* CONTABILIDADE (NOVO) */}
+          <NavLink
+            to="/contabilidade"
+            onClick={() => setMenuOpen(false)}
+            className="py-2 hover:text-secondary"
+          >
+            Contabilidade
+          </NavLink>
+
+          {/* DASHBOARD */}
+          <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">
+            Dashboard
+          </NavLink>
+
+          <NavLink to="/config" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">
+            Configurações
+          </NavLink>
 
           <button
             onClick={handleLogout}

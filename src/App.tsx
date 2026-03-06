@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
+import MainLayout from "./layout/MainLayout";
 import RequireAuth from "./lib/RequireAuth";
 
 import Calendario2026 from "./pages/Calendario2026";
@@ -13,13 +13,13 @@ import Relatorio from "./pages/Relatorio";
 import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
 import Tesouraria from "./pages/Tesouraria";
-
 import Calendario from "./pages/Calendario";
+
 
 // 🔵 IMPORTA AS NOVAS PÁGINAS (FALTAVAM ESTES!)
 import Convocatoria from "./pages/Convocatoria";
 import Estatisticas from "./pages/Estatisticas";
-
+import Contabilidade from "./pages/Contabilidade";
 export default function App() {
   return (
     <Routes>
@@ -47,7 +47,7 @@ export default function App() {
         <Route path="/jantar" element={<Jantar />} />
         <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
         <Route path="/tesouraria" element={<Tesouraria />} />
-
+        <Route path="/contabilidade" element={<Contabilidade />} />
         {/* CALENDÁRIO */}
         <Route path="/calendario" element={<Calendario />} />
 
