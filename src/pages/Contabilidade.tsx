@@ -284,6 +284,7 @@ export default function Contabilidade() {
               <option value="portagens">Portagens</option>
               <option value="combustivel">Combustível</option>
               <option value="outros">Outros</option>
+              <option value="cotas">Cotas</option>
             </select>
 
             <label className="block mb-2 text-sm font-medium">Descrição</label>
