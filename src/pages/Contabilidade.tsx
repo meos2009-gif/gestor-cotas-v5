@@ -52,13 +52,12 @@ export default function Contabilidade() {
       });
     }
 
-    if (categoriaFiltro) {
-      filtered = filtered.filter((m) => m.category === categoriaFiltro);
-    }
-
-    if (tipoFiltro) {
-      filtered = filtered.filter((m) => m.type === tipoFiltro);
-    }
+    // FILTRO DE CATEGORIA
+if (categoriaFiltro) {
+  filtered = filtered.filter(
+    (m) => m.category?.toLowerCase() === categoriaFiltro.toLowerCase()
+  );
+}
 
     setMovements(filtered);
   }, [mes, ano, categoriaFiltro, tipoFiltro, allMovements]);
@@ -83,7 +82,7 @@ export default function Contabilidade() {
     const { error } = await supabase.from("accounting_movements").insert([
       {
         type,
-        category,
+        category: category.toLowerCase(),
         description,
         obs,
         value: Number(value),
@@ -99,26 +98,26 @@ export default function Contabilidade() {
   }
 
   async function updateMovement() {
-    if (!editingMovement) return;
+  if (!editingMovement) return;
 
-    const { error } = await supabase
-      .from("accounting_movements")
-      .update({
-        type,
-        category,
-        description,
-        obs,
-        value: Number(value),
-        date,
-      })
-      .eq("id", editingMovement.id);
+  const { error } = await supabase
+    .from("accounting_movements")
+    .update({
+      type,
+      category: category.toLowerCase(),
+      description,
+      obs,
+      value: Number(value),
+      date,
+    })
+    .eq("id", editingMovement.id);
 
-    if (!error) {
-      setModalOpen(false);
-      resetForm();
-      loadMovements();
-    }
+  if (!error) {
+    setModalOpen(false);
+    resetForm();
+    loadMovements();
   }
+}
 
   function resetForm() {
     setEditingMovement(null);
