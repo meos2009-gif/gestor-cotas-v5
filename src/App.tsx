@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import MainLayout from "./layout/MainLayout";
+import MainLayout from "./layouts/MainLayout";
 import RequireAuth from "./lib/RequireAuth";
-
 import Calendario2026 from "./pages/Calendario2026";
 import Login from "./pages/Login";
 import Socios from "./pages/Socios";
