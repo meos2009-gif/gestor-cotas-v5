@@ -17,80 +17,81 @@ export default function MainLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-bg text-text">
       {/* NAVBAR */}
-      <nav className="bg-primary text-white px-6 py-4 shadow-md">
+      <nav className="bg-primary text-text px-6 py-4 shadow-md border-b border-secondary">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
+
           {/* LOGO */}
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
               alt="Logo"
-              className="w-10 h-10 rounded-full border border-white"
+              className="w-10 h-10 rounded-full border border-secondary"
             />
-            <h1 className="text-xl font-bold">Gestor de Cotas</h1>
+            <h1 className="text-xl font-bold text-secondary">Gestor de Cotas</h1>
           </div>
 
           {/* MENU DESKTOP */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6 font-medium">
 
-            <NavLink to="/dashboard">Dashboard</NavLink>
-            <NavLink to="/socios">Sócios</NavLink>
-            <NavLink to="/pagamentos">Pagamentos</NavLink>
+            <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
+            <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
+            <NavLink to="/pagamentos" className="hover:text-secondary">Pagamentos</NavLink>
 
-            {/* RELATÓRIOS DROPDOWN */}
+            {/* RELATÓRIOS */}
             <div className="relative">
               <button
                 onClick={() => setReportsOpen(!reportsOpen)}
-                className="hover:text-gray-300 transition-colors"
+                className="hover:text-secondary transition-colors"
               >
                 Relatórios ▾
               </button>
 
               {reportsOpen && (
-                <div className="absolute left-0 mt-2 bg-primary text-white shadow-lg rounded-md p-3 flex flex-col gap-2 z-50">
-                  <NavLink to="/relatorio">Relatório Geral</NavLink>
-                  <NavLink to="/relatorio-jantares">Relatório Jantares</NavLink>
+                <div className="absolute left-0 mt-2 bg-primary text-text shadow-lg rounded-md p-3 flex flex-col gap-2 z-50 border border-secondary">
+                  <NavLink to="/relatorio" className="hover:text-secondary">Relatório Geral</NavLink>
+                  <NavLink to="/relatorio-jantares" className="hover:text-secondary">Relatório Jantares</NavLink>
                 </div>
               )}
             </div>
 
-            {/* CALENDÁRIO DROPDOWN */}
+            {/* CALENDÁRIO */}
             <div className="relative">
               <button
                 onClick={() => setCalendarOpen(!calendarOpen)}
-                className="hover:text-gray-300 transition-colors"
+                className="hover:text-secondary transition-colors"
               >
                 Calendário ▾
               </button>
 
               {calendarOpen && (
-                <div className="absolute left-0 mt-2 bg-primary text-white shadow-lg rounded-md p-3 flex flex-col gap-2 z-50">
-                  <NavLink to="/calendario">Época 2025/2026</NavLink>
-                  <NavLink to="/calendario-2026">Época 2026/2027</NavLink>
+                <div className="absolute left-0 mt-2 bg-primary text-text shadow-lg rounded-md p-3 flex flex-col gap-2 z-50 border border-secondary">
+                  <NavLink to="/calendario" className="hover:text-secondary">Época 2025/2026</NavLink>
+                  <NavLink to="/calendario-2026" className="hover:text-secondary">Época 2026/2027</NavLink>
                 </div>
               )}
             </div>
 
-            <NavLink to="/tesouraria">Tesouraria</NavLink>
-            <NavLink to="/contabilidade">Contabilidade</NavLink>
-            <NavLink to="/config">Configurações</NavLink>
+            <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
+            <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
+            <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
 
-            {/* EQUIPA (NOVO) */}
-            <NavLink to="/estatisticas">Equipa</NavLink>
+            {/* EQUIPA */}
+            <NavLink to="/estatisticas" className="hover:text-secondary">Equipa</NavLink>
 
             {/* LOGOUT */}
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-white"
+              className="bg-accent hover:bg-secondary px-4 py-2 rounded-md text-white"
             >
               Terminar Sessão
             </button>
           </div>
 
-          {/* MENU MOBILE BUTTON */}
+          {/* MOBILE BUTTON */}
           <button
-            className="md:hidden text-2xl"
+            className="md:hidden text-2xl text-secondary"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             ☰
@@ -99,25 +100,25 @@ export default function MainLayout() {
 
         {/* MENU MOBILE */}
         {menuOpen && (
-          <div className="md:hidden mt-4 flex flex-col gap-4 bg-primary p-4 rounded-md">
+          <div className="md:hidden mt-4 flex flex-col gap-4 bg-primary p-4 rounded-md text-text font-medium">
 
-            <NavLink to="/dashboard">Dashboard</NavLink>
-            <NavLink to="/socios">Sócios</NavLink>
-            <NavLink to="/pagamentos">Pagamentos</NavLink>
+            <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
+            <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
+            <NavLink to="/pagamentos" className="hover:text-secondary">Pagamentos</NavLink>
 
             {/* RELATÓRIOS MOBILE */}
             <div>
               <button
                 onClick={() => setReportsMobileOpen(!reportsMobileOpen)}
-                className="w-full text-left"
+                className="w-full text-left hover:text-secondary"
               >
                 Relatórios ▾
               </button>
 
               {reportsMobileOpen && (
                 <div className="ml-4 flex flex-col gap-2 mt-2">
-                  <NavLink to="/relatorio">Relatório Geral</NavLink>
-                  <NavLink to="/relatorio-jantares">Relatório Jantares</NavLink>
+                  <NavLink to="/relatorio" className="hover:text-secondary">Relatório Geral</NavLink>
+                  <NavLink to="/relatorio-jantares" className="hover:text-secondary">Relatório Jantares</NavLink>
                 </div>
               )}
             </div>
@@ -126,27 +127,27 @@ export default function MainLayout() {
             <div>
               <button
                 onClick={() => setCalendarMobileOpen(!calendarMobileOpen)}
-                className="w-full text-left"
+                className="w-full text-left hover:text-secondary"
               >
                 Calendário ▾
               </button>
 
               {calendarMobileOpen && (
                 <div className="ml-4 flex flex-col gap-2 mt-2">
-                  <NavLink to="/calendario">Época 2025/2026</NavLink>
-                  <NavLink to="/calendario-2026">Época 2026/2027</NavLink>
+                  <NavLink to="/calendario" className="hover:text-secondary">Época 2025/2026</NavLink>
+                  <NavLink to="/calendario-2026" className="hover:text-secondary">Época 2026/2027</NavLink>
                 </div>
               )}
             </div>
 
-            <NavLink to="/tesouraria">Tesouraria</NavLink>
-            <NavLink to="/contabilidade">Contabilidade</NavLink>
-            <NavLink to="/config">Configurações</NavLink>
-            <NavLink to="/estatisticas">Equipa</NavLink>
+            <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
+            <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
+            <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
+            <NavLink to="/estatisticas" className="hover:text-secondary">Equipa</NavLink>
 
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-white mt-2"
+              className="bg-accent hover:bg-secondary px-4 py-2 rounded-md text-white mt-2"
             >
               Terminar Sessão
             </button>
