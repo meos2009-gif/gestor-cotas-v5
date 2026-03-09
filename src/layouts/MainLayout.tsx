@@ -51,7 +51,7 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
               {reportsOpen && (
                 <div className="absolute left-0 mt-2 bg-primary text-text shadow-lg rounded-md p-3 flex flex-col gap-2 z-50 border border-secondary">
-                  <NavLink to="/relatorio" className="hover:text-secondary">Relatório Geral</NavLink>
+                  <NavLink to="/relatorio" className="hover:text-secondary">Relatório de Cotas</NavLink>
                   <NavLink to="/relatorio-jantares" className="hover:text-secondary">Relatório Jantares</NavLink>
                 </div>
               )}
@@ -141,7 +141,7 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
               {reportsMobileOpen && (
                 <div className="ml-4 flex flex-col gap-2 mt-2">
-                  <NavLink to="/relatorio" className="hover:text-secondary">Relatório Geral</NavLink>
+                  <NavLink to="/relatorio" className="hover:text-secondary">Relatório de Cotas</NavLink>
                   <NavLink to="/relatorio-jantares" className="hover:text-secondary">Relatório Jantares</NavLink>
                 </div>
               )}
