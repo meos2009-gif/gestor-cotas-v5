@@ -17,30 +17,37 @@ type MemberStats = {
 export default function Estatisticas() {
   const [stats, setStats] = useState<MemberStats[]>([]);
 
-  async function loadStats() {
-    const { data, error } = await supabase
-      .from("member_stats")
-      .select(`
-        id,
-        name,
-        convocado,
-        presencas,
-        minutos_totais,
-        media_minutos,
-        golos_totais,
-        media_golos,
-        percentagem,
-        capitao
-      `)
-      .order("golos_totais", { ascending: false });
+ async function loadStats() {
+  const { data, error } = await supabase
+    .from("member_stats")
+    .select(`
+      id,
+      member_name,
+      convocado,
+      presencas,
+      minutos_totais,
+      golos_totais,
+      capitao
+    `)
+    .order("golos_totais", { ascending: false });
 
-    if (error) {
-      console.error("Erro ao carregar estatísticas:", error);
-      return;
-    }
-
-    if (data) setStats(data);
+  if (error) {
+    console.error("Erro ao carregar estatísticas:", error);
+    return;
   }
+
+  if (data) {
+    const processed = data.map((m) => ({
+      ...m,
+      media_minutos: m.presencas > 0 ? m.minutos_totais / m.presencas : 0,
+      media_golos: m.presencas > 0 ? m.golos_totais / m.presencas : 0,
+      percentagem: m.convocado > 0 ? (m.presencas / m.convocado) * 100 : 0,
+      name: m.member_name,
+    }));
+
+    setStats(processed);
+  }
+}
 
   useEffect(() => {
     loadStats();
