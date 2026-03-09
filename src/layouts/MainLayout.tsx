@@ -25,10 +25,10 @@ export default function MainLayout() {
           {/* LOGO */}
           <div className="flex items-center gap-3">
             <img
-              src="/logo.png"
-              alt="Logo"
-              className="w-10 h-10 rounded-full border border-secondary"
-            />
+  src="/logo.png"
+  alt="Logo"
+  className="w-12 h-12 rounded-full border border-secondary bg-white p-1"
+/>
             <h1 className="text-xl font-bold text-secondary">Gestor de Cotas</h1>
           </div>
 
