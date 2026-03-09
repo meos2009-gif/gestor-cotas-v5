@@ -39,8 +39,7 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
             <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
             <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
-            <NavLink to="/pagamentos" className="hover:text-secondary">Pagamentos</NavLink>
-
+            
             {/* RELATÓRIOS */}
             <div className="relative">
               <button
@@ -130,8 +129,7 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
             <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
             <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
-            <NavLink to="/pagamentos" className="hover:text-secondary">Pagamentos</NavLink>
-
+            
             {/* RELATÓRIOS MOBILE */}
             <div>
               <button
