@@ -1,316 +1,140 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import { useState } from "react";
-import AppShell from "./AppShell";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 export default function MainLayout() {
+  console.log(">>> MAINLAYOUT ATUALIZADO <<<");
+
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const [paymentsOpen, setPaymentsOpen] = useState(false);
-  const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
-
-  const [reportsOpen, setReportsOpen] = useState(false);
-  const [reportsMobileOpen, setReportsMobileOpen] = useState(false);
-
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarMobileOpen, setCalendarMobileOpen] = useState(false);
 
-  // NOVOS ESTADOS PARA O MENU EQUIPA
-  const [teamOpen, setTeamOpen] = useState(false);
-  const [teamMobileOpen, setTeamMobileOpen] = useState(false);
+  const navigate = useNavigate();
 
-  async function handleLogout() {
+  const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/login";
-  }
+    navigate("/login");
+  };
 
   return (
-    <div className="flex flex-col h-screen bg-bg text-text">
-
-      {/* BARRA SUPERIOR */}
-      <header className="w-full bg-primary text-white px-6 py-3 flex items-center justify-between shadow-md fixed top-0 left-0 z-50">
-
-        {/* LOGO + TÍTULO */}
-        <div className="flex items-center space-x-3">
-          <img
-            src="/logo192.png"
-            alt="Logo"
-            className="w-12 h-12 rounded-full object-cover border-2 border-secondary"
-          />
-
-          <div className="flex flex-col leading-tight">
-            <span className="text-lg font-bold text-secondary">Gestor de Cotas</span>
-            <span className="text-xs text-gray-200">U.D. FAFE A60</span>
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      {/* NAVBAR */}
+      <nav className="bg-primary text-white px-6 py-4 shadow-md">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* LOGO */}
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-10 h-10 rounded-full border border-white"
+            />
+            <h1 className="text-xl font-bold">Gestor de Cotas</h1>
           </div>
-        </div>
 
-        {/* BOTÃO HAMBÚRGUER */}
-        <button
-          className="md:hidden text-white text-3xl"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          ☰
-        </button>
-
-        {/* MENU DESKTOP */}
-        <nav className="hidden md:flex space-x-6 text-sm font-medium items-center">
-
-          <NavLink
-            to="/socios"
-            className={({ isActive }) =>
-              `px-2 py-1 rounded transition ${
-                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
-              }`
-            }
-          >
-            Sócios
-          </NavLink>
-
-          {/* PAGAMENTOS */}
-          <div className="relative">
-            <button
-              onClick={() => setPaymentsOpen(!paymentsOpen)}
-              className="px-2 py-1 rounded hover:text-gray-300 transition flex items-center space-x-1"
+          {/* MENU DESKTOP */}
+          <div className="hidden md:flex items-center gap-6">
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `hover:text-gray-300 transition-colors ${
+                  isActive ? "font-bold underline" : ""
+                }`
+              }
             >
-              <span className="font-medium">Pagamentos</span>
-              <span className="text-xs">{paymentsOpen ? "▲" : "▼"}</span>
-            </button>
+              Dashboard
+            </NavLink>
 
-            {paymentsOpen && (
-              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-40 z-50">
-                <NavLink to="/pagamentos" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Cotas</NavLink>
-                <NavLink to="/jantar" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Jantar</NavLink>
-              </div>
-            )}
-          </div>
+            {/* CALENDÁRIO DROPDOWN */}
+            <div className="relative">
+              <button
+                onClick={() => setCalendarOpen(!calendarOpen)}
+                className="hover:text-gray-300 transition-colors"
+              >
+                Calendário ▾
+              </button>
 
-          {/* RELATÓRIOS */}
-          <div className="relative">
-            <button
-              onClick={() => setReportsOpen(!reportsOpen)}
-              className="px-2 py-1 rounded hover:text-gray-300 transition flex items-center space-x-1"
+              {calendarOpen && (
+                <div className="absolute left-0 mt-2 bg-primary text-white shadow-lg rounded-md p-3 flex flex-col gap-2 z-50">
+                  <NavLink to="/calendario">Época 2025/2026</NavLink>
+                  <NavLink to="/calendario-2026">Época 2026/2027</NavLink>
+                  <div className="text-gray-300 text-sm mt-1">
+                    Épocas futuras…
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* MENU EQUIPA (NOVO) */}
+            <NavLink
+              to="/estatisticas"
+              className={({ isActive }) =>
+                `hover:text-gray-300 transition-colors ${
+                  isActive ? "font-bold underline" : ""
+                }`
+              }
             >
-              <span className="font-medium">Relatórios</span>
-              <span className="text-xs">{reportsOpen ? "▲" : "▼"}</span>
-            </button>
+              Equipa
+            </NavLink>
 
-            {reportsOpen && (
-              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-50">
-                <NavLink to="/relatorio" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Relatório de Cotas</NavLink>
-                <NavLink to="/relatorio-jantares" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">Relatório de Jantares</NavLink>
-              </div>
-            )}
-          </div>
-
-          {/* CALENDÁRIO */}
-          <div className="relative">
+            {/* LOGOUT */}
             <button
-              onClick={() => setCalendarOpen(!calendarOpen)}
-              className="px-2 py-1 rounded hover:text-gray-300 transition flex items-center space-x-1"
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-white"
             >
-              <span className="font-medium">Calendário</span>
-              <span className="text-xs">{calendarOpen ? "▲" : "▼"}</span>
+              Terminar Sessão
             </button>
-
-            {calendarOpen && (
-              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-50">
-                <NavLink to="/calendario" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
-                  Época 2025/2026
-                </NavLink>
-
-                <NavLink to="/calendario-2026" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
-                  Época 2026/2027
-                </NavLink>
-
-                <div className="px-4 py-2 text-gray-400 text-sm">Épocas futuras…</div>
-              </div>
-            )}
           </div>
 
-          {/* EQUIPA (NOVO MENU) */}
-          <div className="relative">
-            <button
-              onClick={() => setTeamOpen(!teamOpen)}
-              className="px-2 py-1 rounded hover:text-gray-300 transition flex items-center space-x-1"
-            >
-              <span className="font-medium">Equipa</span>
-              <span className="text-xs">{teamOpen ? "▲" : "▼"}</span>
-            </button>
-
-            {teamOpen && (
-              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-50">
-
-                <NavLink to="/estatisticas" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
-                  Estatísticas da Equipa
-                </NavLink>
-
-                <NavLink to="/estatisticas-individuais" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
-                  Estatísticas Individuais
-                </NavLink>
-
-                <NavLink to="/jogos" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
-                  Jogos
-                </NavLink>
-
-                <NavLink to="/convocatoria" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
-                  Convocatória
-                </NavLink>
-
-              </div>
-            )}
-          </div>
-
-          {/* TESOURARIA */}
-          <NavLink to="/tesouraria" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>
-            Tesouraria
-          </NavLink>
-
-          {/* CONTABILIDADE */}
-          <NavLink
-            to="/contabilidade"
-            className={({ isActive }) =>
-              `px-2 py-1 rounded transition ${
-                isActive ? "text-secondary font-semibold" : "hover:text-gray-300"
-              }`
-            }
-          >
-            Contabilidade
-          </NavLink>
-
-          {/* DASHBOARD */}
-          <NavLink to="/dashboard" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>
-            Dashboard
-          </NavLink>
-
-          <NavLink to="/config" className={({ isActive }) => `px-2 py-1 rounded transition ${isActive ? "text-secondary font-semibold" : "hover:text-gray-300"}`}>
-            Configurações
-          </NavLink>
-        </nav>
-
-        {/* LOGOUT */}
-        <button
-          onClick={handleLogout}
-          className="hidden md:block bg-accent hover:bg-secondary text-white px-4 py-2 rounded transition text-sm font-medium"
-        >
-          Terminar Sessão
-        </button>
-      </header>
-
-      {/* MENU MOBILE */}
-      {menuOpen && (
-        <div className="md:hidden bg-primary text-white flex flex-col px-6 py-4 space-y-4 shadow-lg fixed top-[72px] left-0 w-full z-40">
-
-          <NavLink to="/socios" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">Sócios</NavLink>
-
-          {/* PAGAMENTOS MOBILE */}
-          <button onClick={() => setPaymentsMobileOpen(!paymentsMobileOpen)} className="py-2 flex justify-between items-center">
-            <span>Pagamentos</span>
-            <span>{paymentsMobileOpen ? "▲" : "▼"}</span>
-          </button>
-
-          {paymentsMobileOpen && (
-            <div className="ml-4 flex flex-col space-y-2">
-              <NavLink to="/pagamentos" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">Cotas</NavLink>
-              <NavLink to="/jantar" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">Jantar</NavLink>
-            </div>
-          )}
-
-          {/* RELATÓRIOS MOBILE */}
-          <button onClick={() => setReportsMobileOpen(!reportsMobileOpen)} className="py-2 flex justify-between items-center">
-            <span>Relatórios</span>
-            <span>{reportsMobileOpen ? "▲" : "▼"}</span>
-          </button>
-
-          {reportsMobileOpen && (
-            <div className="ml-4 flex flex-col space-y-2">
-              <NavLink to="/relatorio" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">Relatório de Cotas</NavLink>
-              <NavLink to="/relatorio-jantares" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">Relatório de Jantares</NavLink>
-            </div>
-          )}
-
-          {/* CALENDÁRIO MOBILE */}
-          <button onClick={() => setCalendarMobileOpen(!calendarMobileOpen)} className="py-2 flex justify-between items-center">
-            <span>Calendário</span>
-            <span>{calendarMobileOpen ? "▲" : "▼"}</span>
-          </button>
-
-          {calendarMobileOpen && (
-            <div className="ml-4 flex flex-col space-y-2">
-              <NavLink to="/calendario" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
-                Época 2025/2026
-              </NavLink>
-
-              <NavLink to="/calendario-2026" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
-                Época 2026/2027
-              </NavLink>
-
-              <div className="py-1 text-gray-400 text-sm">Épocas futuras…</div>
-            </div>
-          )}
-
-          {/* EQUIPA MOBILE */}
-          <button onClick={() => setTeamMobileOpen(!teamMobileOpen)} className="py-2 flex justify-between items-center">
-            <span>Equipa</span>
-            <span>{teamMobileOpen ? "▲" : "▼"}</span>
-          </button>
-
-          {teamMobileOpen && (
-            <div className="ml-4 flex flex-col space-y-2">
-              <NavLink to="/estatisticas" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
-                Estatísticas da Equipa
-              </NavLink>
-
-              <NavLink to="/estatisticas-individuais" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
-                Estatísticas Individuais
-              </NavLink>
-
-              <NavLink to="/jogos" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
-                Jogos
-              </NavLink>
-
-              <NavLink to="/convocatoria" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
-                Convocatória
-              </NavLink>
-            </div>
-          )}
-
-          {/* TESOURARIA */}
-          <NavLink to="/tesouraria" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">
-            Tesouraria
-          </NavLink>
-
-          {/* CONTABILIDADE */}
-          <NavLink
-            to="/contabilidade"
-            onClick={() => setMenuOpen(false)}
-            className="py-2 hover:text-secondary"
-          >
-            Contabilidade
-          </NavLink>
-
-          {/* DASHBOARD */}
-          <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">
-            Dashboard
-          </NavLink>
-
-          <NavLink to="/config" onClick={() => setMenuOpen(false)} className="py-2 hover:text-secondary">
-            Configurações
-          </NavLink>
-
+          {/* MENU MOBILE BUTTON */}
           <button
-            onClick={handleLogout}
-            className="bg-accent hover:bg-secondary text-white px-4 py-2 rounded transition text-sm font-medium"
+            className="md:hidden text-2xl"
+            onClick={() => setMenuOpen(!menuOpen)}
           >
-            Terminar Sessão
+            ☰
           </button>
         </div>
-      )}
+
+        {/* MENU MOBILE */}
+        {menuOpen && (
+          <div className="md:hidden mt-4 flex flex-col gap-4 bg-primary p-4 rounded-md">
+            <NavLink to="/dashboard">Dashboard</NavLink>
+
+            {/* CALENDÁRIO MOBILE */}
+            <div>
+              <button
+                onClick={() => setCalendarMobileOpen(!calendarMobileOpen)}
+                className="w-full text-left"
+              >
+                Calendário ▾
+              </button>
+
+              {calendarMobileOpen && (
+                <div className="ml-4 flex flex-col gap-2 mt-2">
+                  <NavLink to="/calendario">Época 2025/2026</NavLink>
+                  <NavLink to="/calendario-2026">Época 2026/2027</NavLink>
+                  <div className="text-gray-300 text-sm mt-1">
+                    Épocas futuras…
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* EQUIPA MOBILE (NOVO) */}
+            <NavLink to="/estatisticas">Equipa</NavLink>
+
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-white mt-2"
+            >
+              Terminar Sessão
+            </button>
+          </div>
+        )}
+      </nav>
 
       {/* CONTEÚDO */}
-      <main className="flex-1 overflow-x-visible overflow-y-auto pt-24 md:pt-24 relative z-0">
-        <AppShell>
-          <Outlet />
-        </AppShell>
+      <main className="flex-1 p-6">
+        <Outlet />
       </main>
     </div>
   );
