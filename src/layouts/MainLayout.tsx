@@ -3,11 +3,11 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
 export default function MainLayout() {
-  console.log(">>> MAINLAYOUT ATUALIZADO <<<");
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [reportsOpen, setReportsOpen] = useState(false);
   const [calendarMobileOpen, setCalendarMobileOpen] = useState(false);
+  const [reportsMobileOpen, setReportsMobileOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -33,16 +33,27 @@ export default function MainLayout() {
 
           {/* MENU DESKTOP */}
           <div className="hidden md:flex items-center gap-6">
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `hover:text-gray-300 transition-colors ${
-                  isActive ? "font-bold underline" : ""
-                }`
-              }
-            >
-              Dashboard
-            </NavLink>
+
+            <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/socios">Sócios</NavLink>
+            <NavLink to="/pagamentos">Pagamentos</NavLink>
+
+            {/* RELATÓRIOS DROPDOWN */}
+            <div className="relative">
+              <button
+                onClick={() => setReportsOpen(!reportsOpen)}
+                className="hover:text-gray-300 transition-colors"
+              >
+                Relatórios ▾
+              </button>
+
+              {reportsOpen && (
+                <div className="absolute left-0 mt-2 bg-primary text-white shadow-lg rounded-md p-3 flex flex-col gap-2 z-50">
+                  <NavLink to="/relatorio">Relatório Geral</NavLink>
+                  <NavLink to="/relatorio-jantares">Relatório Jantares</NavLink>
+                </div>
+              )}
+            </div>
 
             {/* CALENDÁRIO DROPDOWN */}
             <div className="relative">
@@ -57,24 +68,16 @@ export default function MainLayout() {
                 <div className="absolute left-0 mt-2 bg-primary text-white shadow-lg rounded-md p-3 flex flex-col gap-2 z-50">
                   <NavLink to="/calendario">Época 2025/2026</NavLink>
                   <NavLink to="/calendario-2026">Época 2026/2027</NavLink>
-                  <div className="text-gray-300 text-sm mt-1">
-                    Épocas futuras…
-                  </div>
                 </div>
               )}
             </div>
 
-            {/* MENU EQUIPA (NOVO) */}
-            <NavLink
-              to="/estatisticas"
-              className={({ isActive }) =>
-                `hover:text-gray-300 transition-colors ${
-                  isActive ? "font-bold underline" : ""
-                }`
-              }
-            >
-              Equipa
-            </NavLink>
+            <NavLink to="/tesouraria">Tesouraria</NavLink>
+            <NavLink to="/contabilidade">Contabilidade</NavLink>
+            <NavLink to="/config">Configurações</NavLink>
+
+            {/* EQUIPA (NOVO) */}
+            <NavLink to="/estatisticas">Equipa</NavLink>
 
             {/* LOGOUT */}
             <button
@@ -97,7 +100,27 @@ export default function MainLayout() {
         {/* MENU MOBILE */}
         {menuOpen && (
           <div className="md:hidden mt-4 flex flex-col gap-4 bg-primary p-4 rounded-md">
+
             <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/socios">Sócios</NavLink>
+            <NavLink to="/pagamentos">Pagamentos</NavLink>
+
+            {/* RELATÓRIOS MOBILE */}
+            <div>
+              <button
+                onClick={() => setReportsMobileOpen(!reportsMobileOpen)}
+                className="w-full text-left"
+              >
+                Relatórios ▾
+              </button>
+
+              {reportsMobileOpen && (
+                <div className="ml-4 flex flex-col gap-2 mt-2">
+                  <NavLink to="/relatorio">Relatório Geral</NavLink>
+                  <NavLink to="/relatorio-jantares">Relatório Jantares</NavLink>
+                </div>
+              )}
+            </div>
 
             {/* CALENDÁRIO MOBILE */}
             <div>
@@ -112,14 +135,13 @@ export default function MainLayout() {
                 <div className="ml-4 flex flex-col gap-2 mt-2">
                   <NavLink to="/calendario">Época 2025/2026</NavLink>
                   <NavLink to="/calendario-2026">Época 2026/2027</NavLink>
-                  <div className="text-gray-300 text-sm mt-1">
-                    Épocas futuras…
-                  </div>
                 </div>
               )}
             </div>
 
-            {/* EQUIPA MOBILE (NOVO) */}
+            <NavLink to="/tesouraria">Tesouraria</NavLink>
+            <NavLink to="/contabilidade">Contabilidade</NavLink>
+            <NavLink to="/config">Configurações</NavLink>
             <NavLink to="/estatisticas">Equipa</NavLink>
 
             <button
