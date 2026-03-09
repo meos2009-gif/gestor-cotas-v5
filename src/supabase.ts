@@ -4,3 +4,9 @@ export const supabase = createClient(
   "https://luwxmvqyojpkcvcmirnk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1d3htdnF5b2pwa2N2Y21pcm5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MDIyNzEsImV4cCI6MjA4Mzk3ODI3MX0.9opGQQYd3N5lIsZkpW2HLv5Tt6fMQFE9mBnbPSMVui8"
 );
+
+// Expor no window para debugging
+if (typeof window !== "undefined") {
+  // @ts-ignore
+  window.supabase = supabase;
+}
