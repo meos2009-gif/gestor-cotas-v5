@@ -15,6 +15,10 @@ export default function MainLayout() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarMobileOpen, setCalendarMobileOpen] = useState(false);
 
+  // NOVOS ESTADOS PARA O MENU EQUIPA
+  const [teamOpen, setTeamOpen] = useState(false);
+  const [teamMobileOpen, setTeamMobileOpen] = useState(false);
+
   async function handleLogout() {
     await supabase.auth.signOut();
     window.location.href = "/login";
@@ -118,11 +122,40 @@ export default function MainLayout() {
                   Época 2026/2027
                 </NavLink>
 
+                <div className="px-4 py-2 text-gray-400 text-sm">Épocas futuras…</div>
+              </div>
+            )}
+          </div>
+
+          {/* EQUIPA (NOVO MENU) */}
+          <div className="relative">
+            <button
+              onClick={() => setTeamOpen(!teamOpen)}
+              className="px-2 py-1 rounded hover:text-gray-300 transition flex items-center space-x-1"
+            >
+              <span className="font-medium">Equipa</span>
+              <span className="text-xs">{teamOpen ? "▲" : "▼"}</span>
+            </button>
+
+            {teamOpen && (
+              <div className="absolute left-0 mt-2 bg-primary border border-gray-700 rounded shadow-lg flex flex-col w-48 z-50">
+
                 <NavLink to="/estatisticas" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
                   Estatísticas da Equipa
                 </NavLink>
 
-                <div className="px-4 py-2 text-gray-400 text-sm">Épocas futuras…</div>
+                <NavLink to="/estatisticas-individuais" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
+                  Estatísticas Individuais
+                </NavLink>
+
+                <NavLink to="/jogos" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
+                  Jogos
+                </NavLink>
+
+                <NavLink to="/convocatoria" className="px-4 py-2 hover:bg-secondary hover:text-primary transition">
+                  Convocatória
+                </NavLink>
+
               </div>
             )}
           </div>
@@ -132,7 +165,7 @@ export default function MainLayout() {
             Tesouraria
           </NavLink>
 
-          {/* CONTABILIDADE (NOVO) */}
+          {/* CONTABILIDADE */}
           <NavLink
             to="/contabilidade"
             className={({ isActive }) =>
@@ -211,11 +244,33 @@ export default function MainLayout() {
                 Época 2026/2027
               </NavLink>
 
+              <div className="py-1 text-gray-400 text-sm">Épocas futuras…</div>
+            </div>
+          )}
+
+          {/* EQUIPA MOBILE */}
+          <button onClick={() => setTeamMobileOpen(!teamMobileOpen)} className="py-2 flex justify-between items-center">
+            <span>Equipa</span>
+            <span>{teamMobileOpen ? "▲" : "▼"}</span>
+          </button>
+
+          {teamMobileOpen && (
+            <div className="ml-4 flex flex-col space-y-2">
               <NavLink to="/estatisticas" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
                 Estatísticas da Equipa
               </NavLink>
 
-              <div className="py-1 text-gray-400 text-sm">Épocas futuras…</div>
+              <NavLink to="/estatisticas-individuais" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
+                Estatísticas Individuais
+              </NavLink>
+
+              <NavLink to="/jogos" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
+                Jogos
+              </NavLink>
+
+              <NavLink to="/convocatoria" onClick={() => setMenuOpen(false)} className="py-1 hover:text-secondary">
+                Convocatória
+              </NavLink>
             </div>
           )}
 
@@ -224,7 +279,7 @@ export default function MainLayout() {
             Tesouraria
           </NavLink>
 
-          {/* CONTABILIDADE (NOVO) */}
+          {/* CONTABILIDADE */}
           <NavLink
             to="/contabilidade"
             onClick={() => setMenuOpen(false)}
