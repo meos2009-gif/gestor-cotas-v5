@@ -11,51 +11,84 @@ type MemberStats = {
   golos_totais: number;
   media_golos: number;
   percentagem: number;
-  capitao: number; // agora é número
+  capitao: number;
 };
 
 export default function Estatisticas() {
   const [stats, setStats] = useState<MemberStats[]>([]);
+  const [team, setTeam] = useState<any>(null);
 
- async function loadStats() {
-  const { data, error } = await supabase
-    .from("member_stats")
-    .select(`
-      id,
-      member_name,
-      convocado,
-      presencas,
-      minutos_totais,
-      golos_totais,
-      capitao
-    `)
-    .order("golos_totais", { ascending: false });
+  async function loadStats() {
+    const { data, error } = await supabase
+      .from("member_stats")
+      .select(`
+        id,
+        member_name,
+        convocado,
+        presencas,
+        minutos_totais,
+        golos_totais,
+        capitao
+      `)
+      .order("golos_totais", { ascending: false });
 
-  if (error) {
-    console.error("Erro ao carregar estatísticas:", error);
-    return;
+    if (error) {
+      console.error("Erro ao carregar estatísticas:", error);
+      return;
+    }
+
+    if (data) {
+      const processed = data.map((m) => ({
+        ...m,
+        media_minutos: m.presencas > 0 ? m.minutos_totais / m.presencas : 0,
+        media_golos: m.presencas > 0 ? m.golos_totais / m.presencas : 0,
+        percentagem: m.convocado > 0 ? (m.presencas / m.convocado) * 100 : 0,
+        name: m.member_name,
+      }));
+
+      setStats(processed);
+    }
   }
 
-  if (data) {
-    const processed = data.map((m) => ({
-      ...m,
-      media_minutos: m.presencas > 0 ? m.minutos_totais / m.presencas : 0,
-      media_golos: m.presencas > 0 ? m.golos_totais / m.presencas : 0,
-      percentagem: m.convocado > 0 ? (m.presencas / m.convocado) * 100 : 0,
-      name: m.member_name,
-    }));
+  async function loadTeamStats() {
+    const { data, error } = await supabase
+      .from("team_stats")
+      .select("*")
+      .single();
 
-    setStats(processed);
+    if (!error && data) setTeam(data);
   }
-}
 
   useEffect(() => {
     loadStats();
+    loadTeamStats();
   }, []);
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Estatísticas Individuais</h1>
+      <h1 className="text-xl font-bold mb-4">Estatísticas</h1>
+
+      {/* Estatísticas da Equipa */}
+      {team && (
+        <div className="p-4 mb-6 bg-secondary text-primary rounded shadow border border-gray-700">
+          <h2 className="text-lg font-bold mb-2">Estatísticas da Equipa</h2>
+
+          <p><strong>Vitórias:</strong> {team.vitorias}</p>
+          <p><strong>Empates:</strong> {team.empates}</p>
+          <p><strong>Derrotas:</strong> {team.derrotas}</p>
+
+          <p className="mt-2 text-yellow-300">
+            <strong>Golos Marcados:</strong> {team.golos_marcados}
+          </p>
+
+          <p className="text-yellow-300">
+            <strong>Golos Sofridos:</strong> {team.golos_sofridos}
+          </p>
+        </div>
+      )}
+
+      {/* Estatísticas Individuais */}
+      <h2 className="text-xl font-bold mb-4">Estatísticas Individuais</h2>
 
       <div className="space-y-4">
         {stats.map((m) => (
@@ -63,7 +96,6 @@ export default function Estatisticas() {
             key={m.id}
             className="p-4 bg-primary text-white rounded shadow border border-gray-700"
           >
-            {/* Nome + Capitão */}
             <h2 className="text-lg font-bold flex items-center gap-2">
               {m.name}
 
