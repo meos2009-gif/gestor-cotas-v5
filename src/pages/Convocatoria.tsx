@@ -129,8 +129,33 @@ export default function Convocatoria() {
             <input
               type="number"
               min={0}
-              value={game.goals_home ?? 0}
-              onChange={(e) => updateGame("goals_home", Number(e.target.value))}
+              value={game.goals_home ?? ""}
+ value={game.goals_away ?? ""}         
+ onChange={(e) => {
+  const v = e.target.value;
+  updateGame("goals_home", v === "" ? null : Number(v));
+}}
+<input
+  type="number"
+  min={0}
+  value={game.goals_home ?? ""}
+  onChange={(e) => {
+    const v = e.target.value;
+    updateGame("goals_home", v === "" ? null : Number(v));
+  }}
+  className="w-20 p-1 text-black rounded"
+/>
+<input
+  type="number"
+  min={0}
+  value={game.goals_away ?? ""}
+  onChange={(e) => {
+    const v = e.target.value;
+    updateGame("goals_away", v === "" ? null : Number(v));
+  }}
+  className="w-20 p-1 text-black rounded"
+/>
+
               className="w-20 p-1 text-black rounded"
             />
             Golos Fafe
