@@ -81,24 +81,27 @@ export default function Convocatoria() {
       .update({ [field]: value })
       .eq("game_id", gameId)
       .eq("member_id", memberId);
+
+    // 🔥 Atualizar estatísticas
+    await supabase.rpc("update_member_stats_v2");
   }
 
   // Garantir que só existe 1 capitão
   async function setCaptain(memberId: string) {
-    // 1. remover capitão de todos
     await supabase
       .from("game_attendance")
       .update({ captain: false })
       .eq("game_id", gameId);
 
-    // 2. definir o novo capitão
     await supabase
       .from("game_attendance")
       .update({ captain: true })
       .eq("game_id", gameId)
       .eq("member_id", memberId);
 
-    // 3. atualizar estado local
+    // 🔥 Atualizar estatísticas
+    await supabase.rpc("update_member_stats_v2");
+
     setAttendance((prev) => {
       const updated = { ...prev };
       Object.keys(updated).forEach((id) => {
@@ -130,32 +133,10 @@ export default function Convocatoria() {
               type="number"
               min={0}
               value={game.goals_home ?? ""}
- value={game.goals_away ?? ""}         
- onChange={(e) => {
-  const v = e.target.value;
-  updateGame("goals_home", v === "" ? null : Number(v));
-}}
-<input
-  type="number"
-  min={0}
-  value={game.goals_home ?? ""}
-  onChange={(e) => {
-    const v = e.target.value;
-    updateGame("goals_home", v === "" ? null : Number(v));
-  }}
-  className="w-20 p-1 text-black rounded"
-/>
-<input
-  type="number"
-  min={0}
-  value={game.goals_away ?? ""}
-  onChange={(e) => {
-    const v = e.target.value;
-    updateGame("goals_away", v === "" ? null : Number(v));
-  }}
-  className="w-20 p-1 text-black rounded"
-/>
-
+              onChange={(e) => {
+                const v = e.target.value;
+                updateGame("goals_home", v === "" ? null : Number(v));
+              }}
               className="w-20 p-1 text-black rounded"
             />
             Golos Fafe
@@ -165,8 +146,11 @@ export default function Convocatoria() {
             <input
               type="number"
               min={0}
-              value={game.goals_away ?? 0}
-              onChange={(e) => updateGame("goals_away", Number(e.target.value))}
+              value={game.goals_away ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                updateGame("goals_away", v === "" ? null : Number(v));
+              }}
               className="w-20 p-1 text-black rounded"
             />
             Golos Adversário
@@ -192,7 +176,6 @@ export default function Convocatoria() {
               key={m.id}
               className="p-4 bg-primary text-white rounded shadow border border-gray-700"
             >
-              {/* Nome + Capitão + Botão */}
               <h2 className="text-lg font-bold flex items-center gap-2">
                 {m.name}
 
@@ -212,7 +195,6 @@ export default function Convocatoria() {
                 )}
               </h2>
 
-              {/* Indisponível */}
               <label className="flex items-center gap-2 mt-2">
                 <input
                   type="checkbox"
@@ -224,7 +206,6 @@ export default function Convocatoria() {
                 Indisponível
               </label>
 
-              {/* Presente */}
               <label className="flex items-center gap-2 mt-2">
                 <input
                   type="checkbox"
@@ -237,7 +218,6 @@ export default function Convocatoria() {
                 Presente
               </label>
 
-              {/* Minutos */}
               <div className="flex items-center gap-2 mt-2 opacity-100">
                 <button
                   onClick={() =>
@@ -274,7 +254,6 @@ export default function Convocatoria() {
                 <span>Minutos</span>
               </div>
 
-              {/* Golos */}
               <div className="flex items-center gap-2 mt-2">
                 <button
                   onClick={() =>
