@@ -88,8 +88,9 @@ export default function Convocatoria() {
     }
   }
 
-  // 🔥 CORRIGIDO: garante que o estado nunca fica incompleto
+  // 🔥 FUNÇÃO CORRETA PARA ATUALIZAR game_attendance
   async function updateField(memberId: string, field: string, value: any) {
+    // Atualiza estado local
     setAttendance((prev) => {
       const current = prev[memberId] ?? {
         member_id: memberId,
@@ -106,8 +107,10 @@ export default function Convocatoria() {
       };
     });
 
+    // Garante que a linha existe
     await ensureRow(memberId);
 
+    // Vai buscar o ID da linha
     const { data: row } = await supabase
       .from("game_attendance")
       .select("id")
@@ -117,15 +120,19 @@ export default function Convocatoria() {
 
     if (!row) return;
 
+    // Atualiza o campo correto
     await supabase
       .from("game_attendance")
       .update({ [field]: value })
       .eq("id", row.id);
 
+    // Atualiza estatísticas
     await supabase.rpc("update_member_stats_v30");
   }
 
+  // 🔥 FUNÇÃO CORRIGIDA PARA DEFINIR CAPITÃO
   async function setCaptain(memberId: string) {
+    // Remove capitão de todos
     await supabase
       .from("game_attendance")
       .update({ captain: false })
@@ -149,6 +156,7 @@ export default function Convocatoria() {
 
     await supabase.rpc("update_member_stats_v30");
 
+    // Atualiza estado local
     setAttendance((prev) => {
       const updated = { ...prev };
       Object.keys(updated).forEach((id) => {
@@ -158,6 +166,7 @@ export default function Convocatoria() {
     });
   }
 
+  // ⚽ Só para atualizar golos do jogo (tabela games)
   async function updateGame(field: string, value: number) {
     await supabase
       .from("games")
