@@ -18,7 +18,6 @@ type Attendance = {
 
 export default function Convocatoria() {
   const { gameId } = useParams();
-  console.log("GAME ID DO FRONTEND:", gameId);
 
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance>>({});
@@ -79,22 +78,22 @@ export default function Convocatoria() {
       await supabase.from("game_attendance").insert({
         game_id: gameId,
         member_id: memberId,
-        called: false,
+        called: true, // DISPONÍVEL POR DEFEITO
         present: false,
         minutes: 0,
         goals: 0,
         captain: false
       });
+
+      await new Promise((r) => setTimeout(r, 150));
     }
   }
 
-  // 🔥 FUNÇÃO CORRETA PARA ATUALIZAR game_attendance
   async function updateField(memberId: string, field: string, value: any) {
-    // Atualiza estado local
     setAttendance((prev) => {
       const current = prev[memberId] ?? {
         member_id: memberId,
-        called: false,
+        called: true,
         present: false,
         minutes: 0,
         goals: 0,
@@ -107,32 +106,26 @@ export default function Convocatoria() {
       };
     });
 
-    // Garante que a linha existe
     await ensureRow(memberId);
 
-    // Vai buscar o ID da linha
     const { data: row } = await supabase
       .from("game_attendance")
       .select("id")
       .eq("game_id", gameId)
       .eq("member_id", memberId)
-      .single();
+      .maybeSingle();
 
     if (!row) return;
 
-    // Atualiza o campo correto
     await supabase
       .from("game_attendance")
       .update({ [field]: value })
       .eq("id", row.id);
 
-    // Atualiza estatísticas
     await supabase.rpc("update_member_stats_v30");
   }
 
-  // 🔥 FUNÇÃO CORRIGIDA PARA DEFINIR CAPITÃO
   async function setCaptain(memberId: string) {
-    // Remove capitão de todos
     await supabase
       .from("game_attendance")
       .update({ captain: false })
@@ -145,7 +138,7 @@ export default function Convocatoria() {
       .select("id")
       .eq("game_id", gameId)
       .eq("member_id", memberId)
-      .single();
+      .maybeSingle();
 
     if (!row) return;
 
@@ -156,7 +149,6 @@ export default function Convocatoria() {
 
     await supabase.rpc("update_member_stats_v30");
 
-    // Atualiza estado local
     setAttendance((prev) => {
       const updated = { ...prev };
       Object.keys(updated).forEach((id) => {
@@ -166,7 +158,6 @@ export default function Convocatoria() {
     });
   }
 
-  // ⚽ Só para atualizar golos do jogo (tabela games)
   async function updateGame(field: string, value: number) {
     await supabase
       .from("games")
@@ -216,7 +207,7 @@ export default function Convocatoria() {
         {members.map((m) => {
           const att = attendance[m.id] ?? {
             member_id: m.id,
-            called: false,
+            called: true,
             present: false,
             minutes: 0,
             goals: 0,
@@ -250,12 +241,12 @@ export default function Convocatoria() {
               <label className="flex items-center gap-2 mt-2">
                 <input
                   type="checkbox"
-                  checked={!att.called}
+                  checked={att.called}
                   onChange={(e) =>
-                    updateField(m.id, "called", !e.target.checked)
+                    updateField(m.id, "called", e.target.checked)
                   }
                 />
-                Indisponível
+                Disponível
               </label>
 
               <label className="flex items-center gap-2 mt-2">
@@ -270,7 +261,7 @@ export default function Convocatoria() {
                 Presente
               </label>
 
-              <div className="flex items-center gap-2 mt-2 opacity-100">
+              <div className="flex items-center gap-2 mt-2">
                 <button
                   onClick={() =>
                     updateField(m.id, "minutes", Math.max(0, att.minutes - 1))
