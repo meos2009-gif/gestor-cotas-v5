@@ -23,7 +23,6 @@ export default function Convocatoria() {
   const [attendance, setAttendance] = useState<Record<string, Attendance>>({});
   const [game, setGame] = useState<any>(null);
 
-  // Carregar jogo
   async function loadGame() {
     const { data } = await supabase
       .from("games")
@@ -34,7 +33,6 @@ export default function Convocatoria() {
     if (data) setGame(data);
   }
 
-  // Carregar membros e convocatória
   async function loadData() {
     const { data: membersData } = await supabase
       .from("members")
@@ -69,16 +67,15 @@ export default function Convocatoria() {
     loadData();
   }, [gameId]);
 
-  // Criar linha se não existir
+  // GARANTE que existe apenas 1 linha por jogador/jogo
   async function ensureRow(memberId: string) {
-    const { data: existing } = await supabase
+    const { data: rows } = await supabase
       .from("game_attendance")
-      .select("member_id")
+      .select("id")
       .eq("game_id", gameId)
-      .eq("member_id", memberId)
-      .maybeSingle();
+      .eq("member_id", memberId);
 
-    if (!existing) {
+    if (!rows || rows.length === 0) {
       await supabase.from("game_attendance").insert({
         game_id: gameId,
         member_id: memberId,
@@ -91,29 +88,23 @@ export default function Convocatoria() {
     }
   }
 
-  // Atualizar campos normais
   async function updateField(memberId: string, field: string, value: any) {
-    // Atualizar estado local
     setAttendance((prev) => ({
       ...prev,
       [memberId]: { ...prev[memberId], [field]: value }
     }));
 
-    // Garantir que existe linha
     await ensureRow(memberId);
 
-    // Atualizar campo
     await supabase
       .from("game_attendance")
       .update({ [field]: value })
       .eq("game_id", gameId)
       .eq("member_id", memberId);
 
-    // Atualizar estatísticas
     await supabase.rpc("update_member_stats_v2");
   }
 
-  // Garantir que só existe 1 capitão
   async function setCaptain(memberId: string) {
     await supabase
       .from("game_attendance")
@@ -139,7 +130,6 @@ export default function Convocatoria() {
     });
   }
 
-  // Atualizar resultado
   async function updateGame(field: string, value: number) {
     await supabase
       .from("games")
@@ -153,7 +143,6 @@ export default function Convocatoria() {
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Convocatória</h1>
 
-      {/* Resultado */}
       {game && (
         <div className="flex gap-6 mb-6 bg-secondary text-primary p-4 rounded shadow">
           <label className="flex items-center gap-2">
@@ -186,7 +175,6 @@ export default function Convocatoria() {
         </div>
       )}
 
-      {/* Lista */}
       <div className="space-y-4">
         {members.map((m) => {
           const att = attendance[m.id] || {
