@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
 export default function MainLayout() {
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
   const [calendarMobileOpen, setCalendarMobileOpen] = useState(false);
