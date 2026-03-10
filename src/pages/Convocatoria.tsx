@@ -66,7 +66,6 @@ export default function Convocatoria() {
     loadGame();
     loadData();
   }, [gameId]);
-
   async function ensureRow(memberId: string) {
     const { data: rows } = await supabase
       .from("game_attendance")
@@ -124,7 +123,6 @@ export default function Convocatoria() {
 
     await supabase.rpc("update_member_stats_v30");
   }
-
   async function setCaptain(memberId: string) {
     await supabase
       .from("game_attendance")
@@ -166,7 +164,6 @@ export default function Convocatoria() {
 
     setGame((prev: any) => ({ ...prev, [field]: value }));
   }
-
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Convocatória</h1>
@@ -213,7 +210,6 @@ export default function Convocatoria() {
             goals: 0,
             captain: false
           };
-
           return (
             <div
               key={m.id}
