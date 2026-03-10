@@ -68,7 +68,6 @@ export default function Convocatoria() {
     loadData();
   }, [gameId]);
 
-  // GARANTE que existe apenas 1 linha por jogador/jogo
   async function ensureRow(memberId: string) {
     const { data: rows } = await supabase
       .from("game_attendance")
@@ -80,7 +79,7 @@ export default function Convocatoria() {
       await supabase.from("game_attendance").insert({
         game_id: gameId,
         member_id: memberId,
-        called: true,
+        called: false,
         present: false,
         minutes: 0,
         goals: 0,
@@ -89,7 +88,6 @@ export default function Convocatoria() {
     }
   }
 
-  // CORRIGIDO — garante que a linha existe e usa o ID real
   async function updateField(memberId: string, field: string, value: any) {
     setAttendance((prev) => ({
       ...prev,
@@ -118,7 +116,6 @@ export default function Convocatoria() {
     await supabase.rpc("update_member_stats_v30");
   }
 
-  // CORRIGIDO — garante ID real antes de definir capitão
   async function setCaptain(memberId: string) {
     await supabase
       .from("game_attendance")
@@ -202,15 +199,14 @@ export default function Convocatoria() {
 
       <div className="space-y-4">
         {members.map((m) => {
-          const att = attendance[m.id] || {
-            called: true,
+          const att = attendance[m.id] ?? {
+            member_id: m.id,
+            called: false,
             present: false,
             minutes: 0,
             goals: 0,
             captain: false
           };
-
-          const indisponivel = !att.called;
 
           return (
             <div
@@ -226,7 +222,7 @@ export default function Convocatoria() {
                   </span>
                 )}
 
-                {!att.captain && !indisponivel && (
+                {!att.captain && att.called && (
                   <button
                     onClick={() => setCaptain(m.id)}
                     className="ml-2 px-2 py-1 bg-yellow-600 rounded text-black hover:bg-yellow-500"
@@ -239,7 +235,7 @@ export default function Convocatoria() {
               <label className="flex items-center gap-2 mt-2">
                 <input
                   type="checkbox"
-                  checked={indisponivel}
+                  checked={!att.called}
                   onChange={(e) =>
                     updateField(m.id, "called", !e.target.checked)
                   }
@@ -251,7 +247,7 @@ export default function Convocatoria() {
                 <input
                   type="checkbox"
                   checked={att.present}
-                  disabled={indisponivel}
+                  disabled={!att.called}
                   onChange={(e) =>
                     updateField(m.id, "present", e.target.checked)
                   }
@@ -264,7 +260,7 @@ export default function Convocatoria() {
                   onClick={() =>
                     updateField(m.id, "minutes", Math.max(0, att.minutes - 1))
                   }
-                  disabled={indisponivel}
+                  disabled={!att.called}
                   className="px-2 bg-gray-600 rounded disabled:opacity-40"
                 >
                   -
@@ -275,7 +271,7 @@ export default function Convocatoria() {
                   min={0}
                   max={90}
                   value={att.minutes}
-                  disabled={indisponivel}
+                  disabled={!att.called}
                   onChange={(e) =>
                     updateField(m.id, "minutes", Number(e.target.value))
                   }
@@ -286,7 +282,7 @@ export default function Convocatoria() {
                   onClick={() =>
                     updateField(m.id, "minutes", att.minutes + 1)
                   }
-                  disabled={indisponivel}
+                  disabled={!att.called}
                   className="px-2 bg-gray-600 rounded disabled:opacity-40"
                 >
                   +
@@ -300,7 +296,7 @@ export default function Convocatoria() {
                   onClick={() =>
                     updateField(m.id, "goals", Math.max(0, att.goals - 1))
                   }
-                  disabled={indisponivel}
+                  disabled={!att.called}
                   className="px-2 bg-gray-600 rounded disabled:opacity-40"
                 >
                   -
@@ -310,7 +306,7 @@ export default function Convocatoria() {
                   type="number"
                   min={0}
                   value={att.goals}
-                  disabled={indisponivel}
+                  disabled={!att.called}
                   onChange={(e) =>
                     updateField(m.id, "goals", Number(e.target.value))
                   }
@@ -321,7 +317,7 @@ export default function Convocatoria() {
                   onClick={() =>
                     updateField(m.id, "goals", att.goals + 1)
                   }
-                  disabled={indisponivel}
+                  disabled={!att.called}
                   className="px-2 bg-gray-600 rounded disabled:opacity-40"
                 >
                   +
