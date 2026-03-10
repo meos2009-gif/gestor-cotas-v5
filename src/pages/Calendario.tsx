@@ -154,12 +154,15 @@ export default function Calendario() {
 
               {/* Botões */}
               <div className="flex gap-3 mt-3">
-                <button
-                  onClick={() => navigate(`/equipa/convocatoria/${j.id}`)}
-                  className="px-3 py-1 bg-yellow-500 text-black rounded"
-                >
-                  Convocatória
-                </button>
+              <button
+  onClick={() => {
+    console.log("CLIQUE NO BOTÃO DE CONVOCATORIA", j.id);
+    navigate(`/convocatoria/${j.id}`);
+  }}
+  className="px-3 py-1 bg-yellow-500 text-black rounded"
+>
+  Convocatória
+</button>
 
                 <button
                   onClick={() => navigate(`/estatisticas?gameId=${j.id}`)}
