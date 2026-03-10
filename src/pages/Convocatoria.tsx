@@ -88,11 +88,23 @@ export default function Convocatoria() {
     }
   }
 
+  // 🔥 CORRIGIDO: garante que o estado nunca fica incompleto
   async function updateField(memberId: string, field: string, value: any) {
-    setAttendance((prev) => ({
-      ...prev,
-      [memberId]: { ...prev[memberId], [field]: value }
-    }));
+    setAttendance((prev) => {
+      const current = prev[memberId] ?? {
+        member_id: memberId,
+        called: false,
+        present: false,
+        minutes: 0,
+        goals: 0,
+        captain: false
+      };
+
+      return {
+        ...prev,
+        [memberId]: { ...current, [field]: value }
+      };
+    });
 
     await ensureRow(memberId);
 
@@ -103,10 +115,7 @@ export default function Convocatoria() {
       .eq("member_id", memberId)
       .single();
 
-    if (!row) {
-      console.error("ERRO: linha não encontrada após ensureRow");
-      return;
-    }
+    if (!row) return;
 
     await supabase
       .from("game_attendance")
@@ -131,10 +140,7 @@ export default function Convocatoria() {
       .eq("member_id", memberId)
       .single();
 
-    if (!row) {
-      console.error("ERRO: linha não encontrada após ensureRow");
-      return;
-    }
+    if (!row) return;
 
     await supabase
       .from("game_attendance")
