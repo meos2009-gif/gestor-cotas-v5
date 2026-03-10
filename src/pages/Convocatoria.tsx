@@ -18,7 +18,7 @@ type Attendance = {
 
 export default function Convocatoria() {
   const { gameId } = useParams();
-console.log("GAME ID DO FRONTEND:", gameId);
+  console.log("GAME ID DO FRONTEND:", gameId);
 
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance>>({});
@@ -89,6 +89,7 @@ console.log("GAME ID DO FRONTEND:", gameId);
     }
   }
 
+  // CORRIGIDO — garante que a linha existe e usa o ID real
   async function updateField(memberId: string, field: string, value: any) {
     setAttendance((prev) => ({
       ...prev,
@@ -97,15 +98,27 @@ console.log("GAME ID DO FRONTEND:", gameId);
 
     await ensureRow(memberId);
 
+    const { data: row } = await supabase
+      .from("game_attendance")
+      .select("id")
+      .eq("game_id", gameId)
+      .eq("member_id", memberId)
+      .single();
+
+    if (!row) {
+      console.error("ERRO: linha não encontrada após ensureRow");
+      return;
+    }
+
     await supabase
       .from("game_attendance")
       .update({ [field]: value })
-      .eq("game_id", gameId)
-      .eq("member_id", memberId);
+      .eq("id", row.id);
 
     await supabase.rpc("update_member_stats_v30");
   }
 
+  // CORRIGIDO — garante ID real antes de definir capitão
   async function setCaptain(memberId: string) {
     await supabase
       .from("game_attendance")
@@ -114,11 +127,22 @@ console.log("GAME ID DO FRONTEND:", gameId);
 
     await ensureRow(memberId);
 
+    const { data: row } = await supabase
+      .from("game_attendance")
+      .select("id")
+      .eq("game_id", gameId)
+      .eq("member_id", memberId)
+      .single();
+
+    if (!row) {
+      console.error("ERRO: linha não encontrada após ensureRow");
+      return;
+    }
+
     await supabase
       .from("game_attendance")
       .update({ captain: true })
-      .eq("game_id", gameId)
-      .eq("member_id", memberId);
+      .eq("id", row.id);
 
     await supabase.rpc("update_member_stats_v30");
 
