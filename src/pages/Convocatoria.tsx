@@ -10,7 +10,6 @@ type Member = {
 type Attendance = {
   member_id: string;
   called: boolean;
-  present: boolean;
   minutes: number;
   goals: number;
   captain: boolean;
@@ -52,7 +51,6 @@ export default function Convocatoria() {
         map[a.member_id] = {
           member_id: a.member_id,
           called: a.called,
-          present: a.present,
           minutes: a.minutes,
           goals: a.goals ?? 0,
           captain: a.captain ?? false
@@ -77,8 +75,7 @@ export default function Convocatoria() {
       await supabase.from("game_attendance").insert({
         game_id: gameId,
         member_id: memberId,
-        called: true, // DISPONÍVEL POR DEFEITO
-        present: false,
+        called: true,
         minutes: 0,
         goals: 0,
         captain: false
@@ -93,16 +90,20 @@ export default function Convocatoria() {
       const current = prev[memberId] ?? {
         member_id: memberId,
         called: true,
-        present: false,
         minutes: 0,
         goals: 0,
         captain: false
       };
 
-      return {
-        ...prev,
-        [memberId]: { ...current, [field]: value }
-      };
+      const updated = { ...current, [field]: value };
+
+      if (field === "called" && value === false) {
+        updated.minutes = 0;
+        updated.goals = 0;
+        updated.captain = false;
+      }
+
+      return { ...prev, [memberId]: updated };
     });
 
     await ensureRow(memberId);
@@ -205,7 +206,6 @@ export default function Convocatoria() {
           const att = attendance[m.id] ?? {
             member_id: m.id,
             called: true,
-            present: false,
             minutes: 0,
             goals: 0,
             captain: false
@@ -243,18 +243,6 @@ export default function Convocatoria() {
                   }
                 />
                 Disponível
-              </label>
-
-              <label className="flex items-center gap-2 mt-2">
-                <input
-                  type="checkbox"
-                  checked={att.present}
-                  disabled={!att.called}
-                  onChange={(e) =>
-                    updateField(m.id, "present", e.target.checked)
-                  }
-                />
-                Presente
               </label>
 
               <div className="flex items-center gap-2 mt-2">
