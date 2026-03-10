@@ -120,7 +120,7 @@ console.log("GAME ID DO FRONTEND:", gameId);
       .eq("game_id", gameId)
       .eq("member_id", memberId);
 
-    await supabase.rpc("update_member_stats_v2");
+    await supabase.rpc("update_member_stats_v30");
 
     setAttendance((prev) => {
       const updated = { ...prev };
