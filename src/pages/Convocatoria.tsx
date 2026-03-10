@@ -69,20 +69,47 @@ export default function Convocatoria() {
     loadData();
   }, [gameId]);
 
+  // Criar linha se não existir
+  async function ensureRow(memberId: string) {
+    const { data: existing } = await supabase
+      .from("game_attendance")
+      .select("member_id")
+      .eq("game_id", gameId)
+      .eq("member_id", memberId)
+      .maybeSingle();
+
+    if (!existing) {
+      await supabase.from("game_attendance").insert({
+        game_id: gameId,
+        member_id: memberId,
+        called: true,
+        present: false,
+        minutes: 0,
+        goals: 0,
+        captain: false
+      });
+    }
+  }
+
   // Atualizar campos normais
   async function updateField(memberId: string, field: string, value: any) {
+    // Atualizar estado local
     setAttendance((prev) => ({
       ...prev,
       [memberId]: { ...prev[memberId], [field]: value }
     }));
 
+    // Garantir que existe linha
+    await ensureRow(memberId);
+
+    // Atualizar campo
     await supabase
       .from("game_attendance")
       .update({ [field]: value })
       .eq("game_id", gameId)
       .eq("member_id", memberId);
 
-    // 🔥 Atualizar estatísticas
+    // Atualizar estatísticas
     await supabase.rpc("update_member_stats_v2");
   }
 
@@ -93,13 +120,14 @@ export default function Convocatoria() {
       .update({ captain: false })
       .eq("game_id", gameId);
 
+    await ensureRow(memberId);
+
     await supabase
       .from("game_attendance")
       .update({ captain: true })
       .eq("game_id", gameId)
       .eq("member_id", memberId);
 
-    // 🔥 Atualizar estatísticas
     await supabase.rpc("update_member_stats_v2");
 
     setAttendance((prev) => {
