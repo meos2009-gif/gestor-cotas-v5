@@ -15,7 +15,7 @@ type Attendance = {
 
 export default function Convocatoria() {
   const { gameId } = useParams();
-
+  console.log("GAME ID =", gameId); // 
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance>>({});
 

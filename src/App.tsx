@@ -49,17 +49,13 @@ export default function App() {
         <Route path="/contabilidade" element={<Contabilidade />} />
         {/* CALENDÁRIO */}
         <Route path="/calendario" element={<Calendario />} />
-
         {/* CONVOCATÓRIA */}
         <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
-
         {/* ESTATÍSTICAS */}
         <Route path="/estatisticas" element={<Estatisticas />} />
       </Route>
-
       {/* CALENDÁRIO 2026 (fora do layout) */}
       <Route path="/calendario-2026" element={<Calendario2026 />} />
-
       {/* CATCH-ALL */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
