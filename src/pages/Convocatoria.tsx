@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabase";
 import { useParams } from "react-router-dom";
+import supabase from "../supabaseClient";
 
 type Member = {
   id: string;
@@ -11,66 +11,75 @@ type Attendance = {
   member_id: string;
   called: boolean;
   present: boolean;
+  captain: boolean;
+  minutes: number | null;
+  goals: number | null;
 };
 
 export default function Convocatoria() {
   const { gameId } = useParams();
-  console.log("GAME ID =", gameId); // 
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance>>({});
 
-  async function loadData() {
-    const { data: membersData } = await supabase
-      .from("members")
-      .select("*")
-      .order("name", { ascending: true });
+  console.log("GAME ID =", gameId);
 
-    const { data: attData } = await supabase
+  useEffect(() => {
+    loadMembers();
+    loadAttendance();
+  }, [gameId]);
+
+  async function loadMembers() {
+    const { data } = await supabase.from("members").select("*").order("name");
+    if (data) setMembers(data);
+  }
+
+  async function loadAttendance() {
+    const { data } = await supabase
       .from("game_attendance")
       .select("*")
       .eq("game_id", gameId);
 
-    if (membersData) setMembers(membersData);
-
     const map: Record<string, Attendance> = {};
-    attData?.forEach((a) => {
+
+    data?.forEach((a) => {
       map[a.member_id] = {
         member_id: a.member_id,
-        called: a.called,
+        called: a.called ?? false,
         present: a.present ?? a.called ?? false,
+        captain: a.captain ?? false,
+        minutes: a.minutes ?? null,
+        goals: a.goals ?? null,
       };
     });
 
     setAttendance(map);
   }
 
-  useEffect(() => {
-    loadData();
-  }, [gameId]);
-
   async function ensureRow(memberId: string) {
-    const { data } = await supabase
+    const { data: existing } = await supabase
       .from("game_attendance")
       .select("id")
       .eq("game_id", gameId)
-      .eq("member_id", memberId);
+      .eq("member_id", memberId)
+      .maybeSingle();
 
-    if (!data || data.length === 0) {
+    if (!existing) {
       await supabase.from("game_attendance").insert({
         game_id: gameId,
         member_id: memberId,
-        called: true,
-        present: true,
+        called: false,
+        present: false,
+        captain: false,
+        minutes: null,
+        goals: null,
       });
-
-      await new Promise((r) => setTimeout(r, 150));
     }
   }
 
-  async function updateCalled(memberId: string, value: boolean) {
+  async function updateField(memberId: string, field: string, value: any) {
     setAttendance((prev) => ({
       ...prev,
-      [memberId]: { member_id: memberId, called: value, present: value },
+      [memberId]: { ...prev[memberId], [field]: value },
     }));
 
     await ensureRow(memberId);
@@ -86,41 +95,104 @@ export default function Convocatoria() {
 
     await supabase
       .from("game_attendance")
-      .update({ called: value, present: value })
+      .update({ [field]: value })
       .eq("id", row.id);
   }
 
+  async function toggleCalled(memberId: string, value: boolean) {
+    updateField(memberId, "called", value);
+    updateField(memberId, "present", value);
+  }
+
+  async function setCaptain(memberId: string) {
+    await ensureRow(memberId);
+
+    await supabase
+      .from("game_attendance")
+      .update({ captain: false })
+      .eq("game_id", gameId);
+
+    await supabase
+      .from("game_attendance")
+      .update({ captain: true })
+      .eq("game_id", gameId)
+      .eq("member_id", memberId);
+
+    setAttendance((prev) => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach((id) => {
+        updated[id].captain = id === memberId;
+      });
+      return updated;
+    });
+  }
+
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Convocatória (versão mínima)</h1>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Convocatória (versão completa)</h1>
 
-      <div className="space-y-4">
-        {members.map((m) => {
-          const att = attendance[m.id] ?? {
-            member_id: m.id,
-            called: true,
-            present: true,
-          };
+      {members.map((m) => {
+        const att = attendance[m.id] ?? {
+          member_id: m.id,
+          called: false,
+          present: false,
+          captain: false,
+          minutes: null,
+          goals: null,
+        };
 
-          return (
-            <div
-              key={m.id}
-              className="p-4 bg-primary text-white rounded shadow border border-gray-700"
-            >
-              <h2 className="text-lg font-bold">{m.name}</h2>
+        return (
+          <div key={m.id} className="border p-3 mb-3 rounded bg-white text-black">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">{m.name}</span>
 
-              <label className="flex items-center gap-2 mt-2">
+              <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={att.called}
-                  onChange={(e) => updateCalled(m.id, e.target.checked)}
+                  onChange={(e) => toggleCalled(m.id, e.target.checked)}
                 />
                 Disponível
               </label>
             </div>
-          );
-        })}
-      </div>
+
+            <div className="mt-2 flex flex-col gap-2">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={att.captain}
+                  onChange={() => setCaptain(m.id)}
+                />
+                Capitão
+              </label>
+
+              <label className="flex items-center gap-2">
+                Minutos:
+                <input
+                  type="number"
+                  value={att.minutes ?? ""}
+                  onChange={(e) =>
+                    updateField(m.id, "minutes", Number(e.target.value))
+                  }
+                  className="w-20 text-black border px-1"
+                />
+              </label>
+
+              <label className="flex items-center gap-2">
+                Golos:
+                <input
+                  type="number"
+                  value={att.goals ?? ""}
+                  onChange={(e) =>
+                    updateField(m.id, "goals", Number(e.target.value))
+                  }
+                  className="w-20 text-black border px-1"
+                />
+              </label>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
