@@ -10,6 +10,7 @@ type Member = {
 type Attendance = {
   member_id: string;
   called: boolean;
+  present: boolean;
 };
 
 export default function Convocatoria() {
@@ -18,9 +19,6 @@ export default function Convocatoria() {
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance>>({});
 
-  // -------------------------------
-  // LOAD MEMBERS + ATTENDANCE
-  // -------------------------------
   async function loadData() {
     const { data: membersData } = await supabase
       .from("members")
@@ -39,6 +37,7 @@ export default function Convocatoria() {
       map[a.member_id] = {
         member_id: a.member_id,
         called: a.called,
+        present: a.present ?? a.called ?? false,
       };
     });
 
@@ -49,9 +48,6 @@ export default function Convocatoria() {
     loadData();
   }, [gameId]);
 
-  // -------------------------------
-  // ENSURE ROW EXISTS
-  // -------------------------------
   async function ensureRow(memberId: string) {
     const { data } = await supabase
       .from("game_attendance")
@@ -64,26 +60,21 @@ export default function Convocatoria() {
         game_id: gameId,
         member_id: memberId,
         called: true,
+        present: true,
       });
 
       await new Promise((r) => setTimeout(r, 150));
     }
   }
 
-  // -------------------------------
-  // UPDATE FIELD
-  // -------------------------------
   async function updateCalled(memberId: string, value: boolean) {
-    // Atualiza estado local
     setAttendance((prev) => ({
       ...prev,
-      [memberId]: { member_id: memberId, called: value },
+      [memberId]: { member_id: memberId, called: value, present: value },
     }));
 
-    // Garante que existe linha
     await ensureRow(memberId);
 
-    // Busca ID da linha
     const { data: row } = await supabase
       .from("game_attendance")
       .select("id")
@@ -93,23 +84,23 @@ export default function Convocatoria() {
 
     if (!row) return;
 
-    // Atualiza BD
     await supabase
       .from("game_attendance")
-      .update({ called: value })
+      .update({ called: value, present: value })
       .eq("id", row.id);
   }
 
-  // -------------------------------
-  // UI
-  // -------------------------------
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Convocatória (versão mínima)</h1>
 
       <div className="space-y-4">
         {members.map((m) => {
-          const att = attendance[m.id] ?? { member_id: m.id, called: true };
+          const att = attendance[m.id] ?? {
+            member_id: m.id,
+            called: true,
+            present: true,
+          };
 
           return (
             <div
