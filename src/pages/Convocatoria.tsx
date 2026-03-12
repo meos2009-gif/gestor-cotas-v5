@@ -1,6 +1,4 @@
-"use client";
-
-import { useRouter } from "next/router";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -14,9 +12,7 @@ interface Attendance {
 }
 
 export default function Convocatoria() {
-  const router = useRouter();
-  const { gameId } = router.query;
-
+  const { gameId } = useParams();
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,33 +47,21 @@ export default function Convocatoria() {
   }
 
   async function atualizarEstatisticas() {
-    console.log("A atualizar estatísticas para o jogo:", gameId);
-
     for (const a of attendance) {
-      const minutos = Number(a.minutes) || 0;
-      const golos = Number(a.goals) || 0;
-
       const payload = {
         p_member_name: a.member_name,
         p_convocado: !!a.called,
         p_presente: !!a.present,
-        p_minutos: minutos,
-        p_golos: golos,
+        p_minutos: Number(a.minutes) || 0,
+        p_golos: Number(a.goals) || 0,
         p_capitao: !!a.captain,
       };
 
-      console.log("A enviar para RPC:", payload);
-
       const { error } = await supabase.rpc("update_member_stats", payload);
-
-      if (error) {
-        console.error("Erro no RPC:", error);
-      } else {
-        console.log("Estatísticas atualizadas para:", a.member_name);
-      }
+      if (error) console.error("Erro no RPC:", error);
     }
 
-    alert("Estatísticas atualizadas com sucesso!");
+    alert("Estatísticas atualizadas!");
   }
 
   function updateField(index: number, field: keyof Attendance, value: any) {
