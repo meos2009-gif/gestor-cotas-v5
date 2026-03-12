@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
 type Stats = {
@@ -14,10 +15,11 @@ type Stats = {
 export default function Estatisticas() {
   const [stats, setStats] = useState<Stats[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     loadStats();
-  }, []);
+  }, [location.pathname]);
 
   async function loadStats() {
     setLoading(true);
@@ -43,6 +45,13 @@ export default function Estatisticas() {
   return (
     <div className="p-4 text-white">
       <h1 className="text-2xl font-bold mb-4">Estatísticas Individuais</h1>
+
+      <button 
+        onClick={loadStats}
+        className="mb-4 bg-blue-600 px-3 py-1 rounded"
+      >
+        Atualizar
+      </button>
 
       <div className="overflow-x-auto">
         <table className="min-w-full bg-gray-900 border border-gray-700 rounded">
