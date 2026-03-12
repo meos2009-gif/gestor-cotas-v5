@@ -35,7 +35,7 @@ export default function Convocatoria() {
 
     setAttendance(
       data.map((row) => ({
-        member_id: row.member_id, // ← AGORA ESTÁ CORRETO
+        member_id: row.member_id,
         member_name: row.member_name,
         called: row.called ?? false,
         present: row.present ?? false,
@@ -58,8 +58,27 @@ export default function Convocatoria() {
     console.log("=== ESTATÍSTICAS A ENVIAR ===");
 
     for (const a of attendance) {
+      // 1) Atualizar game_attendance
+      const { error: updateError } = await supabase
+        .from("game_attendance")
+        .update({
+          called: a.called,
+          present: a.present,
+          minutes: Number(a.minutes),
+          goals: Number(a.goals),
+          captain: a.captain,
+        })
+        .eq("game_id", gameId)
+        .eq("member_id", a.member_id);
+
+      if (updateError) {
+        console.error("Erro ao atualizar game_attendance:", updateError);
+        continue;
+      }
+
+      // 2) Atualizar estatísticas acumuladas
       const payload = {
-        p_member_id: a.member_id, // ← AGORA ENVIA O ID CERTO
+        p_member_id: a.member_id,
         p_convocado: Boolean(a.called),
         p_presente: Boolean(a.present),
         p_minutos: Number(a.minutes) || 0,
@@ -69,10 +88,10 @@ export default function Convocatoria() {
 
       console.log("PAYLOAD ENVIADO:", payload);
 
-      const { error } = await supabase.rpc("update_member_stats", payload);
+      const { error: rpcError } = await supabase.rpc("update_member_stats", payload);
 
-      if (error) {
-        console.error("Erro no RPC:", error);
+      if (rpcError) {
+        console.error("Erro no RPC:", rpcError);
       }
     }
 
