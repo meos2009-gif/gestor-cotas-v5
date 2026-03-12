@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 interface Attendance {
+  member_id: string;
   member_name: string;
   called: boolean;
   present: boolean;
-  minutes: number | string | null;
-  goals: number | string | null;
+  minutes: number | string;
+  goals: number | string;
   captain: boolean;
 }
 
@@ -34,11 +35,12 @@ export default function Convocatoria() {
 
     setAttendance(
       data.map((row) => ({
+        member_id: row.member_id, // ← AGORA ESTÁ CORRETO
         member_name: row.member_name,
         called: row.called ?? false,
         present: row.present ?? false,
-        minutes: row.minutes ?? 0,
-        goals: row.goals ?? 0,
+        minutes: row.minutes ?? "",
+        goals: row.goals ?? "",
         captain: row.captain ?? false,
       }))
     );
@@ -46,28 +48,35 @@ export default function Convocatoria() {
     setLoading(false);
   }
 
-  async function atualizarEstatisticas() {
-    for (const a of attendance) {
-      const payload = {
-        p_member_name: a.member_name,
-        p_convocado: !!a.called,
-        p_presente: !!a.present,
-        p_minutos: Number(a.minutes) || 0,
-        p_golos: Number(a.goals) || 0,
-        p_capitao: !!a.captain,
-      };
-
-      const { error } = await supabase.rpc("update_member_stats", payload);
-      if (error) console.error("Erro no RPC:", error);
-    }
-
-    alert("Estatísticas atualizadas!");
-  }
-
   function updateField(index: number, field: keyof Attendance, value: any) {
     const updated = [...attendance];
     updated[index][field] = value;
     setAttendance(updated);
+  }
+
+  async function atualizarEstatisticas() {
+    console.log("=== ESTATÍSTICAS A ENVIAR ===");
+
+    for (const a of attendance) {
+      const payload = {
+        p_member_id: a.member_id, // ← AGORA ENVIA O ID CERTO
+        p_convocado: Boolean(a.called),
+        p_presente: Boolean(a.present),
+        p_minutos: Number(a.minutes) || 0,
+        p_golos: Number(a.goals) || 0,
+        p_capitao: Boolean(a.captain),
+      };
+
+      console.log("PAYLOAD ENVIADO:", payload);
+
+      const { error } = await supabase.rpc("update_member_stats", payload);
+
+      if (error) {
+        console.error("Erro no RPC:", error);
+      }
+    }
+
+    alert("Estatísticas atualizadas!");
   }
 
   if (loading) return <p>A carregar...</p>;
@@ -85,8 +94,17 @@ export default function Convocatoria() {
               type="checkbox"
               checked={a.called}
               onChange={(e) => updateField(index, "called", e.target.checked)}
-            />
-            Disponível
+            />{" "}
+            Convocado
+          </label>
+
+          <label className="block mt-2">
+            <input
+              type="checkbox"
+              checked={a.present}
+              onChange={(e) => updateField(index, "present", e.target.checked)}
+            />{" "}
+            Presente
           </label>
 
           <label className="block mt-2">
@@ -94,7 +112,7 @@ export default function Convocatoria() {
               type="checkbox"
               checked={a.captain}
               onChange={(e) => updateField(index, "captain", e.target.checked)}
-            />
+            />{" "}
             Capitão
           </label>
 
@@ -102,7 +120,7 @@ export default function Convocatoria() {
             Minutos:
             <input
               type="number"
-              value={a.minutes ?? 0}
+              value={a.minutes}
               onChange={(e) => updateField(index, "minutes", e.target.value)}
               className="border ml-2 p-1 w-20"
             />
@@ -112,7 +130,7 @@ export default function Convocatoria() {
             Golos:
             <input
               type="number"
-              value={a.goals ?? 0}
+              value={a.goals}
               onChange={(e) => updateField(index, "goals", e.target.value)}
               className="border ml-2 p-1 w-20"
             />
