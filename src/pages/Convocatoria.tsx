@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+
 type Member = {
   id: string;
   name: string;
@@ -101,6 +102,12 @@ export default function Convocatoria() {
   async function toggleCalled(memberId: string, value: boolean) {
     updateField(memberId, "called", value);
     updateField(memberId, "present", value);
+
+    if (value) {
+      updateField(memberId, "minutes", 80); // minutos por defeito
+    } else {
+      updateField(memberId, "minutes", null); // limpa minutos
+    }
   }
 
   async function setCaptain(memberId: string) {
@@ -169,9 +176,13 @@ export default function Convocatoria() {
                 Minutos:
                 <input
                   type="number"
-                  value={att.minutes ?? ""}
+                  value={att.minutes ? att.minutes : ""}
                   onChange={(e) =>
-                    updateField(m.id, "minutes", Number(e.target.value))
+                    updateField(
+                      m.id,
+                      "minutes",
+                      e.target.value === "" ? null : Number(e.target.value)
+                    )
                   }
                   className="w-20 text-black border px-1"
                 />
@@ -181,9 +192,13 @@ export default function Convocatoria() {
                 Golos:
                 <input
                   type="number"
-                  value={att.goals ?? ""}
+                  value={att.goals ? att.goals : ""}
                   onChange={(e) =>
-                    updateField(m.id, "goals", Number(e.target.value))
+                    updateField(
+                      m.id,
+                      "goals",
+                      e.target.value === "" ? null : Number(e.target.value)
+                    )
                   }
                   className="w-20 text-black border px-1"
                 />
