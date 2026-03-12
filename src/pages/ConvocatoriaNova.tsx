@@ -26,23 +26,23 @@ export default function ConvocatoriaNova() {
         return;
       }
 
-      // Carregar estatísticas do jogo
+      // Carregar presenças do jogo
       const { data: stats, error: statsError } = await supabase
-        .from("game_stats")
+        .from("game_attendance")
         .select("*")
-        .eq("game_id", gameIdNum); // UUID correto
+        .eq("game_id", gameIdNum);
 
       if (statsError) {
-        console.error("Erro ao carregar estatísticas:", statsError);
+        console.error("Erro ao carregar presenças:", statsError);
         setLoading(false);
         return;
       }
 
       // Juntar jogadores + stats
       const jogadoresComStats = players.map((p) => {
-        const s = stats.find((x) => x.player_id === p.id);
+        const s = stats.find((x) => x.member_id === p.member_id);
         return {
-          id: p.id,
+          id: p.member_id,
           name: p.name,
           disponivel: s ? s.disponivel : false,
           capitao: s ? s.capitao : false,
@@ -71,10 +71,10 @@ export default function ConvocatoriaNova() {
 
     for (const j of jogadores) {
       const { error } = await supabase
-        .from("game_stats")
+        .from("game_attendance")
         .upsert({
-          game_id: gameIdNum, // UUID correto
-          player_id: j.id,
+          game_id: gameIdNum,
+          member_id: j.id,
           disponivel: j.disponivel,
           capitao: j.capitao,
           minutos: j.minutos,
