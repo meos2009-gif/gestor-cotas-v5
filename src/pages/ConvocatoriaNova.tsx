@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { supabase } from "../supabaseClient"; // ← CORRIGIDO
+import { supabase } from "../supabaseClient";
 
 export default function ConvocatoriaNova() {
   const { gameId } = useParams();
-  const gameIdNum = Number(gameId); // ← CORRIGIDO
+  const gameIdNum = gameId; // UUID → manter string
 
   const [jogadores, setJogadores] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +14,7 @@ export default function ConvocatoriaNova() {
     async function loadData() {
       setLoading(true);
 
+      // Carregar jogadores
       const { data: players, error: playersError } = await supabase
         .from("players")
         .select("*")
@@ -25,10 +26,11 @@ export default function ConvocatoriaNova() {
         return;
       }
 
+      // Carregar estatísticas do jogo
       const { data: stats, error: statsError } = await supabase
         .from("game_stats")
         .select("*")
-        .eq("game_id", gameIdNum); // ← CORRIGIDO
+        .eq("game_id", gameIdNum); // UUID correto
 
       if (statsError) {
         console.error("Erro ao carregar estatísticas:", statsError);
@@ -36,6 +38,7 @@ export default function ConvocatoriaNova() {
         return;
       }
 
+      // Juntar jogadores + stats
       const jogadoresComStats = players.map((p) => {
         const s = stats.find((x) => x.player_id === p.id);
         return {
@@ -70,7 +73,7 @@ export default function ConvocatoriaNova() {
       const { error } = await supabase
         .from("game_stats")
         .upsert({
-          game_id: gameIdNum, // ← CORRIGIDO
+          game_id: gameIdNum, // UUID correto
           player_id: j.id,
           disponivel: j.disponivel,
           capitao: j.capitao,
@@ -87,7 +90,7 @@ export default function ConvocatoriaNova() {
     }
 
     setSaving(false);
-    alert("ESTATISTICAS CORRETA");
+    alert("ESTATÍSTICAS GUARDADAS COM SUCESSO");
   }
 
   if (loading) return <p style={{ padding: 20 }}>A carregar...</p>;
