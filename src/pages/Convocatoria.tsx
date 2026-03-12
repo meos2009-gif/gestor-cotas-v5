@@ -86,14 +86,15 @@ export default function Convocatoria() {
         p_capitao: Boolean(a.captain),
       };
 
-      console.log("PAYLOAD ENVIADO:", payload);
-
       const { error: rpcError } = await supabase.rpc("update_member_stats", payload);
 
       if (rpcError) {
         console.error("Erro no RPC:", rpcError);
       }
     }
+
+    // 🔥 REFRESH AUTOMÁTICO
+    await fetchAttendance();
 
     alert("Estatísticas atualizadas!");
   }
