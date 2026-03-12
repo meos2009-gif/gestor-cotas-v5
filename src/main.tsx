@@ -1,10 +1,9 @@
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
+import ConvocatoriaNova from "./pages/ConvocatoriaNova";
 <Route path="/convocatoria/:gameId" element={<ConvocatoriaNova />} />
-<Route path="/convocatoria/:gameId" element={<div style={{padding: 20}}>TESTE MARIO</div>} />
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
