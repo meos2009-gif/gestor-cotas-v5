@@ -13,10 +13,9 @@ import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
 import Tesouraria from "./pages/Tesouraria";
 import Calendario from "./pages/Calendario";
-
+import ConvocatoriaNova from "./pages/ConvocatoriaNova";
 
 // 🔵 IMPORTA AS NOVAS PÁGINAS (FALTAVAM ESTES!)
-import Convocatoria from "./pages/Convocatoria";
 import Estatisticas from "./pages/Estatisticas";
 import Contabilidade from "./pages/Contabilidade";
 export default function App() {
@@ -50,7 +49,7 @@ export default function App() {
         {/* CALENDÁRIO */}
         <Route path="/calendario" element={<Calendario />} />
         {/* CONVOCATÓRIA */}
-        <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
+        <Route path="/convocatoria/:gameId" element={<ConvocatoriaNova />} />
         {/* ESTATÍSTICAS */}
         <Route path="/estatisticas" element={<Estatisticas />} />
       </Route>
