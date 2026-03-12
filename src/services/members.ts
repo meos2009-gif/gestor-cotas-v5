@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase } from "../lib/supabaseClient";
 
 // Buscar todos os sócios
 export async function getMembers() {
