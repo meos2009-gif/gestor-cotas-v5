@@ -8,7 +8,6 @@ import Pagamentos from "./pages/Pagamentos";
 import Dashboard from "./pages/Dashboard";
 import Config from "./pages/Config";
 import Relatorio from "./pages/Relatorio";
-
 import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
 import Tesouraria from "./pages/Tesouraria";
