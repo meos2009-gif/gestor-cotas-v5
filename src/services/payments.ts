@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase } from "../lib/supabaseClient";
 
 // Obter pagamentos filtrados por ano
 export async function getPaymentsByYear(year: number) {
