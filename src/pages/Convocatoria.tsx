@@ -1,7 +1,7 @@
 "use client";
 
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
 interface Attendance {
@@ -14,7 +14,9 @@ interface Attendance {
 }
 
 export default function Convocatoria() {
-  const { gameId } = useParams();
+  const router = useRouter();
+  const { gameId } = router.query;
+
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +90,7 @@ export default function Convocatoria() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Convocatória (versão completa)</h1>
+      <h1 className="text-xl font-bold mb-4">Convocatória</h1>
 
       {attendance.map((a, index) => (
         <div key={index} className="border p-4 mb-3 rounded">
