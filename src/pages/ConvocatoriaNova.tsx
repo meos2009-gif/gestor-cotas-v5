@@ -42,13 +42,12 @@ export default function ConvocatoriaNova() {
       const jogadoresComStats = players.map((p) => {
         const s = stats.find((x) => x.member_id === p.id);
         return {
-          id: p.id
-,
+          id: p.id, // ID correto do jogador
           name: p.name,
-          disponivel: s ? s.called : false,   // campo correto
-          capitao: s ? s.captain : false,     // campo correto
-          minutos: s ? s.minutes : 0,         // campo correto
-          golos: s ? s.goals : 0              // campo correto
+          disponivel: s ? s.called : false,
+          capitao: s ? s.captain : false,
+          minutos: s ? s.minutes : 0,
+          golos: s ? s.goals : 0,
         };
       });
 
@@ -73,15 +72,18 @@ export default function ConvocatoriaNova() {
     for (const j of jogadores) {
       const { error } = await supabase
         .from("game_attendance")
-        .upsert({
-          game_id: gameIdNum,
-          member_id: j.id,
-          member_name: j.name,   // obrigatório na tua tabela
-          called: j.disponivel,  // campo correto
-          captain: j.capitao,    // campo correto
-          minutes: j.minutos,    // campo correto
-          goals: j.golos         // campo correto
-        });
+        .upsert(
+          {
+            game_id: gameIdNum,
+            member_id: j.id,
+            member_name: j.name,
+            called: j.disponivel,
+            captain: j.capitao,
+            minutes: j.minutos,
+            goals: j.golos,
+          },
+          { onConflict: "game_id,member_id" } // ← ESSENCIAL
+        );
 
       if (error) {
         console.error("Erro ao guardar:", error);
