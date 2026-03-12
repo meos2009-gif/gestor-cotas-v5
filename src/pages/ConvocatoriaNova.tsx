@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import supabase from "../supabaseClient";
+import { supabase } from "../supabaseClient"; // ← CORRIGIDO
 
 export default function ConvocatoriaNova() {
   const { gameId } = useParams();
-  const gameIdNum = Number(gameId); // ← CORREÇÃO IMPORTANTE
+  const gameIdNum = Number(gameId); // ← CORRIGIDO
 
   const [jogadores, setJogadores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Carregar jogadores + estatísticas do jogo
   useEffect(() => {
     async function loadData() {
       setLoading(true);
 
-      // 1) Buscar jogadores
       const { data: players, error: playersError } = await supabase
         .from("players")
         .select("*")
@@ -27,11 +25,10 @@ export default function ConvocatoriaNova() {
         return;
       }
 
-      // 2) Buscar estatísticas deste jogo
       const { data: stats, error: statsError } = await supabase
         .from("game_stats")
         .select("*")
-        .eq("game_id", gameIdNum); // ← CORREÇÃO
+        .eq("game_id", gameIdNum); // ← CORRIGIDO
 
       if (statsError) {
         console.error("Erro ao carregar estatísticas:", statsError);
@@ -39,7 +36,6 @@ export default function ConvocatoriaNova() {
         return;
       }
 
-      // 3) Combinar jogadores com estatísticas
       const jogadoresComStats = players.map((p) => {
         const s = stats.find((x) => x.player_id === p.id);
         return {
@@ -59,7 +55,6 @@ export default function ConvocatoriaNova() {
     loadData();
   }, [gameIdNum]);
 
-  // Atualizar campo de um jogador
   function updateField(playerId, field, value) {
     setJogadores((prev) =>
       prev.map((j) =>
@@ -68,7 +63,6 @@ export default function ConvocatoriaNova() {
     );
   }
 
-  // Guardar estatísticas
   async function guardar() {
     setSaving(true);
 
@@ -76,7 +70,7 @@ export default function ConvocatoriaNova() {
       const { error } = await supabase
         .from("game_stats")
         .upsert({
-          game_id: gameIdNum, // ← CORREÇÃO
+          game_id: gameIdNum, // ← CORRIGIDO
           player_id: j.id,
           disponivel: j.disponivel,
           capitao: j.capitao,
