@@ -164,7 +164,6 @@ export default function Convocatoria() {
         </div>
       ))}
 
-      {/* 🔥 BOTÃO QUE ATIVA O RPC */}
       <button
         onClick={atualizarEstatisticas}
         className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
