@@ -58,7 +58,6 @@ export default function Convocatoria() {
     console.log("=== ESTATÍSTICAS A ENVIAR ===");
 
     for (const a of attendance) {
-      // LOG DETALHADO
       console.log("RPC para:", a.member_name, {
         id: a.member_id,
         convocado: a.called,
@@ -68,7 +67,6 @@ export default function Convocatoria() {
         capitao: a.captain
       });
 
-      // 1) Atualizar game_attendance
       const { error: updateError } = await supabase
         .from("game_attendance")
         .update({
@@ -86,7 +84,6 @@ export default function Convocatoria() {
         continue;
       }
 
-      // 2) Atualizar estatísticas acumuladas
       const payload = {
         p_member_id: a.member_id,
         p_convocado: Boolean(a.called),
@@ -103,7 +100,6 @@ export default function Convocatoria() {
       }
     }
 
-    // REFRESH
     await fetchAttendance();
 
     alert("Estatísticas atualizadas!");
@@ -168,7 +164,7 @@ export default function Convocatoria() {
         </div>
       ))}
 
-      {/* 🔥 BOTÃO QUE FALTAVA */}
+      {/* 🔥 BOTÃO QUE ATIVA O RPC */}
       <button
         onClick={atualizarEstatisticas}
         className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
