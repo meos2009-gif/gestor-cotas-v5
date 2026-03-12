@@ -40,9 +40,10 @@ export default function ConvocatoriaNova() {
 
       // Juntar jogadores + stats
       const jogadoresComStats = players.map((p) => {
-        const s = stats.find((x) => x.member_id === p.member_id);
+        const s = stats.find((x) => x.member_id === p.id);
         return {
-          id: p.member_id,
+          id: p.id
+,
           name: p.name,
           disponivel: s ? s.called : false,   // campo correto
           capitao: s ? s.captain : false,     // campo correto
