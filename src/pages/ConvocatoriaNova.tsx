@@ -44,10 +44,10 @@ export default function ConvocatoriaNova() {
         return {
           id: p.member_id,
           name: p.name,
-          disponivel: s ? s.disponivel : false,
-          capitao: s ? s.capitao : false,
-          minutos: s ? s.minutos : 0,
-          golos: s ? s.golos : 0,
+          disponivel: s ? s.called : false,   // campo correto
+          capitao: s ? s.captain : false,     // campo correto
+          minutos: s ? s.minutes : 0,         // campo correto
+          golos: s ? s.goals : 0              // campo correto
         };
       });
 
@@ -75,10 +75,11 @@ export default function ConvocatoriaNova() {
         .upsert({
           game_id: gameIdNum,
           member_id: j.id,
-          disponivel: j.disponivel,
-          capitao: j.capitao,
-          minutos: j.minutos,
-          golos: j.golos,
+          member_name: j.name,   // obrigatório na tua tabela
+          called: j.disponivel,  // campo correto
+          captain: j.capitao,    // campo correto
+          minutes: j.minutos,    // campo correto
+          goals: j.golos         // campo correto
         });
 
       if (error) {
