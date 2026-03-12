@@ -1,3 +1,6 @@
+console.log(">>> ESTATISTICAS CORRETA <<<");
+alert("ESTATISTICAS CORRETA");
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import RequireAuth from "./lib/RequireAuth";

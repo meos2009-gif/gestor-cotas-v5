@@ -58,6 +58,16 @@ export default function Convocatoria() {
     console.log("=== ESTATÍSTICAS A ENVIAR ===");
 
     for (const a of attendance) {
+      // LOG DETALHADO
+      console.log("RPC para:", a.member_name, {
+        id: a.member_id,
+        convocado: a.called,
+        presente: a.present,
+        minutos: a.minutes,
+        golos: a.goals,
+        capitao: a.captain
+      });
+
       // 1) Atualizar game_attendance
       const { error: updateError } = await supabase
         .from("game_attendance")
@@ -93,7 +103,7 @@ export default function Convocatoria() {
       }
     }
 
-    // 🔥 REFRESH AUTOMÁTICO
+    // REFRESH
     await fetchAttendance();
 
     alert("Estatísticas atualizadas!");
@@ -158,6 +168,7 @@ export default function Convocatoria() {
         </div>
       ))}
 
+      {/* 🔥 BOTÃO QUE FALTAVA */}
       <button
         onClick={atualizarEstatisticas}
         className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
