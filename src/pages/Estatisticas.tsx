@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 type Stats = {
-  id: string;
+  member_id: string;
   member_name: string;
   convocado: number;
   presencas: number;
@@ -59,7 +59,7 @@ export default function Estatisticas() {
 
           <tbody>
             {stats.map((s) => (
-              <tr key={s.id} className="hover:bg-gray-800">
+              <tr key={s.member_id} className="hover:bg-gray-800">
                 <td className="p-2 border-b border-gray-700">{s.member_name}</td>
                 <td className="p-2 border-b border-gray-700">{s.convocado}</td>
                 <td className="p-2 border-b border-gray-700">{s.presencas}</td>
