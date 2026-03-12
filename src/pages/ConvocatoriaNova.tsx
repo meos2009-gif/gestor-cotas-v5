@@ -4,6 +4,7 @@ import supabase from "../supabaseClient";
 
 export default function ConvocatoriaNova() {
   const { gameId } = useParams();
+  const gameIdNum = Number(gameId); // ← CORREÇÃO IMPORTANTE
 
   const [jogadores, setJogadores] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,7 @@ export default function ConvocatoriaNova() {
       const { data: stats, error: statsError } = await supabase
         .from("game_stats")
         .select("*")
-        .eq("game_id", gameId);
+        .eq("game_id", gameIdNum); // ← CORREÇÃO
 
       if (statsError) {
         console.error("Erro ao carregar estatísticas:", statsError);
@@ -56,7 +57,7 @@ export default function ConvocatoriaNova() {
     }
 
     loadData();
-  }, [gameId]);
+  }, [gameIdNum]);
 
   // Atualizar campo de um jogador
   function updateField(playerId, field, value) {
@@ -75,7 +76,7 @@ export default function ConvocatoriaNova() {
       const { error } = await supabase
         .from("game_stats")
         .upsert({
-          game_id: gameId,
+          game_id: gameIdNum, // ← CORREÇÃO
           player_id: j.id,
           disponivel: j.disponivel,
           capitao: j.capitao,
