@@ -1,6 +1,3 @@
-alert("ESTATISTICAS CORRETA");
-console.log(">>> ESTATISTICAS CORRETA <<<");
-
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
@@ -34,6 +31,7 @@ export default function Estatisticas() {
 
     if (error) {
       console.error("Erro ao carregar estatísticas:", error);
+      setStats([]);
     } else {
       setStats(data as Stats[]);
     }
@@ -49,7 +47,7 @@ export default function Estatisticas() {
     <div className="p-4 text-white">
       <h1 className="text-2xl font-bold mb-4">Estatísticas Individuais</h1>
 
-      <button 
+      <button
         onClick={loadStats}
         className="mb-4 bg-blue-600 px-3 py-1 rounded"
       >
