@@ -1,132 +1,75 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabase";
+import { supabase } from "../supabaseClient";
 
-type MemberStats = {
+type Stats = {
   id: string;
-  name: string;
+  member_name: string;
   convocado: number;
   presencas: number;
   minutos_totais: number;
-  media_minutos: number;
   golos_totais: number;
-  media_golos: number;
-  percentagem: number;
   capitao: number;
 };
 
 export default function Estatisticas() {
-  const [stats, setStats] = useState<MemberStats[]>([]);
-  const [team, setTeam] = useState<any>(null);
-
-  async function loadStats() {
-    const { data, error } = await supabase
-      .from("member_stats")
-      .select(`
-        id,
-        member_name,
-        convocado,
-        presencas,
-        minutos_totais,
-        golos_totais,
-        capitao
-      `)
-      .order("golos_totais", { ascending: false });
-
-    if (error) {
-      console.error("Erro ao carregar estatísticas:", error);
-      return;
-    }
-
-    if (data) {
-      const processed = data.map((m) => ({
-        ...m,
-        media_minutos: m.presencas > 0 ? m.minutos_totais / m.presencas : 0,
-        media_golos: m.presencas > 0 ? m.golos_totais / m.presencas : 0,
-        percentagem: m.convocado > 0 ? (m.presencas / m.convocado) * 100 : 0,
-        name: m.member_name,
-      }));
-
-      setStats(processed);
-    }
-  }
-
-  async function loadTeamStats() {
-    const { data, error } = await supabase
-      .from("team_stats")
-      .select("*")
-      .single();
-
-    if (!error && data) setTeam(data);
-  }
+  const [stats, setStats] = useState<Stats[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStats();
-    loadTeamStats();
   }, []);
 
+  async function loadStats() {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("member_stats")
+      .select("*")
+      .order("minutos_totais", { ascending: false });
+
+    if (error) {
+      console.error("Erro ao carregar estatísticas:", error);
+    } else {
+      setStats(data as Stats[]);
+    }
+
+    setLoading(false);
+  }
+
+  if (loading) {
+    return <div className="p-4 text-white">A carregar estatísticas...</div>;
+  }
+
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Estatísticas</h1>
+    <div className="p-4 text-white">
+      <h1 className="text-2xl font-bold mb-4">Estatísticas Individuais</h1>
 
-      {/* Estatísticas da Equipa */}
-      {team && (
-        <div className="p-4 mb-6 bg-secondary text-primary rounded shadow border border-gray-700">
-          <h2 className="text-lg font-bold mb-2">Estatísticas da Equipa</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-gray-900 border border-gray-700 rounded">
+          <thead>
+            <tr className="bg-gray-800 text-left">
+              <th className="p-2 border-b border-gray-700">Jogador</th>
+              <th className="p-2 border-b border-gray-700">Convocado</th>
+              <th className="p-2 border-b border-gray-700">Presenças</th>
+              <th className="p-2 border-b border-gray-700">Minutos</th>
+              <th className="p-2 border-b border-gray-700">Golos</th>
+              <th className="p-2 border-b border-gray-700">Capitão</th>
+            </tr>
+          </thead>
 
-          <p><strong>Vitórias:</strong> {team.vitorias}</p>
-          <p><strong>Empates:</strong> {team.empates}</p>
-          <p><strong>Derrotas:</strong> {team.derrotas}</p>
-
-          <p className="mt-2 text-yellow-300">
-            <strong>Golos Marcados:</strong> {team.golos_marcados}
-          </p>
-
-          <p className="text-yellow-300">
-            <strong>Golos Sofridos:</strong> {team.golos_sofridos}
-          </p>
-        </div>
-      )}
-
-      {/* Estatísticas Individuais */}
-      <h2 className="text-xl font-bold mb-4">Estatísticas Individuais</h2>
-
-      <div className="space-y-4">
-        {stats.map((m) => (
-          <div
-            key={m.id}
-            className="p-4 bg-primary text-white rounded shadow border border-gray-700"
-          >
-            <h2 className="text-lg font-bold flex items-center gap-2">
-              {m.name}
-
-              {m.capitao > 0 && (
-                <span className="px-2 py-1 bg-yellow-500 text-black rounded text-sm">
-                  Capitão {m.capitao}x
-                </span>
-              )}
-            </h2>
-
-            <p><strong>Convocado:</strong> {m.convocado}</p>
-            <p><strong>Presenças:</strong> {m.presencas}</p>
-            <p><strong>Minutos Totais:</strong> {m.minutos_totais}</p>
-            <p><strong>Média de Minutos:</strong> {Math.round(m.media_minutos || 0)}</p>
-
-            <p className="mt-2 text-yellow-300">
-              <strong>Golos Totais:</strong> {m.golos_totais}
-            </p>
-
-            <p className="text-yellow-300">
-              <strong>Média de Golos:</strong> {m.media_golos?.toFixed(2)}</p>
-
-            <p className="mt-2">
-              <strong>Percentagem Presença:</strong> {m.percentagem.toFixed(1)}%
-            </p>
-          </div>
-        ))}
-
-        {stats.length === 0 && (
-          <p className="text-gray-500">Sem estatísticas disponíveis.</p>
-        )}
+          <tbody>
+            {stats.map((s) => (
+              <tr key={s.id} className="hover:bg-gray-800">
+                <td className="p-2 border-b border-gray-700">{s.member_name}</td>
+                <td className="p-2 border-b border-gray-700">{s.convocado}</td>
+                <td className="p-2 border-b border-gray-700">{s.presencas}</td>
+                <td className="p-2 border-b border-gray-700">{s.minutos_totais}</td>
+                <td className="p-2 border-b border-gray-700">{s.golos_totais}</td>
+                <td className="p-2 border-b border-gray-700">{s.capitao}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
