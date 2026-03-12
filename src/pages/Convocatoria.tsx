@@ -1,3 +1,4 @@
+console.log("MARIO — ESTE FICHEIRO ESTÁ A SER USADO!");
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
