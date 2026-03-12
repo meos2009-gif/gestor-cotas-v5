@@ -14,9 +14,9 @@ export default function ConvocatoriaNova() {
     async function loadData() {
       setLoading(true);
 
-      // Carregar jogadores
+      // Carregar jogadores da tabela MEMBERS
       const { data: players, error: playersError } = await supabase
-        .from("players")
+        .from("members")
         .select("*")
         .order("name", { ascending: true });
 
