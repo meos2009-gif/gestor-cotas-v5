@@ -107,7 +107,7 @@ export default function MainLayout() {
             </button>
           </div>
 
-          {/* BOTÃO MOBILE — AGORA À DIREITA */}
+          {/* BOTÃO MOBILE — À DIREITA */}
           <button
             className="md:hidden text-3xl text-secondary ml-auto"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -120,15 +120,7 @@ export default function MainLayout() {
         {menuOpen && (
           <div className="md:hidden mt-4 flex flex-col gap-4 bg-primary p-4 rounded-md text-text font-medium">
 
-            {/* LOGO MOBILE */}
-            <div className="flex items-center gap-3 mb-4">
-              <img
-                src="/logo.png"
-                alt="Logo"
-                className="w-14 h-14 object-contain"
-              />
-              <h1 className="text-xl font-bold text-secondary">Gestor de Cotas</h1>
-            </div>
+            {/* LOGO MOBILE REMOVIDO */}
 
             <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
             <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
