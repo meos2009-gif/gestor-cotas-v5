@@ -75,7 +75,10 @@ export default function Jogos() {
   // 📊 ESTATÍSTICAS DA ÉPOCA
   // -----------------------------
   const jogosComResultado = games.filter(
-    (g) => g.goals_home !== null && g.goals_away !== null
+    (g) =>
+      g.goals_home !== null &&
+      g.goals_away !== null &&
+      !(g.goals_home === 0 && g.goals_away === 0)
   );
 
   const vitorias = jogosComResultado.filter(
@@ -123,7 +126,11 @@ export default function Jogos() {
       {/* LISTA DE JOGOS */}
       {games.map((g) => {
         const isHome = (g.local || "").toUpperCase() === "FAFE";
-        const temResultado = g.goals_home != null && g.goals_away != null;
+
+        const temResultado =
+          g.goals_home !== null &&
+          g.goals_away !== null &&
+          !(g.goals_home === 0 && g.goals_away === 0);
 
         const cor =
           !temResultado
@@ -220,14 +227,3 @@ export default function Jogos() {
 
             {/* CONVOCATÓRIA */}
             <Link
-              to={`/jogos/${g.id}`}
-              className="mt-3 inline-block bg-secondary text-white px-4 py-2 rounded-md ml-2"
-            >
-              Abrir Convocatória
-            </Link>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
