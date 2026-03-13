@@ -4,9 +4,7 @@ import { supabase } from "../supabaseClient";
 
 export default function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
-  const [calendarMobileOpen, setCalendarMobileOpen] = useState(false);
   const [reportsMobileOpen, setReportsMobileOpen] = useState(false);
   const [paymentsOpen, setPaymentsOpen] = useState(false);
   const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
@@ -24,7 +22,7 @@ export default function MainLayout() {
       <nav className="bg-primary text-text px-6 py-4 shadow-md border-b border-secondary">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
 
-          {/* LOGO (desktop e mobile) */}
+          {/* LOGO */}
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
@@ -76,28 +74,13 @@ export default function MainLayout() {
               )}
             </div>
 
-            {/* CALENDÁRIO */}
-            <div className="relative">
-              <button
-                onClick={() => setCalendarOpen(!calendarOpen)}
-                className="hover:text-secondary transition-colors"
-              >
-                Calendário ▾
-              </button>
-
-              {calendarOpen && (
-                <div className="absolute left-0 mt-2 bg-primary text-text shadow-lg rounded-md p-3 flex flex-col gap-2 z-50 border border-secondary">
-                  <NavLink to="/calendario" className="hover:text-secondary">Época 2025/2026</NavLink>
-                  <NavLink to="/calendario-2026" className="hover:text-secondary">Época 2026/2027</NavLink>
-                </div>
-              )}
-            </div>
-
             <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
             <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
             <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
-            <NavLink to="/estatisticas" className="hover:text-secondary">Equipa</NavLink>
+
+            {/* RENOMEADO */}
+            <NavLink to="/estatisticas" className="hover:text-secondary">Estatísticas da Equipa</NavLink>
 
             <button
               onClick={handleLogout}
@@ -107,7 +90,7 @@ export default function MainLayout() {
             </button>
           </div>
 
-          {/* BOTÃO MOBILE — À DIREITA */}
+          {/* BOTÃO MOBILE */}
           <button
             className="md:hidden text-3xl text-secondary ml-auto"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -119,8 +102,6 @@ export default function MainLayout() {
         {/* MENU MOBILE */}
         {menuOpen && (
           <div className="md:hidden mt-4 flex flex-col gap-4 bg-primary p-4 rounded-md text-text font-medium">
-
-            {/* LOGO MOBILE REMOVIDO */}
 
             <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
             <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
@@ -159,28 +140,13 @@ export default function MainLayout() {
               )}
             </div>
 
-            {/* CALENDÁRIO MOBILE */}
-            <div>
-              <button
-                onClick={() => setCalendarMobileOpen(!calendarMobileOpen)}
-                className="w-full text-left hover:text-secondary"
-              >
-                Calendário ▾
-              </button>
-
-              {calendarMobileOpen && (
-                <div className="ml-4 flex flex-col gap-2 mt-2">
-                  <NavLink to="/calendario" className="hover:text-secondary">Época 2025/2026</NavLink>
-                  <NavLink to="/calendario-2026" className="hover:text-secondary">Época 2026/2027</NavLink>
-                </div>
-              )}
-            </div>
-
             <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
             <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
             <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
-            <NavLink to="/estatisticas" className="hover:text-secondary">Equipa</NavLink>
+
+            {/* RENOMEADO */}
+            <NavLink to="/estatisticas" className="hover:text-secondary">Estatísticas da Equipa</NavLink>
 
             <button
               onClick={handleLogout}
