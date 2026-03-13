@@ -1,0 +1,144 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";
+
+interface Game {
+  id: string;
+  game_date: string;
+  opponent: string;
+  local: string | null;
+  golos_fafe: number | null;
+  golos_adv: number | null;
+}
+
+export default function Jogos() {
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadGames() {
+      const { data, error } = await supabase
+        .from("games")
+        .select("*")
+        .order("game_date", { ascending: true });
+
+      if (error) {
+        console.error("Erro ao carregar jogos:", error);
+        return;
+      }
+
+      setGames(data || []);
+      setLoading(false);
+    }
+
+    loadGames();
+  }, []);
+
+  if (loading) return <p className="p-6">A carregar jogos...</p>;
+
+  // -----------------------------
+  // 📊 CÁLCULO DAS ESTATÍSTICAS
+  // -----------------------------
+  const jogosComResultado = games.filter(
+    (g) => g.golos_fafe !== null && g.golos_adv !== null
+  );
+
+  const vitorias = jogosComResultado.filter(
+    (g) => g.golos_fafe! > g.golos_adv!
+  ).length;
+
+  const empates = jogosComResultado.filter(
+    (g) => g.golos_fafe! === g.golos_adv!
+  ).length;
+
+  const derrotas = jogosComResultado.filter(
+    (g) => g.golos_fafe! < g.golos_adv!
+  ).length;
+
+  const golosMarcados = jogosComResultado.reduce(
+    (acc, g) => acc + (g.golos_fafe || 0),
+    0
+  );
+
+  const golosSofridos = jogosComResultado.reduce(
+    (acc, g) => acc + (g.golos_adv || 0),
+    0
+  );
+
+  // -----------------------------
+
+  return (
+    <div className="p-6">
+      <h2 className="text-3xl font-bold mb-6 text-secondary">Jogos</h2>
+
+      {/* 📊 ESTATÍSTICAS DA ÉPOCA */}
+      <div className="bg-secondary text-white p-4 rounded-lg mb-6 shadow-md">
+        <h3 className="text-xl font-bold mb-2">Estatísticas da Época</h3>
+
+        <p><strong>Vitórias:</strong> {vitorias}</p>
+        <p><strong>Empates:</strong> {empates}</p>
+        <p><strong>Derrotas:</strong> {derrotas}</p>
+
+        <p className="mt-2"><strong>Golos Marcados:</strong> {golosMarcados}</p>
+        <p><strong>Golos Sofridos:</strong> {golosSofridos}</p>
+
+        <p className="mt-2">
+          <strong>Diferença de Golos:</strong> {golosMarcados - golosSofridos}
+        </p>
+      </div>
+
+      {/* LISTA DE JOGOS (mantém o teu código atual) */}
+      {games.map((g) => {
+        const isHome = (g.local || "").toUpperCase() === "FAFE";
+        const temResultado = g.golos_fafe != null && g.golos_adv != null;
+
+        const cor =
+          !temResultado
+            ? "text-gray-400"
+            : g.golos_fafe! > g.golos_adv!
+            ? "text-green-400"
+            : g.golos_fafe! < g.golos_adv!
+            ? "text-red-400"
+            : "text-yellow-400";
+
+        return (
+          <div
+            key={g.id}
+            className="border border-secondary bg-primary p-4 rounded-lg shadow-md mb-4"
+          >
+            <h3 className="text-xl font-bold">{g.opponent}</h3>
+            <p>{g.game_date}</p>
+
+            {g.local && (
+              <p
+                className="text-sm mt-1 font-semibold"
+                style={{
+                  color: isHome ? "#0A1A2F" : "#D97904",
+                }}
+              >
+                {isHome ? "Casa" : "Fora"} — {g.local}
+              </p>
+            )}
+
+            <div className={`mt-3 font-bold ${cor}`}>
+              {temResultado ? (
+                <p>
+                  Fafe A60 {g.golos_fafe} – {g.golos_adv} {g.opponent}
+                </p>
+              ) : (
+                <p>Por jogar</p>
+              )}
+            </div>
+
+            <Link
+              to={`/jogos/${g.id}`}
+              className="mt-3 inline-block bg-accent text-white px-4 py-2 rounded-md"
+            >
+              Abrir Convocatória
+            </Link>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
