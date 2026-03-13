@@ -4,6 +4,8 @@ import { supabase } from "../supabaseClient";
 
 export default function ConvocatoriaNova() {
   const { gameId } = useParams();
+  console.log("GAME ID RECEBIDO:", gameId);
+
   const gameIdNum = gameId; // UUID → manter string
 
   const [jogadores, setJogadores] = useState([]);
@@ -42,7 +44,7 @@ export default function ConvocatoriaNova() {
       const jogadoresComStats = players.map((p) => {
         const s = stats.find((x) => x.member_id === p.id);
         return {
-          id: p.id, // ID correto do jogador
+          id: p.id,
           name: p.name,
           disponivel: s ? s.called : false,
           capitao: s ? s.captain : false,
@@ -82,7 +84,7 @@ export default function ConvocatoriaNova() {
             minutes: j.minutos,
             goals: j.golos,
           },
-          { onConflict: "game_id,member_id" } // ← ESSENCIAL
+          { onConflict: "game_id,member_id" }
         );
 
       if (error) {
