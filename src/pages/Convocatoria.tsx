@@ -11,38 +11,32 @@ interface Player {
 export default function Convocatoria() {
   const { gameId } = useParams();
   const [jogadores, setJogadores] = useState<Player[]>([]);
+  const [game, setGame] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
+    async function loadGame() {
+      const { data } = await supabase
+        .from("games")
+        .select("*")
+        .eq("id", gameId)
+        .single();
 
-      // Carregar jogadores
-      const { data: players, error: playersError } = await supabase
+      setGame(data);
+    }
+
+    async function loadPlayers() {
+      const { data: players } = await supabase
         .from("members")
         .select("*")
         .order("name", { ascending: true });
 
-      if (playersError) {
-        console.error("Erro ao carregar jogadores:", playersError);
-        setLoading(false);
-        return;
-      }
-
-      // Carregar convocatória existente
-      const { data: stats, error: statsError } = await supabase
+      const { data: stats } = await supabase
         .from("game_attendance")
         .select("*")
         .eq("game_id", gameId);
 
-      if (statsError) {
-        console.error("Erro ao carregar presenças:", statsError);
-        setLoading(false);
-        return;
-      }
-
-      // Combinar jogadores com convocatória
       const lista = (players || []).map((p) => {
         const s = stats?.find((x) => x.member_id === p.id);
         return {
@@ -56,7 +50,8 @@ export default function Convocatoria() {
       setLoading(false);
     }
 
-    loadData();
+    loadGame();
+    loadPlayers();
   }, [gameId]);
 
   async function guardar() {
@@ -78,55 +73,67 @@ export default function Convocatoria() {
     alert("Convocatória guardada!");
   }
 
-  if (loading) return <p style={{ padding: 20 }}>A carregar...</p>;
+  if (loading) return <p className="p-6 mt-6">A carregar...</p>;
+
+  const isHome = game?.local?.toUpperCase() === "FAFE";
+  const convocados = jogadores.filter((j) => j.disponivel).length;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Convocatória</h2>
+    <div className="p-6 mt-6">
+      <h2 className="text-3xl font-bold mb-2 text-secondary">Convocatória</h2>
 
-      {jogadores.map((j) => (
-        <div
-          key={j.id}
-          style={{
-            border: "1px solid #ccc",
-            padding: 12,
-            marginBottom: 12,
-            borderRadius: 8,
-          }}
-        >
-          <h3>{j.name}</h3>
+      {game && (
+        <div className="mb-6 text-lg opacity-80">
+          <div><strong>Jogo:</strong> {game.opponent}</div>
+          <div><strong>Data:</strong> {game.game_date}</div>
+          <div
+            style={{
+              color: isHome ? "#0A1A2F" : "#D97904",
+              fontWeight: "bold",
+            }}
+          >
+            {isHome ? "Casa" : "Fora"} — {game.local}
+          </div>
 
-          <label>
-            <input
-              type="checkbox"
-              checked={j.disponivel}
-              onChange={(e) =>
-                setJogadores((prev) =>
-                  prev.map((x) =>
-                    x.id === j.id
-                      ? { ...x, disponivel: e.target.checked }
-                      : x
-                  )
-                )
-              }
-            />
-            Disponível
-          </label>
+          <div className="mt-2 text-xl font-bold">
+            {convocados} convocados
+          </div>
         </div>
-      ))}
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {jogadores.map((j) => (
+          <div
+            key={j.id}
+            className="border border-secondary bg-primary p-4 rounded-lg shadow-md flex justify-between items-center"
+          >
+            <h3 className="text-lg font-semibold">{j.name}</h3>
+
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={j.disponivel}
+                onChange={(e) =>
+                  setJogadores((prev) =>
+                    prev.map((x) =>
+                      x.id === j.id
+                        ? { ...x, disponivel: e.target.checked }
+                        : x
+                    )
+                  )
+                }
+                className="w-5 h-5"
+              />
+              Disponível
+            </label>
+          </div>
+        ))}
+      </div>
 
       <button
         onClick={guardar}
         disabled={saving}
-        style={{
-          padding: "10px 20px",
-          fontSize: 16,
-          background: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
+        className="mt-8 bg-accent hover:bg-secondary text-white px-6 py-3 rounded-md text-lg shadow-md"
       >
         {saving ? "A guardar..." : "Guardar Convocatória"}
       </button>
