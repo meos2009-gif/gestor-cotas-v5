@@ -1,81 +1,104 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-type Stats = {
-  member_id: string;
-  member_name: string;
-  convocado: number;
+interface Member {
+  id: string;
+  name: string;
+}
+
+interface Stat {
   presencas: number;
-  minutos_totais: number;
-  golos_totais: number;
-  capitao: number;
-};
+  faltas: number;
+  percentagem: number;
+}
 
 export default function Estatisticas() {
-  const [stats, setStats] = useState<Stats[]>([]);
+  const [stats, setStats] = useState<Record<string, Stat>>({});
+  const [members, setMembers] = useState<Member[]>([]);
+  const [totalJogos, setTotalJogos] = useState(0);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
 
   useEffect(() => {
-    loadStats();
-  }, [location.pathname]);
+    async function loadStats() {
+      // 1) Carregar jogadores
+      const { data: membros } = await supabase
+        .from("members")
+        .select("id, name")
+        .order("name", { ascending: true });
 
-  async function loadStats() {
-    setLoading(true);
+      setMembers(membros || []);
 
-    const { data, error } = await supabase
-      .from("member_stats")
-      .select("*")
-      .order("minutos_totais", { ascending: false });
+      // 2) Carregar convocatórias
+      const { data: attendance } = await supabase
+        .from("game_attendance")
+        .select("member_id, called, game_id");
 
-    if (error) {
-      console.error("Erro ao carregar estatísticas:", error);
-      setStats([]);
-    } else {
-      setStats(data as Stats[]);
+      // 3) Contar jogos únicos
+      const jogosUnicos = new Set(attendance?.map((a) => a.game_id));
+      setTotalJogos(jogosUnicos.size);
+
+      // 4) Calcular estatísticas
+      const estatisticas: Record<string, Stat> = {};
+
+      membros?.forEach((m) => {
+        estatisticas[m.id] = {
+          presencas: 0,
+          faltas: 0,
+          percentagem: 0,
+        };
+      });
+
+      attendance?.forEach((a) => {
+        if (!estatisticas[a.member_id]) return;
+
+        if (a.called) estatisticas[a.member_id].presencas++;
+        else estatisticas[a.member_id].faltas++;
+      });
+
+      // 5) Calcular percentagem
+      Object.keys(estatisticas).forEach((id) => {
+        const s = estatisticas[id];
+        const total = s.presencas + s.faltas;
+        s.percentagem = total > 0 ? Math.round((s.presencas / total) * 100) : 0;
+      });
+
+      setStats(estatisticas);
+      setLoading(false);
     }
 
-    setLoading(false);
-  }
+    loadStats();
+  }, []);
 
-  if (loading) {
-    return <div className="p-4 text-white">A carregar estatísticas...</div>;
-  }
+  if (loading) return <p className="p-6">A carregar estatísticas...</p>;
 
   return (
-    <div className="p-4 text-white">
-      <h1 className="text-2xl font-bold mb-4">Estatísticas Individuais</h1>
+    <div className="p-6">
+      <h2 className="text-3xl font-bold mb-6 text-secondary">Estatísticas da Equipa</h2>
 
-      <button
-        onClick={loadStats}
-        className="mb-4 bg-blue-600 px-3 py-1 rounded"
-      >
-        Atualizar
-      </button>
+      <p className="mb-4 text-lg opacity-80">
+        Total de jogos registados: <strong>{totalJogos}</strong>
+      </p>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-gray-900 border border-gray-700 rounded">
+        <table className="w-full border-collapse border border-secondary bg-primary">
           <thead>
-            <tr className="bg-gray-800 text-left">
-              <th className="p-2 border-b border-gray-700">Jogador</th>
-              <th className="p-2 border-b border-gray-700">Convocado</th>
-              <th className="p-2 border-b border-gray-700">Presenças</th>
-              <th className="p-2 border-b border-gray-700">Minutos</th>
-              <th className="p-2 border-b border-gray-700">Golos</th>
-              <th className="p-2 border-b border-gray-700">Capitão</th>
+            <tr className="bg-secondary text-white">
+              <th className="p-3 border border-secondary">Jogador</th>
+              <th className="p-3 border border-secondary">Presenças</th>
+              <th className="p-3 border border-secondary">Faltas</th>
+              <th className="p-3 border border-secondary">% Convocação</th>
             </tr>
           </thead>
 
           <tbody>
-            {stats.map((s) => (
-              <tr key={s.member_id} className="hover:bg-gray-800">
-                <td className="p-2 border-b border-gray-700">{s.member_name}</td>
-                <td className="p-2 border-b border-gray-700">{s.convocado}</td>
-                <td className="p-2 border-b border-gray-700">{s.presencas}</td>
-                <td className="p-2 border-b border-gray-700">{s.minutos_totais}</td>
-                <td className="p-2 border-b border-gray-700">{s.golos_totais}</td>
-                <td className="p-2 border-b border-gray-700">{s.capitao}</td>
+            {members.map((m) => (
+              <tr key={m.id} className="text-center">
+                <td className="p-3 border border-secondary">{m.name}</td>
+                <td className="p-3 border border-secondary">{stats[m.id]?.presencas || 0}</td>
+                <td className="p-3 border border-secondary">{stats[m.id]?.faltas || 0}</td>
+                <td className="p-3 border border-secondary">
+                  {stats[m.id]?.percentagem || 0}%
+                </td>
               </tr>
             ))}
           </tbody>
