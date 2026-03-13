@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import RequireAuth from "./lib/RequireAuth";
-import Calendario2026 from "./pages/Calendario2026";
+
 import Login from "./pages/Login";
 import Socios from "./pages/Socios";
 import Pagamentos from "./pages/Pagamentos";
@@ -11,12 +11,15 @@ import Relatorio from "./pages/Relatorio";
 import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
 import Tesouraria from "./pages/Tesouraria";
-import Calendario from "./pages/Calendario";
-import ConvocatoriaNova from "./pages/ConvocatoriaNova";
 
-// 🔵 IMPORTA AS NOVAS PÁGINAS (FALTAVAM ESTES!)
+// 🔵 IMPORTA AS NOVAS PÁGINAS
 import Estatisticas from "./pages/Estatisticas";
 import Contabilidade from "./pages/Contabilidade";
+
+// ❌ REMOVIDO: Calendario
+// ❌ REMOVIDO: Calendario2026
+// ❌ REMOVIDO: ConvocatoriaNova
+
 export default function App() {
   return (
     <Routes>
@@ -45,15 +48,15 @@ export default function App() {
         <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
         <Route path="/tesouraria" element={<Tesouraria />} />
         <Route path="/contabilidade" element={<Contabilidade />} />
-        {/* CALENDÁRIO */}
-        <Route path="/calendario" element={<Calendario />} />
-        {/* CONVOCATÓRIA */}
-        <Route path="/convocatoria/:gameId" element={<ConvocatoriaNova />} />
-        {/* ESTATÍSTICAS */}
+
+        {/* ❌ REMOVIDO: /calendario */}
+        {/* ❌ REMOVIDO: /convocatoria/:gameId */}
+
         <Route path="/estatisticas" element={<Estatisticas />} />
       </Route>
-      {/* CALENDÁRIO 2026 (fora do layout) */}
-      <Route path="/calendario-2026" element={<Calendario2026 />} />
+
+      {/* ❌ REMOVIDO: /calendario-2026 */}
+
       {/* CATCH-ALL */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
