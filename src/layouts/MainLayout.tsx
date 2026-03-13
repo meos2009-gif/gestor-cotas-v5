@@ -91,7 +91,7 @@ export default function MainLayout() {
               )}
             </div>
 
-            {/* NOVO — JOGOS */}
+            {/* JOGOS */}
             <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
 
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
@@ -185,7 +185,7 @@ export default function MainLayout() {
               )}
             </div>
 
-            {/* NOVO — JOGOS MOBILE */}
+            {/* JOGOS MOBILE */}
             <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
 
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
