@@ -18,16 +18,31 @@ export default function Convocatoria() {
     async function loadData() {
       setLoading(true);
 
-      const { data: players } = await supabase
+      // Carregar jogadores
+      const { data: players, error: playersError } = await supabase
         .from("members")
         .select("*")
         .order("name", { ascending: true });
 
-      const { data: stats } = await supabase
+      if (playersError) {
+        console.error("Erro ao carregar jogadores:", playersError);
+        setLoading(false);
+        return;
+      }
+
+      // Carregar convocatória existente
+      const { data: stats, error: statsError } = await supabase
         .from("game_attendance")
         .select("*")
         .eq("game_id", gameId);
 
+      if (statsError) {
+        console.error("Erro ao carregar presenças:", statsError);
+        setLoading(false);
+        return;
+      }
+
+      // Combinar jogadores com convocatória
       const lista = (players || []).map((p) => {
         const s = stats?.find((x) => x.member_id === p.id);
         return {
