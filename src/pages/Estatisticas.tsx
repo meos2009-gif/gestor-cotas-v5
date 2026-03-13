@@ -12,6 +12,7 @@ interface Stat {
   percentagem: number;
   goals: number;
   minutes: number;
+  capitaincies: number;
 }
 
 export default function Estatisticas() {
@@ -30,10 +31,10 @@ export default function Estatisticas() {
 
       setMembers(membros || []);
 
-      // 2) Carregar presenças + golos + minutos
+      // 2) Carregar presenças + golos + minutos + capitão
       const { data: attendance } = await supabase
         .from("game_attendance")
-        .select("member_id, called, game_id, goals, minutes");
+        .select("member_id, called, game_id, goals, minutes, captain");
 
       // 3) Contar jogos únicos
       const jogosUnicos = new Set(attendance?.map((a) => a.game_id));
@@ -49,6 +50,7 @@ export default function Estatisticas() {
           percentagem: 0,
           goals: 0,
           minutes: 0,
+          capitaincies: 0,
         };
       });
 
@@ -62,6 +64,8 @@ export default function Estatisticas() {
 
         s.goals += a.goals || 0;
         s.minutes += a.minutes || 0;
+
+        if (a.captain) s.capitaincies++;
       });
 
       // 6) Calcular percentagem
@@ -98,6 +102,7 @@ export default function Estatisticas() {
               <th className="p-3 border border-secondary">% Convocação</th>
               <th className="p-3 border border-secondary">Golos</th>
               <th className="p-3 border border-secondary">Minutos</th>
+              <th className="p-3 border border-secondary">Capitão</th>
             </tr>
           </thead>
 
@@ -112,6 +117,7 @@ export default function Estatisticas() {
                 </td>
                 <td className="p-3 border border-secondary">{stats[m.id]?.goals || 0}</td>
                 <td className="p-3 border border-secondary">{stats[m.id]?.minutes || 0}</td>
+                <td className="p-3 border border-secondary">{stats[m.id]?.capitaincies || 0}</td>
               </tr>
             ))}
           </tbody>

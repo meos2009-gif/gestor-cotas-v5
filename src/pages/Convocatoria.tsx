@@ -6,6 +6,10 @@ interface Player {
   id: string;
   name: string;
   disponivel: boolean;
+  goals: number;
+  minutes: number;
+  present: boolean;
+  captain: boolean;
 }
 
 export default function Convocatoria() {
@@ -43,6 +47,10 @@ export default function Convocatoria() {
           id: p.id,
           name: p.name,
           disponivel: s?.called ?? false,
+          goals: s?.goals ?? 0,
+          minutes: s?.minutes ?? 0,
+          present: s?.present ?? false,
+          captain: s?.captain ?? false,
         };
       });
 
@@ -62,8 +70,11 @@ export default function Convocatoria() {
         {
           game_id: gameId,
           member_id: j.id,
-          member_name: j.name,
           called: j.disponivel,
+          goals: j.goals,
+          minutes: j.minutes,
+          present: j.disponivel,
+          captain: j.captain,
         },
         { onConflict: "game_id,member_id" }
       );
@@ -105,11 +116,11 @@ export default function Convocatoria() {
         {jogadores.map((j) => (
           <div
             key={j.id}
-            className="border border-secondary bg-primary p-4 rounded-lg shadow-md flex justify-between items-center"
+            className="border border-secondary bg-primary p-4 rounded-lg shadow-md"
           >
-            <h3 className="text-lg font-semibold">{j.name}</h3>
+            <h3 className="text-lg font-semibold mb-2">{j.name}</h3>
 
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-sm mb-2">
               <input
                 type="checkbox"
                 checked={j.disponivel}
@@ -126,6 +137,44 @@ export default function Convocatoria() {
               />
               Disponível
             </label>
+
+            <div className="flex gap-4 mt-2">
+              <div>
+                <label className="text-sm">Golos</label>
+                <input
+                  type="number"
+                  value={j.goals}
+                  onChange={(e) =>
+                    setJogadores((prev) =>
+                      prev.map((x) =>
+                        x.id === j.id
+                          ? { ...x, goals: Number(e.target.value) }
+                          : x
+                      )
+                    )
+                  }
+                  className="w-20 p-1 border rounded"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm">Minutos</label>
+                <input
+                  type="number"
+                  value={j.minutes}
+                  onChange={(e) =>
+                    setJogadores((prev) =>
+                      prev.map((x) =>
+                        x.id === j.id
+                          ? { ...x, minutes: Number(e.target.value) }
+                          : x
+                      )
+                    )
+                  }
+                  className="w-20 p-1 border rounded"
+                />
+              </div>
+            </div>
           </div>
         ))}
       </div>
