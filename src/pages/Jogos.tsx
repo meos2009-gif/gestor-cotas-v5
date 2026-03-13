@@ -7,13 +7,14 @@ interface Game {
   game_date: string;
   opponent: string;
   local: string | null;
-  golos_fafe: number | null;
-  golos_adv: number | null;
+  goals_home: number | null;
+  goals_away: number | null;
 }
 
 export default function Jogos() {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [editing, setEditing] = useState<string | null>(null);
   const [golosFafe, setGolosFafe] = useState<number | null>(null);
   const [golosAdv, setGolosAdv] = useState<number | null>(null);
@@ -41,21 +42,21 @@ export default function Jogos() {
     const { error } = await supabase
       .from("games")
       .update({
-        golos_fafe: golosFafe,
-        golos_adv: golosAdv,
+        goals_home: Number(golosFafe),
+        goals_away: Number(golosAdv),
       })
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao guardar resultado:", error);
+      console.error("Erro Supabase:", error.message);
+      alert("Erro ao gravar: " + error.message);
       return;
     }
 
-    // Atualizar lista localmente
     setGames((prev) =>
       prev.map((g) =>
         g.id === id
-          ? { ...g, golos_fafe: golosFafe, golos_adv: golosAdv }
+          ? { ...g, goals_home: Number(golosFafe), goals_away: Number(golosAdv) }
           : g
       )
     );
@@ -65,20 +66,66 @@ export default function Jogos() {
 
   if (loading) return <p className="p-6">A carregar jogos...</p>;
 
+  // -----------------------------
+  // 📊 ESTATÍSTICAS DA ÉPOCA
+  // -----------------------------
+  const jogosComResultado = games.filter(
+    (g) => g.goals_home !== null && g.goals_away !== null
+  );
+
+  const vitorias = jogosComResultado.filter(
+    (g) => g.goals_home! > g.goals_away!
+  ).length;
+
+  const empates = jogosComResultado.filter(
+    (g) => g.goals_home! === g.goals_away!
+  ).length;
+
+  const derrotas = jogosComResultado.filter(
+    (g) => g.goals_home! < g.goals_away!
+  ).length;
+
+  const golosMarcados = jogosComResultado.reduce(
+    (acc, g) => acc + (g.goals_home || 0),
+    0
+  );
+
+  const golosSofridos = jogosComResultado.reduce(
+    (acc, g) => acc + (g.goals_away || 0),
+    0
+  );
+
   return (
     <div className="p-6">
       <h2 className="text-3xl font-bold mb-6 text-secondary">Jogos</h2>
 
+      {/* 📊 ESTATÍSTICAS */}
+      <div className="bg-secondary text-white p-4 rounded-lg mb-6 shadow-md">
+        <h3 className="text-xl font-bold mb-2">Estatísticas da Época</h3>
+
+        <p><strong>Vitórias:</strong> {vitorias}</p>
+        <p><strong>Empates:</strong> {empates}</p>
+        <p><strong>Derrotas:</strong> {derrotas}</p>
+
+        <p className="mt-2"><strong>Golos Marcados:</strong> {golosMarcados}</p>
+        <p><strong>Golos Sofridos:</strong> {golosSofridos}</p>
+
+        <p className="mt-2">
+          <strong>Diferença de Golos:</strong> {golosMarcados - golosSofridos}
+        </p>
+      </div>
+
+      {/* LISTA DE JOGOS */}
       {games.map((g) => {
         const isHome = (g.local || "").toUpperCase() === "FAFE";
-        const temResultado = g.golos_fafe != null && g.golos_adv != null;
+        const temResultado = g.goals_home != null && g.goals_away != null;
 
         const cor =
           !temResultado
             ? "text-gray-400"
-            : g.golos_fafe! > g.golos_adv!
+            : g.goals_home! > g.goals_away!
             ? "text-green-400"
-            : g.golos_fafe! < g.golos_adv!
+            : g.goals_home! < g.goals_away!
             ? "text-red-400"
             : "text-yellow-400";
 
@@ -105,7 +152,7 @@ export default function Jogos() {
             <div className={`mt-3 font-bold ${cor}`}>
               {temResultado ? (
                 <p>
-                  Fafe A60 {g.golos_fafe} – {g.golos_adv} {g.opponent}
+                  Fafe A60 {g.goals_home} – {g.goals_away} {g.opponent}
                 </p>
               ) : (
                 <p>Por jogar</p>
@@ -149,8 +196,8 @@ export default function Jogos() {
               <button
                 onClick={() => {
                   setEditing(g.id);
-                  setGolosFafe(g.golos_fafe);
-                  setGolosAdv(g.golos_adv);
+                  setGolosFafe(g.goals_home);
+                  setGolosAdv(g.goals_away);
                 }}
                 className="mt-3 inline-block bg-accent text-white px-4 py-2 rounded-md"
               >
@@ -158,7 +205,7 @@ export default function Jogos() {
               </button>
             )}
 
-            {/* BOTÃO EXISTENTE */}
+            {/* CONVOCATÓRIA */}
             <Link
               to={`/jogos/${g.id}`}
               className="mt-3 inline-block bg-secondary text-white px-4 py-2 rounded-md ml-2"
