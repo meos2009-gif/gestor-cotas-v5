@@ -8,8 +8,8 @@ export default function MainLayout() {
   const [reportsOpen, setReportsOpen] = useState(false);
   const [calendarMobileOpen, setCalendarMobileOpen] = useState(false);
   const [reportsMobileOpen, setReportsMobileOpen] = useState(false);
-const [paymentsOpen, setPaymentsOpen] = useState(false);
-const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
+  const [paymentsOpen, setPaymentsOpen] = useState(false);
+  const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -39,7 +39,7 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
             <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
             <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
-            
+
             {/* RELATÓRIOS */}
             <div className="relative">
               <button
@@ -56,22 +56,23 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
                 </div>
               )}
             </div>
-{/* PAGAMENTOS */}
-<div className="relative">
-  <button
-    onClick={() => setPaymentsOpen(!paymentsOpen)}
-    className="hover:text-secondary transition-colors"
-  >
-    Pagamentos ▾
-  </button>
 
-  {paymentsOpen && (
-    <div className="absolute left-0 mt-2 bg-primary text-text shadow-lg rounded-md p-3 flex flex-col gap-2 z-50 border border-secondary">
-      <NavLink to="/pagamentos" className="hover:text-secondary">Pagamento de Cotas</NavLink>
-      <NavLink to="/jantar" className="hover:text-secondary">Pagamento de Jantares</NavLink>
-    </div>
-  )}
-</div>
+            {/* PAGAMENTOS */}
+            <div className="relative">
+              <button
+                onClick={() => setPaymentsOpen(!paymentsOpen)}
+                className="hover:text-secondary transition-colors"
+              >
+                Pagamentos ▾
+              </button>
+
+              {paymentsOpen && (
+                <div className="absolute left-0 mt-2 bg-primary text-text shadow-lg rounded-md p-3 flex flex-col gap-2 z-50 border border-secondary">
+                  <NavLink to="/pagamentos" className="hover:text-secondary">Pagamento de Cotas</NavLink>
+                  <NavLink to="/jantar" className="hover:text-secondary">Pagamento de Jantares</NavLink>
+                </div>
+              )}
+            </div>
 
             {/* CALENDÁRIO */}
             <div className="relative">
@@ -89,6 +90,9 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
                 </div>
               )}
             </div>
+
+            {/* NOVO — JOGOS */}
+            <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
 
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
             <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
@@ -129,7 +133,7 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
 
             <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
             <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
-            
+
             {/* RELATÓRIOS MOBILE */}
             <div>
               <button
@@ -146,22 +150,23 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
                 </div>
               )}
             </div>
-{/* PAGAMENTOS MOBILE */}
-<div>
-  <button
-    onClick={() => setPaymentsMobileOpen(!paymentsMobileOpen)}
-    className="w-full text-left hover:text-secondary"
-  >
-    Pagamentos ▾
-  </button>
 
-  {paymentsMobileOpen && (
-    <div className="ml-4 flex flex-col gap-2 mt-2">
-      <NavLink to="/pagamentos" className="hover:text-secondary">Pagamento de Cotas</NavLink>
-      <NavLink to="/jantar" className="hover:text-secondary">Pagamento de Jantares</NavLink>
-    </div>
-  )}
-</div>
+            {/* PAGAMENTOS MOBILE */}
+            <div>
+              <button
+                onClick={() => setPaymentsMobileOpen(!paymentsMobileOpen)}
+                className="w-full text-left hover:text-secondary"
+              >
+                Pagamentos ▾
+              </button>
+
+              {paymentsMobileOpen && (
+                <div className="ml-4 flex flex-col gap-2 mt-2">
+                  <NavLink to="/pagamentos" className="hover:text-secondary">Pagamento de Cotas</NavLink>
+                  <NavLink to="/jantar" className="hover:text-secondary">Pagamento de Jantares</NavLink>
+                </div>
+              )}
+            </div>
 
             {/* CALENDÁRIO MOBILE */}
             <div>
@@ -179,6 +184,9 @@ const [paymentsMobileOpen, setPaymentsMobileOpen] = useState(false);
                 </div>
               )}
             </div>
+
+            {/* NOVO — JOGOS MOBILE */}
+            <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
 
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
             <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
