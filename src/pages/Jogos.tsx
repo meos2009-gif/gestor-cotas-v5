@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient";
 
 interface Game {
   id: string;
-  date: string;
+  game_date: string;
   opponent: string;
 }
 
@@ -17,7 +17,7 @@ export default function Jogos() {
       const { data, error } = await supabase
         .from("games")
         .select("*")
-        .order("date", { ascending: true });
+        .order("game_date", { ascending: true });
 
       if (error) {
         console.error("Erro ao carregar jogos:", error);
@@ -37,6 +37,10 @@ export default function Jogos() {
     <div style={{ padding: 20 }}>
       <h2>Jogos</h2>
 
+      {games.length === 0 && (
+        <p>Nenhum jogo encontrado. Adiciona um jogo no Supabase.</p>
+      )}
+
       {games.map((g) => (
         <div
           key={g.id}
@@ -48,7 +52,7 @@ export default function Jogos() {
           }}
         >
           <h3>{g.opponent}</h3>
-          <p>{g.date}</p>
+          <p>{g.game_date}</p>
 
           <Link
             to={`/convocatoria/${g.id}`}
