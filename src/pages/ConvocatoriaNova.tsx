@@ -6,7 +6,7 @@ export default function ConvocatoriaNova() {
   const { gameId } = useParams();
   console.log("GAME ID RECEBIDO:", gameId);
 
-  const gameIdNum = gameId; // UUID → manter string
+  const gameIdNum = gameId;
 
   const [jogadores, setJogadores] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +16,6 @@ export default function ConvocatoriaNova() {
     async function loadData() {
       setLoading(true);
 
-      // Carregar jogadores da tabela MEMBERS
       const { data: players, error: playersError } = await supabase
         .from("members")
         .select("*")
@@ -28,7 +27,6 @@ export default function ConvocatoriaNova() {
         return;
       }
 
-      // Carregar presenças do jogo
       const { data: stats, error: statsError } = await supabase
         .from("game_attendance")
         .select("*")
@@ -40,7 +38,6 @@ export default function ConvocatoriaNova() {
         return;
       }
 
-      // Juntar jogadores + stats
       const jogadoresComStats = players.map((p) => {
         const s = stats.find((x) => x.member_id === p.id);
         return {
