@@ -24,14 +24,16 @@ export default function MainLayout() {
       <nav className="bg-primary text-text px-6 py-4 shadow-md border-b border-secondary">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
 
-          {/* LOGO DESKTOP */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* LOGO (desktop e mobile) */}
+          <div className="flex items-center gap-3">
             <img
               src="/logo.png"
               alt="Logo"
               className="w-14 h-14 object-contain"
             />
-            <h1 className="text-xl font-bold text-secondary">Gestor de Cotas</h1>
+            <h1 className="text-xl font-bold text-secondary hidden md:block">
+              Gestor de Cotas
+            </h1>
           </div>
 
           {/* MENU DESKTOP */}
@@ -91,15 +93,12 @@ export default function MainLayout() {
               )}
             </div>
 
-            {/* JOGOS */}
             <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
-
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
             <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
             <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
             <NavLink to="/estatisticas" className="hover:text-secondary">Equipa</NavLink>
 
-            {/* LOGOUT */}
             <button
               onClick={handleLogout}
               className="bg-accent hover:bg-secondary px-4 py-2 rounded-md text-white"
@@ -108,9 +107,9 @@ export default function MainLayout() {
             </button>
           </div>
 
-          {/* MOBILE BUTTON */}
+          {/* BOTÃO MOBILE — AGORA À DIREITA */}
           <button
-            className="md:hidden text-2xl text-secondary"
+            className="md:hidden text-3xl text-secondary ml-auto"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             ☰
@@ -185,9 +184,7 @@ export default function MainLayout() {
               )}
             </div>
 
-            {/* JOGOS MOBILE */}
             <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
-
             <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
             <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
             <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
