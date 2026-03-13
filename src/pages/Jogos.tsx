@@ -77,8 +77,7 @@ export default function Jogos() {
   const jogosComResultado = games.filter(
     (g) =>
       g.goals_home !== null &&
-      g.goals_away !== null &&
-      !(g.goals_home === 0 && g.goals_away === 0)
+      g.goals_away !== null
   );
 
   const vitorias = jogosComResultado.filter(
@@ -129,8 +128,7 @@ export default function Jogos() {
 
         const temResultado =
           g.goals_home !== null &&
-          g.goals_away !== null &&
-          !(g.goals_home === 0 && g.goals_away === 0);
+          g.goals_away !== null;
 
         const cor =
           !temResultado
@@ -225,13 +223,13 @@ export default function Jogos() {
               </button>
             )}
 
-           {/* CONVOCATÓRIA */}
-<Link
-  to={`/jogos/${g.id}`}
-  className="mt-3 inline-block bg-secondary text-white px-4 py-2 rounded-md ml-2"
->
-  Abrir Convocatória
-</Link>
+            {/* CONVOCATÓRIA */}
+            <Link
+              to={`/jogos/${g.id}`}
+              className="mt-3 inline-block bg-secondary text-white px-4 py-2 rounded-md ml-2"
+            >
+              Abrir Convocatória
+            </Link>
           </div>
         );
       })}
