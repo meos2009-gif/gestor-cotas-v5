@@ -1,142 +1,75 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-interface Player {
+interface Game {
   id: string;
-  name: string;
-  disponivel: boolean;
+  game_date: string;
+  opponent: string;
+  local: string | null;
 }
 
-export default function Convocatoria() {
-  const { gameId } = useParams();
-  const [jogadores, setJogadores] = useState<Player[]>([]);
-  const [game, setGame] = useState<any>(null);
+export default function Jogos() {
+  const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    async function loadGame() {
-      const { data } = await supabase
+    async function loadGames() {
+      const { data, error } = await supabase
         .from("games")
         .select("*")
-        .eq("id", gameId)
-        .single();
+        .order("game_date", { ascending: true });
 
-      setGame(data);
-    }
+      if (error) {
+        console.error("Erro ao carregar jogos:", error);
+        return;
+      }
 
-    async function loadPlayers() {
-      const { data: players } = await supabase
-        .from("members")
-        .select("*")
-        .order("name", { ascending: true });
-
-      const { data: stats } = await supabase
-        .from("game_attendance")
-        .select("*")
-        .eq("game_id", gameId);
-
-      const lista = (players || []).map((p) => {
-        const s = stats?.find((x) => x.member_id === p.id);
-        return {
-          id: p.id,
-          name: p.name,
-          disponivel: s?.called ?? false,
-        };
-      });
-
-      setJogadores(lista);
+      setGames(data || []);
       setLoading(false);
     }
 
-    loadGame();
-    loadPlayers();
-  }, [gameId]);
+    loadGames();
+  }, []);
 
-  async function guardar() {
-    setSaving(true);
-
-    for (const j of jogadores) {
-      await supabase.from("game_attendance").upsert(
-        {
-          game_id: gameId,
-          member_id: j.id,
-          member_name: j.name,
-          called: j.disponivel,
-        },
-        { onConflict: "game_id,member_id" }
-      );
-    }
-
-    setSaving(false);
-    alert("Convocatória guardada!");
-  }
-
-  if (loading) return <p className="p-6 mt-6">A carregar...</p>;
-
-  const isHome = game?.local?.toUpperCase() === "FAFE";
-  const convocados = jogadores.filter((j) => j.disponivel).length;
+  if (loading) return <p className="p-6">A carregar jogos...</p>;
 
   return (
-    <div className="p-6 mt-6">
-      <h2 className="text-3xl font-bold mb-2 text-secondary">Convocatória</h2>
+    <div className="p-6">
+      <h2 className="text-3xl font-bold mb-6 text-secondary">Jogos</h2>
 
-      {game && (
-        <div className="mb-6 text-lg opacity-80">
-          <div><strong>Jogo:</strong> {game.opponent}</div>
-          <div><strong>Data:</strong> {game.game_date}</div>
+      {games.map((g) => {
+        const isHome = (g.local || "").toUpperCase() === "FAFE";
+
+        return (
           <div
-            style={{
-              color: isHome ? "#0A1A2F" : "#D97904",
-              fontWeight: "bold",
-            }}
+            key={g.id}
+            className="border border-secondary bg-primary p-4 rounded-lg shadow-md mb-4"
           >
-            {isHome ? "Casa" : "Fora"} — {game.local}
+            <h3 className="text-xl font-bold">{g.opponent}</h3>
+            <p>{g.game_date}</p>
+
+            {g.local && (
+              <p
+                className="text-sm mt-1 font-semibold"
+                style={{
+                  color: isHome ? "#0A1A2F" : "#D97904",
+                }}
+              >
+                {isHome ? "Casa" : "Fora"} — {g.local}
+              </p>
+            )}
+
+            {/* ESTE BOTÃO É O QUE FALTAVA */}
+            <Link
+              to={`/jogos/${g.id}`}
+              className="mt-3 inline-block bg-accent text-white px-4 py-2 rounded-md"
+            >
+              Abrir Convocatória
+            </Link>
           </div>
-
-          <div className="mt-2 text-xl font-bold">
-            {convocados} convocados
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {jogadores.map((j) => (
-          <div
-            key={j.id}
-            className="border border-secondary bg-primary p-4 rounded-lg shadow-md flex justify-between items-center"
-          >
-            <h3 className="text-lg font-semibold">{j.name}</h3>
-
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={j.disponivel}
-                onChange={(e) =>
-                  setJogadores((prev) =>
-                    prev.map((x) =>
-                      x.id === j.id
-                        ? { ...x, disponivel: e.target.checked }
-                        : x
-                    )
-                  )
-                }
-                className="w-5 h-5"
-              />
-              Disponível
-            </label>
-          </div>
-        ))}
-      </div>
-
-      <button
-        onClick={guardar}
-        disabled={saving}
-        className="mt-8 bg-accent hover:bg-secondary text-white px-6 py-3 rounded-md text-lg shadow-md"
-      >
-        {saving ? "A guardar..." : "Guardar Convocatória"}
-      </button>
+        );
+      })}
     </div>
   );
 }
