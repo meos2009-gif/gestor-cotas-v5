@@ -11,23 +11,18 @@ import Relatorio from "./pages/Relatorio";
 import Jantar from "./pages/Jantar";
 import RelatorioJantares from "./pages/RelatorioJantares";
 import Tesouraria from "./pages/Tesouraria";
-
-// 🔵 IMPORTA AS NOVAS PÁGINAS
 import Estatisticas from "./pages/Estatisticas";
 import Contabilidade from "./pages/Contabilidade";
 
-// ❌ REMOVIDO: Calendario
-// ❌ REMOVIDO: Calendario2026
-// ❌ REMOVIDO: ConvocatoriaNova
+// NOVOS
+import Jogos from "./pages/Jogos";
+import Convocatoria from "./pages/Convocatoria";
 
 export default function App() {
   return (
     <Routes>
-
-      {/* LOGIN */}
       <Route path="/login" element={<Login />} />
 
-      {/* ROTAS PROTEGIDAS */}
       <Route
         element={
           <RequireAuth>
@@ -42,24 +37,19 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/config" element={<Config />} />
         <Route path="/relatorio" element={<Relatorio />} />
-
-        {/* NOVAS ROTAS */}
         <Route path="/jantar" element={<Jantar />} />
         <Route path="/relatorio-jantares" element={<RelatorioJantares />} />
         <Route path="/tesouraria" element={<Tesouraria />} />
         <Route path="/contabilidade" element={<Contabilidade />} />
 
-        {/* ❌ REMOVIDO: /calendario */}
-        {/* ❌ REMOVIDO: /convocatoria/:gameId */}
+        {/* NOVO */}
+        <Route path="/jogos" element={<Jogos />} />
+        <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
 
         <Route path="/estatisticas" element={<Estatisticas />} />
       </Route>
 
-      {/* ❌ REMOVIDO: /calendario-2026 */}
-
-      {/* CATCH-ALL */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-
     </Routes>
   );
 }
