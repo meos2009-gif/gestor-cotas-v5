@@ -8,7 +8,6 @@ interface Player {
   disponivel: boolean;
   goals: number;
   minutes: number;
-  present: boolean;
   captain: boolean;
 }
 
@@ -49,7 +48,6 @@ export default function Convocatoria() {
           disponivel: s?.called ?? false,
           goals: s?.goals ?? 0,
           minutes: s?.minutes ?? 0,
-          present: s?.present ?? false,
           captain: s?.captain ?? false,
         };
       });
@@ -73,7 +71,6 @@ export default function Convocatoria() {
           called: j.disponivel,
           goals: j.goals,
           minutes: j.minutes,
-          present: j.disponivel,
           captain: j.captain,
         },
         { onConflict: "game_id,member_id" }
@@ -120,17 +117,24 @@ export default function Convocatoria() {
           >
             <h3 className="text-lg font-semibold mb-2">{j.name}</h3>
 
+            {/* Disponível */}
             <label className="flex items-center gap-2 text-sm mb-2">
               <input
                 type="checkbox"
                 checked={j.disponivel}
                 onChange={(e) =>
                   setJogadores((prev) =>
-                    prev.map((x) =>
-                      x.id === j.id
-                        ? { ...x, disponivel: e.target.checked }
-                        : x
-                    )
+                    prev.map((x) => {
+                      if (x.id !== j.id) return x;
+
+                      const disponivel = e.target.checked;
+
+                      return {
+                        ...x,
+                        disponivel,
+                        minutes: disponivel ? 80 : 0, // regra pedida
+                      };
+                    })
                   )
                 }
                 className="w-5 h-5"
@@ -138,6 +142,27 @@ export default function Convocatoria() {
               Disponível
             </label>
 
+            {/* Capitão */}
+            <label className="flex items-center gap-2 text-sm mb-2">
+              <input
+                type="checkbox"
+                checked={j.captain}
+                onChange={(e) =>
+                  setJogadores((prev) =>
+                    prev.map((x) => {
+                      if (x.id === j.id) {
+                        return { ...x, captain: e.target.checked };
+                      }
+                      return { ...x, captain: false };
+                    })
+                  )
+                }
+                className="w-5 h-5"
+              />
+              Capitão
+            </label>
+
+            {/* Golos e Minutos */}
             <div className="flex gap-4 mt-2">
               <div>
                 <label className="text-sm">Golos</label>
