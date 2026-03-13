@@ -39,11 +39,16 @@ export default function Jogos() {
   }, []);
 
   async function guardarResultado(id: string) {
+    const home =
+      golosFafe === null || golosFafe === "" ? null : Number(golosFafe);
+    const away =
+      golosAdv === null || golosAdv === "" ? null : Number(golosAdv);
+
     const { error } = await supabase
       .from("games")
       .update({
-        goals_home: Number(golosFafe),
-        goals_away: Number(golosAdv),
+        goals_home: home,
+        goals_away: away,
       })
       .eq("id", id);
 
@@ -56,7 +61,7 @@ export default function Jogos() {
     setGames((prev) =>
       prev.map((g) =>
         g.id === id
-          ? { ...g, goals_home: Number(golosFafe), goals_away: Number(golosAdv) }
+          ? { ...g, goals_home: home, goals_away: away }
           : g
       )
     );
@@ -167,7 +172,11 @@ export default function Jogos() {
                   placeholder="Fafe"
                   className="w-16 p-1 rounded bg-white text-black"
                   value={golosFafe ?? ""}
-                  onChange={(e) => setGolosFafe(Number(e.target.value))}
+                  onChange={(e) =>
+                    setGolosFafe(
+                      e.target.value === "" ? null : Number(e.target.value)
+                    )
+                  }
                 />
                 <span className="font-bold">–</span>
                 <input
@@ -175,7 +184,11 @@ export default function Jogos() {
                   placeholder="Adv"
                   className="w-16 p-1 rounded bg-white text-black"
                   value={golosAdv ?? ""}
-                  onChange={(e) => setGolosAdv(Number(e.target.value))}
+                  onChange={(e) =>
+                    setGolosAdv(
+                      e.target.value === "" ? null : Number(e.target.value)
+                    )
+                  }
                 />
 
                 <button
