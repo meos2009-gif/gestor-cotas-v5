@@ -10,6 +10,8 @@ interface Stat {
   presencas: number;
   faltas: number;
   percentagem: number;
+  goals: number;
+  minutes: number;
 }
 
 export default function Estatisticas() {
@@ -28,16 +30,16 @@ export default function Estatisticas() {
 
       setMembers(membros || []);
 
-      // 2) Carregar convocatórias
+      // 2) Carregar presenças + golos + minutos
       const { data: attendance } = await supabase
         .from("game_attendance")
-        .select("member_id, called, game_id");
+        .select("member_id, called, game_id, goals, minutes");
 
       // 3) Contar jogos únicos
       const jogosUnicos = new Set(attendance?.map((a) => a.game_id));
       setTotalJogos(jogosUnicos.size);
 
-      // 4) Calcular estatísticas
+      // 4) Inicializar estatísticas
       const estatisticas: Record<string, Stat> = {};
 
       membros?.forEach((m) => {
@@ -45,17 +47,24 @@ export default function Estatisticas() {
           presencas: 0,
           faltas: 0,
           percentagem: 0,
+          goals: 0,
+          minutes: 0,
         };
       });
 
+      // 5) Preencher estatísticas
       attendance?.forEach((a) => {
-        if (!estatisticas[a.member_id]) return;
+        const s = estatisticas[a.member_id];
+        if (!s) return;
 
-        if (a.called) estatisticas[a.member_id].presencas++;
-        else estatisticas[a.member_id].faltas++;
+        if (a.called) s.presencas++;
+        else s.faltas++;
+
+        s.goals += a.goals || 0;
+        s.minutes += a.minutes || 0;
       });
 
-      // 5) Calcular percentagem
+      // 6) Calcular percentagem
       Object.keys(estatisticas).forEach((id) => {
         const s = estatisticas[id];
         const total = s.presencas + s.faltas;
@@ -87,6 +96,8 @@ export default function Estatisticas() {
               <th className="p-3 border border-secondary">Presenças</th>
               <th className="p-3 border border-secondary">Faltas</th>
               <th className="p-3 border border-secondary">% Convocação</th>
+              <th className="p-3 border border-secondary">Golos</th>
+              <th className="p-3 border border-secondary">Minutos</th>
             </tr>
           </thead>
 
@@ -99,6 +110,8 @@ export default function Estatisticas() {
                 <td className="p-3 border border-secondary">
                   {stats[m.id]?.percentagem || 0}%
                 </td>
+                <td className="p-3 border border-secondary">{stats[m.id]?.goals || 0}</td>
+                <td className="p-3 border border-secondary">{stats[m.id]?.minutes || 0}</td>
               </tr>
             ))}
           </tbody>
