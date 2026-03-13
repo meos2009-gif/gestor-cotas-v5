@@ -45,8 +45,8 @@ export default function ConvocatoriaNova() {
           name: p.name,
           disponivel: s ? s.called : false,
           capitao: s ? s.captain : false,
-          minutos: s ? s.minutes : 0,
-          golos: s ? s.goals : 0,
+          minutos: Number(s?.minutes ?? 0),
+          golos: Number(s?.goals ?? 0),
         };
       });
 
