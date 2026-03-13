@@ -44,7 +44,7 @@ export default function App() {
 
         {/* NOVO */}
         <Route path="/jogos" element={<Jogos />} />
-        <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
+        <Route path="/jogos/:gameId" element={<Convocatoria />} />
 
         <Route path="/estatisticas" element={<Estatisticas />} />
       </Route>
