@@ -225,5 +225,16 @@ export default function Jogos() {
               </button>
             )}
 
-            {/* CONVOCATÓRIA */}
-            <Link
+           {/* CONVOCATÓRIA */}
+<Link
+  to={`/jogos/${g.id}`}
+  className="mt-3 inline-block bg-secondary text-white px-4 py-2 rounded-md ml-2"
+>
+  Abrir Convocatória
+</Link>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
