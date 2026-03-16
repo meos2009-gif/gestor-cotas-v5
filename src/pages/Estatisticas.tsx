@@ -31,16 +31,26 @@ export default function Estatisticas() {
 
       setMembers(membros || []);
 
-      // 2) Carregar presenças + golos + minutos + capitão
+      // 2) Buscar jogos já realizados (data <= hoje)
+      const hoje = new Date().toISOString().split("T")[0];
+
+      const { data: jogosRealizados } = await supabase
+        .from("games")
+        .select("id, game_date")
+        .lte("game_date", hoje);
+
+      const jogosIds = jogosRealizados?.map((j) => j.id) || [];
+
+      // 3) Buscar attendance apenas dos jogos realizados
       const { data: attendance } = await supabase
         .from("game_attendance")
-        .select("member_id, called, game_id, goals, minutes, captain");
+        .select("member_id, called, game_id, goals, minutes, captain")
+        .in("game_id", jogosIds);
 
-      // 3) Contar jogos únicos
-      const jogosUnicos = new Set(attendance?.map((a) => a.game_id));
-      setTotalJogos(jogosUnicos.size);
+      // 4) Total de jogos realizados
+      setTotalJogos(jogosIds.length);
 
-      // 4) Inicializar estatísticas
+      // 5) Inicializar estatísticas
       const estatisticas: Record<string, Stat> = {};
 
       membros?.forEach((m) => {
@@ -54,13 +64,12 @@ export default function Estatisticas() {
         };
       });
 
-      // 5) Preencher estatísticas
+      // 6) Preencher estatísticas
       attendance?.forEach((a) => {
         const s = estatisticas[a.member_id];
         if (!s) return;
 
         if (a.called) s.presencas++;
-        else s.faltas++;
 
         s.goals += a.goals || 0;
         s.minutes += a.minutes || 0;
@@ -68,11 +77,17 @@ export default function Estatisticas() {
         if (a.captain) s.capitaincies++;
       });
 
-      // 6) Calcular percentagem
+      // 7) Calcular faltas reais e percentagem
       Object.keys(estatisticas).forEach((id) => {
         const s = estatisticas[id];
-        const total = s.presencas + s.faltas;
-        s.percentagem = total > 0 ? Math.round((s.presencas / total) * 100) : 0;
+
+        s.faltas = totalJogos - s.presencas;
+        if (s.faltas < 0) s.faltas = 0;
+
+        s.percentagem =
+          totalJogos > 0
+            ? Math.round((s.presencas / totalJogos) * 100)
+            : 0;
       });
 
       setStats(estatisticas);
@@ -84,14 +99,41 @@ export default function Estatisticas() {
 
   if (loading) return <p className="p-6">A carregar estatísticas...</p>;
 
+  // 🔥 Ranking de presenças
+  const rankingPresencas = [...members].sort(
+    (a, b) => (stats[b.id]?.presencas || 0) - (stats[a.id]?.presencas || 0)
+  );
+
   return (
     <div className="p-6">
       <h2 className="text-3xl font-bold mb-6 text-secondary">Estatísticas da Equipa</h2>
 
       <p className="mb-4 text-lg opacity-80">
-        Total de jogos registados: <strong>{totalJogos}</strong>
+        Jogos realizados: <strong>{totalJogos}</strong>
       </p>
 
+      {/* RANKING DE PRESENÇAS */}
+      <div className="mb-8">
+        <h3 className="text-2xl font-bold mb-3 text-secondary">Ranking de Presenças</h3>
+
+        <div className="bg-primary border border-secondary rounded-md shadow-md p-4">
+          {rankingPresencas.map((m, index) => (
+            <div
+              key={m.id}
+              className="flex justify-between py-2 border-b border-secondary last:border-b-0"
+            >
+              <span className="font-semibold">
+                {index + 1}. {m.name}
+              </span>
+              <span className="font-bold text-secondary">
+                {stats[m.id]?.presencas || 0} presenças
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* TABELA COMPLETA */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-secondary bg-primary">
           <thead>
