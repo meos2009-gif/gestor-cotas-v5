@@ -159,7 +159,7 @@ export default function MainLayout() {
         </main>
       </div>
 
-      {/* CONTEÚDO MOBILE */}
+      {/* CONTEÚDO MOBILE (SEM TAPAR O MENU) */}
       <main className="md:hidden flex-1 p-6">
         <Outlet />
       </main>
