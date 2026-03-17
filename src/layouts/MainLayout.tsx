@@ -29,7 +29,7 @@ export default function MainLayout() {
         {/* BOTÕES À DIREITA */}
         <div className="flex items-center gap-4">
 
-          {/* LOGOUT */}
+          {/* LOGOUT DESKTOP */}
           <button
             onClick={handleLogout}
             className="hidden md:block bg-accent hover:bg-secondary px-4 py-2 rounded-md text-white"
@@ -47,17 +47,17 @@ export default function MainLayout() {
         </div>
       </nav>
 
-      {/* OVERLAY QUANDO O MENU ESTÁ ABERTO */}
+      {/* OVERLAY MOBILE */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-40 z-40"
+          className="fixed inset-0 bg-black bg-opacity-40 z-[9998]"
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
 
       {/* SIDEBAR MÓVEL */}
       <aside
-        className={`fixed top-0 left-0 h-full w-72 bg-primary text-text shadow-xl z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full w-72 bg-primary text-text shadow-xl z-[9999] transform transition-transform duration-300 md:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -123,8 +123,44 @@ export default function MainLayout() {
         </div>
       </aside>
 
-      {/* CONTEÚDO PRINCIPAL */}
-      <main className="flex-1 p-6">
+      {/* LAYOUT DESKTOP */}
+      <div className="hidden md:flex flex-1">
+
+        {/* SIDEBAR DESKTOP FIXA */}
+        <aside className="bg-primary border-r border-secondary w-64 min-h-screen flex-col p-6 gap-4 text-text hidden md:flex">
+
+          <NavLink to="/dashboard" className="hover:text-secondary">Dashboard</NavLink>
+          <NavLink to="/socios" className="hover:text-secondary">Sócios</NavLink>
+
+          <NavLink to="/relatorio" className="hover:text-secondary">Relatório de Cotas</NavLink>
+          <NavLink to="/relatorio-jantares" className="hover:text-secondary">Relatório Jantares</NavLink>
+
+          <NavLink to="/pagamentos" className="hover:text-secondary">Pagamento de Cotas</NavLink>
+          <NavLink to="/jantar" className="hover:text-secondary">Pagamento de Jantares</NavLink>
+
+          <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
+          <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
+          <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
+          <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
+
+          <NavLink to="/estatisticas" className="hover:text-secondary">Estatísticas da Equipa</NavLink>
+
+          <button
+            onClick={handleLogout}
+            className="bg-accent hover:bg-secondary px-4 py-2 rounded-md text-white mt-6"
+          >
+            Terminar Sessão
+          </button>
+        </aside>
+
+        {/* CONTEÚDO */}
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
+      </div>
+
+      {/* CONTEÚDO MOBILE */}
+      <main className="md:hidden flex-1 p-6">
         <Outlet />
       </main>
     </div>
