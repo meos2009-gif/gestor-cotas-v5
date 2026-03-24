@@ -14,7 +14,7 @@ export default function Jantar() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // NOVO: total pago
+  // Total pago (20€ por jantar)
   const totalPago = dinners.length * 20;
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function Jantar() {
   async function loadDinners() {
     const { data, error } = await supabase
       .from("dinner_payments")
-      .select("*"); // ← corrigido
+      .select("*"); // sem order("date")
 
     if (!error) setDinners(data);
   }
@@ -66,6 +66,7 @@ export default function Jantar() {
     }
 
     if (editId) {
+      // EDITAR
       const { error } = await supabase
         .from("dinner_payments")
         .update({
@@ -81,9 +82,10 @@ export default function Jantar() {
         loadDinners();
       }
     } else {
+      // INSERIR — CORRIGIDO
       const { error } = await supabase.from("dinner_payments").insert({
         member_id: memberId,
-        value: 20,
+        value: Number(20), // ← GARANTIDO COMO NUMERIC
         date,
         opponent,
       });
