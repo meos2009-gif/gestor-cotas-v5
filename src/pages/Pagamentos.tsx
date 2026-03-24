@@ -1,10 +1,4 @@
 import { useEffect, useState } from "react";
-import {
-  addPayment,
-  updatePayment,
-  deletePaymentById,
-  getPaymentsByYear
-} from "../services/payments";
 import { getMembers } from "../services/members";
 
 import { PageTitle, Card, Input, Select, Button } from "../lib/ui";
