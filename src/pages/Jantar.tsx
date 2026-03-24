@@ -14,6 +14,9 @@ export default function Jantar() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
+  // NOVO: total pago
+  const totalPago = dinners.length * 20;
+
   useEffect(() => {
     loadMembers();
     loadDinners();
@@ -31,8 +34,7 @@ export default function Jantar() {
   async function loadDinners() {
     const { data, error } = await supabase
       .from("dinner_payments")
-      .select("*")
-      .order("date", { ascending: true });
+      .select("*"); // ← corrigido
 
     if (!error) setDinners(data);
   }
@@ -64,7 +66,6 @@ export default function Jantar() {
     }
 
     if (editId) {
-      // EDITAR
       const { error } = await supabase
         .from("dinner_payments")
         .update({
@@ -80,7 +81,6 @@ export default function Jantar() {
         loadDinners();
       }
     } else {
-      // INSERIR
       const { error } = await supabase.from("dinner_payments").insert({
         member_id: memberId,
         value: 20,
@@ -143,6 +143,11 @@ export default function Jantar() {
       >
         {editId ? "Guardar Alterações" : "Registar Jantar"}
       </button>
+
+      {/* TOTAL PAGO */}
+      <div className="mt-6 text-lg font-bold text-secondary">
+        Total pago por todos os sócios: {totalPago}€
+      </div>
 
       {/* LISTA DE PAGAMENTOS */}
       <h2 className="text-lg font-bold mt-6 mb-2">Pagamentos registados</h2>
