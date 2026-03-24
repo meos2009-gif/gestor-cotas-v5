@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { getMembers } from "../services/members";
-
 import { PageTitle, Card, Input, Select, Button } from "../lib/ui";
 
 export default function Pagamentos() {
