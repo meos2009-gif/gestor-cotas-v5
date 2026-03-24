@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 export default function Jantar() {
   const [members, setMembers] = useState([]);
   const [dinners, setDinners] = useState([]);
+  const [games, setGames] = useState([]);
 
   const [memberId, setMemberId] = useState("");
   const [date, setDate] = useState("");
@@ -14,12 +15,12 @@ export default function Jantar() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // Total pago (20€ por jantar)
   const totalPago = dinners.length * 20;
 
   useEffect(() => {
     loadMembers();
     loadDinners();
+    loadGames();
   }, []);
 
   async function loadMembers() {
@@ -34,9 +35,18 @@ export default function Jantar() {
   async function loadDinners() {
     const { data, error } = await supabase
       .from("dinner_payments")
-      .select("*"); // sem order("date")
+      .select("*");
 
     if (!error) setDinners(data);
+  }
+
+  async function loadGames() {
+    const { data, error } = await supabase
+      .from("games")
+      .select("id, opponent")
+      .order("id", { ascending: false });
+
+    if (!error) setGames(data);
   }
 
   function getMemberName(id) {
@@ -66,7 +76,6 @@ export default function Jantar() {
     }
 
     if (editId) {
-      // EDITAR
       const { error } = await supabase
         .from("dinner_payments")
         .update({
@@ -82,10 +91,9 @@ export default function Jantar() {
         loadDinners();
       }
     } else {
-      // INSERIR — CORRIGIDO
       const { error } = await supabase.from("dinner_payments").insert({
         member_id: memberId,
-        value: Number(20), // ← GARANTIDO COMO NUMERIC
+        value: Number(20),
         date,
         opponent,
       });
@@ -132,12 +140,18 @@ export default function Jantar() {
       />
 
       <label className="block mb-2">Adversário:</label>
-      <input
-        type="text"
+      <select
         value={opponent}
         onChange={(e) => setOpponent(e.target.value)}
         className="border p-2 bg-bg text-text rounded w-full mb-4"
-      />
+      >
+        <option value="">Selecionar adversário</option>
+        {games.map((g) => (
+          <option key={g.id} value={g.opponent}>
+            {g.opponent}
+          </option>
+        ))}
+      </select>
 
       <button
         onClick={saveDinner}
