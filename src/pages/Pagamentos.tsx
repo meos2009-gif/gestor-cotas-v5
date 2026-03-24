@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PageTitle, Card, Input, Select, Button } from "../lib/ui";
-
+~
 export default function Pagamentos() {
   const [payments, setPayments] = useState([]);
   const [members, setMembers] = useState([]);
