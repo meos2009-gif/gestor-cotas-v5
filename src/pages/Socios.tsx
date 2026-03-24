@@ -1,5 +1,46 @@
 import { useEffect, useState } from "react";
-import { getMembers, addMember, updateMember, deleteMemberById } from "../services/members";
+import { supabase } from "../supabaseClient";
+
+/* ============================================================
+   FUNÇÕES SUPABASE (substituem completamente ../services/members)
+   ============================================================ */
+
+async function getMembers() {
+  const { data, error } = await supabase
+    .from("members")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+async function addMember(payload: any) {
+  const { error } = await supabase.from("members").insert(payload);
+  if (error) throw error;
+}
+
+async function updateMember(id: string, payload: any) {
+  const { error } = await supabase
+    .from("members")
+    .update(payload)
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+async function deleteMemberById(id: string) {
+  const { error } = await supabase
+    .from("members")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+/* ============================================================
+   COMPONENTE PRINCIPAL
+   ============================================================ */
 
 export default function Socios() {
   const [members, setMembers] = useState([]);
@@ -10,7 +51,6 @@ export default function Socios() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  // NOVO: controlar se a lista está visível
   const [showList, setShowList] = useState(false);
 
   useEffect(() => {
@@ -116,7 +156,6 @@ export default function Socios() {
           onChange={(e) => setStartDate(e.target.value)}
         />
 
-        {/* BOTÃO AMARELO DO CLUBE */}
         <button className="bg-secondary text-primary font-semibold px-4 py-2 rounded shadow hover:bg-accent transition">
           {editingId ? "Guardar Alterações" : "Adicionar Sócio"}
         </button>
@@ -130,12 +169,12 @@ export default function Socios() {
         {showList ? "Esconder Lista de Sócios" : "Lista de Sócios"}
       </button>
 
-      {/* LISTAGEM (ESCONDIDA POR PADRÃO) */}
+      {/* LISTAGEM */}
       {showList && (
         <table className="w-full border mt-4">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border p-2 text-left font-semibold text-gray-900">Nome</th>              
+              <th className="border p-2 text-left font-semibold text-gray-900">Nome</th>
               <th className="border p-2 text-gray-900">Contacto</th>
               <th className="border p-2 text-gray-900">Cota (€)</th>
               <th className="border p-2 text-gray-900">Admissão</th>
