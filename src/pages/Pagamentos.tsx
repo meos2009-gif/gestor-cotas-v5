@@ -1,6 +1,59 @@
 import { useEffect, useState } from "react";
 import { PageTitle, Card, Input, Select, Button } from "../lib/ui";
-~
+import { supabase } from "../supabaseClient";
+
+/* ============================================================
+   FUNÇÕES SUPABASE (substituem completamente a pasta services/)
+   ============================================================ */
+
+async function getMembers() {
+  const { data, error } = await supabase
+    .from("members")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+async function getPaymentsByYear(year: number) {
+  const { data, error } = await supabase
+    .from("payments")
+    .select("*")
+    .eq("year", year)
+    .order("month", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+async function addPayment(data: any) {
+  const { error } = await supabase.from("payments").insert(data);
+  if (error) throw error;
+}
+
+async function updatePayment(id: string, data: any) {
+  const { error } = await supabase
+    .from("payments")
+    .update(data)
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+async function deletePaymentById(id: string) {
+  const { error } = await supabase
+    .from("payments")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+/* ============================================================
+   COMPONENTE PRINCIPAL
+   ============================================================ */
+
 export default function Pagamentos() {
   const [payments, setPayments] = useState([]);
   const [members, setMembers] = useState([]);
