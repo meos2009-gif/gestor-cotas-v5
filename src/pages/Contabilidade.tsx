@@ -23,16 +23,12 @@ export default function Contabilidade() {
 
   async function loadMovements() {
     setLoading(true);
-
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("accounting_movements")
       .select("*")
       .order("date", { ascending: true });
 
-    if (!error && data) {
-      setAllMovements(data);
-    }
-
+    if (data) setAllMovements(data);
     setLoading(false);
   }
 
@@ -82,7 +78,7 @@ export default function Contabilidade() {
   async function saveMovement() {
     if (!value || !date) return;
 
-    const { error } = await supabase.from("accounting_movements").insert([
+    await supabase.from("accounting_movements").insert([
       {
         type,
         category: category.toLowerCase(),
@@ -93,17 +89,15 @@ export default function Contabilidade() {
       },
     ]);
 
-    if (!error) {
-      setModalOpen(false);
-      resetForm();
-      loadMovements();
-    }
+    setModalOpen(false);
+    resetForm();
+    loadMovements();
   }
 
   async function updateMovement() {
     if (!editingMovement) return;
 
-    const { error } = await supabase
+    await supabase
       .from("accounting_movements")
       .update({
         type,
@@ -115,11 +109,9 @@ export default function Contabilidade() {
       })
       .eq("id", editingMovement.id);
 
-    if (!error) {
-      setModalOpen(false);
-      resetForm();
-      loadMovements();
-    }
+    setModalOpen(false);
+    resetForm();
+    loadMovements();
   }
 
   function resetForm() {
@@ -143,48 +135,53 @@ export default function Contabilidade() {
     setModalOpen(true);
   }
 
-  // ---------------------------------------------------------
-  // 📊 BALANCETE (Agrupado por categoria e mês)
-  // ---------------------------------------------------------
+  const mesAtual = new Date().getMonth() + 1;
+  const mesSelecionado = mes ? Number(mes) : mesAtual;
+
   const balancete = {};
   const anoSelecionado = Number(ano);
 
   allMovements.forEach((m) => {
     const d = new Date(m.date);
     const mAno = d.getFullYear();
-    const mesMov = d.getMonth() + 1;
+    const mMes = d.getMonth() + 1;
 
     if (mAno !== anoSelecionado) return;
+    if (mMes !== mesSelecionado) return;
 
     const cat = m.category;
-
-    if (!balancete[cat]) balancete[cat] = {};
-    if (!balancete[cat][mesMov]) balancete[cat][mesMov] = 0;
+    if (!balancete[cat]) balancete[cat] = 0;
 
     const valor = m.type === "entrada" ? Number(m.value) : -Number(m.value);
-
-    balancete[cat][mesMov] += valor;
+    balancete[cat] += valor;
   });
 
   const acumuladoPorCategoria = {};
-  Object.keys(balancete).forEach((cat) => {
-    acumuladoPorCategoria[cat] = Object.values(balancete[cat]).reduce(
-      (acc, v) => acc + v,
-      0
-    );
+  allMovements.forEach((m) => {
+    const d = new Date(m.date);
+    const mAno = d.getFullYear();
+    if (mAno !== anoSelecionado) return;
+
+    const cat = m.category;
+    if (!acumuladoPorCategoria[cat]) acumuladoPorCategoria[cat] = 0;
+
+    const valor = m.type === "entrada" ? Number(m.value) : -Number(m.value);
+    acumuladoPorCategoria[cat] += valor;
   });
+
+  const saldoMesBalancete = Object.values(balancete).reduce(
+    (acc, v) => acc + v,
+    0
+  );
 
   const saldoAno = Object.values(acumuladoPorCategoria).reduce(
     (acc, v) => acc + v,
     0
   );
 
-  // ---------------------------------------------------------
-
   return (
     <div className="p-6">
 
-      {/* SALDO ATUAL */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-bold">Saldo Atual</h2>
         <p className="text-3xl font-bold mt-2 text-secondary">
@@ -192,7 +189,6 @@ export default function Contabilidade() {
         </p>
       </div>
 
-      {/* TOTAIS DO MÊS */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-bold">Totais do Mês</h2>
 
@@ -214,7 +210,6 @@ export default function Contabilidade() {
         </div>
       </div>
 
-      {/* FILTROS */}
       <div className="flex space-x-4 mb-6">
         <select value={mes} onChange={(e) => setMes(e.target.value)} className="border p-2 rounded bg-white text-black">
           <option value="">Todos os meses</option>
@@ -245,6 +240,8 @@ export default function Contabilidade() {
           <option value="combustivel">Combustível</option>
           <option value="outros">Outros</option>
           <option value="cotas">Cotas</option>
+          <option value="patrocinios">Patrocínios</option>
+          <option value="despesas bancarias">Despesas Bancárias</option>
         </select>
 
         <select value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)} className="border p-2 rounded bg-white text-black">
@@ -254,7 +251,6 @@ export default function Contabilidade() {
         </select>
       </div>
 
-      {/* BOTÕES */}
       <div className="flex space-x-4 mb-6">
         <button onClick={() => { resetForm(); setType("entrada"); setModalOpen(true); }} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
           Adicionar Entrada
@@ -265,11 +261,17 @@ export default function Contabilidade() {
         </button>
       </div>
 
-      {/* ------------------------------------------------------ */}
-      {/* 📊 BALANCETE ANUAL */}
-      {/* ------------------------------------------------------ */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-bold mb-4">Balancete {ano}</h2>
+        <h2 className="text-xl font-bold mb-4">
+          Balancete — Mês {mesSelecionado} ({ano})
+        </h2>
+
+        <p className="text-lg mb-2">
+          <strong>Saldo do Mês:</strong>{" "}
+          <span className={saldoMesBalancete >= 0 ? "text-green-400" : "text-red-400"}>
+            {saldoMesBalancete.toFixed(2)} €
+          </span>
+        </p>
 
         <p className="text-lg mb-4">
           <strong>Saldo do Ano:</strong>{" "}
@@ -283,45 +285,48 @@ export default function Contabilidade() {
             <thead className="bg-secondary text-primary">
               <tr>
                 <th className="p-2 border">Categoria</th>
-                <th className="p-2 border">Mês</th>
-                <th className="p-2 border">Total</th>
-                <th className="p-2 border">Acumulado</th>
+                <th className="p-2 border">Total do Mês</th>
+                <th className="p-2 border">Acumulado Anual</th>
               </tr>
             </thead>
 
             <tbody>
-              {Object.keys(balancete).map((cat) =>
-                Object.keys(balancete[cat]).map((mes) => (
-                  <tr key={`${cat}-${mes}`} className="border-t border-gray-700">
-                    <td className="p-2 capitalize">{cat}</td>
-                    <td className="p-2">{mes}</td>
-                    <td
-                      className={`p-2 font-semibold ${
-                        balancete[cat][mes] >= 0 ? "text-green-400" : "text-red-400"
-                      }`}
-                    >
-                      {balancete[cat][mes].toFixed(2)} €
-                    </td>
-                    <td
-                      className={`p-2 font-bold ${
-                        acumuladoPorCategoria[cat] >= 0
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {acumuladoPorCategoria[cat].toFixed(2)} €
-                    </td>
-                  </tr>
-                ))
+              {Object.keys(balancete).map((cat) => (
+                <tr key={cat} className="border-t border-gray-700">
+                  <td className="p-2 capitalize">{cat}</td>
+
+                  <td
+                    className={`p-2 font-semibold ${
+                      balancete[cat] >= 0 ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
+                    {balancete[cat].toFixed(2)} €
+                  </td>
+
+                  <td
+                    className={`p-2 font-bold ${
+                      acumuladoPorCategoria[cat] >= 0
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {acumuladoPorCategoria[cat].toFixed(2)} €
+                  </td>
+                </tr>
+              ))}
+
+              {Object.keys(balancete).length === 0 && (
+                <tr>
+                  <td colSpan="3" className="p-3 text-center text-white">
+                    Sem movimentos neste mês.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* ------------------------------------------------------ */}
-      {/* TABELA DE MOVIMENTOS */}
-      {/* ------------------------------------------------------ */}
       <div className="bg-primary text-white rounded-lg shadow-md overflow-hidden overflow-x-auto">
         <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-secondary text-primary">
@@ -369,9 +374,6 @@ export default function Contabilidade() {
         </table>
       </div>
 
-      {/* ------------------------------------------------------ */}
-      {/* MODAL */}
-      {/* ------------------------------------------------------ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
@@ -390,6 +392,8 @@ export default function Contabilidade() {
               <option value="combustivel">Combustível</option>
               <option value="outros">Outros</option>
               <option value="cotas">Cotas</option>
+              <option value="patrocinios">Patrocínios</option>
+              <option value="despesas bancarias">Despesas Bancárias</option>
             </select>
 
             <label className="block mb-2 text-sm font-medium">Descrição</label>
