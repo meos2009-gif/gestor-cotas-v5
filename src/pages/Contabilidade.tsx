@@ -52,12 +52,15 @@ export default function Contabilidade() {
       });
     }
 
-    // FILTRO DE CATEGORIA
-if (categoriaFiltro) {
-  filtered = filtered.filter(
-    (m) => m.category?.toLowerCase() === categoriaFiltro.toLowerCase()
-  );
-}
+    if (categoriaFiltro) {
+      filtered = filtered.filter(
+        (m) => m.category?.toLowerCase() === categoriaFiltro.toLowerCase()
+      );
+    }
+
+    if (tipoFiltro) {
+      filtered = filtered.filter((m) => m.type === tipoFiltro);
+    }
 
     setMovements(filtered);
   }, [mes, ano, categoriaFiltro, tipoFiltro, allMovements]);
@@ -98,26 +101,26 @@ if (categoriaFiltro) {
   }
 
   async function updateMovement() {
-  if (!editingMovement) return;
+    if (!editingMovement) return;
 
-  const { error } = await supabase
-    .from("accounting_movements")
-    .update({
-      type,
-      category: category.toLowerCase(),
-      description,
-      obs,
-      value: Number(value),
-      date,
-    })
-    .eq("id", editingMovement.id);
+    const { error } = await supabase
+      .from("accounting_movements")
+      .update({
+        type,
+        category: category.toLowerCase(),
+        description,
+        obs,
+        value: Number(value),
+        date,
+      })
+      .eq("id", editingMovement.id);
 
-  if (!error) {
-    setModalOpen(false);
-    resetForm();
-    loadMovements();
+    if (!error) {
+      setModalOpen(false);
+      resetForm();
+      loadMovements();
+    }
   }
-}
 
   function resetForm() {
     setEditingMovement(null);
@@ -140,9 +143,48 @@ if (categoriaFiltro) {
     setModalOpen(true);
   }
 
+  // ---------------------------------------------------------
+  // 📊 BALANCETE (Agrupado por categoria e mês)
+  // ---------------------------------------------------------
+  const balancete = {};
+  const anoSelecionado = Number(ano);
+
+  allMovements.forEach((m) => {
+    const d = new Date(m.date);
+    const mAno = d.getFullYear();
+    const mesMov = d.getMonth() + 1;
+
+    if (mAno !== anoSelecionado) return;
+
+    const cat = m.category;
+
+    if (!balancete[cat]) balancete[cat] = {};
+    if (!balancete[cat][mesMov]) balancete[cat][mesMov] = 0;
+
+    const valor = m.type === "entrada" ? Number(m.value) : -Number(m.value);
+
+    balancete[cat][mesMov] += valor;
+  });
+
+  const acumuladoPorCategoria = {};
+  Object.keys(balancete).forEach((cat) => {
+    acumuladoPorCategoria[cat] = Object.values(balancete[cat]).reduce(
+      (acc, v) => acc + v,
+      0
+    );
+  });
+
+  const saldoAno = Object.values(acumuladoPorCategoria).reduce(
+    (acc, v) => acc + v,
+    0
+  );
+
+  // ---------------------------------------------------------
+
   return (
     <div className="p-6">
 
+      {/* SALDO ATUAL */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-bold">Saldo Atual</h2>
         <p className="text-3xl font-bold mt-2 text-secondary">
@@ -150,6 +192,7 @@ if (categoriaFiltro) {
         </p>
       </div>
 
+      {/* TOTAIS DO MÊS */}
       <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-bold">Totais do Mês</h2>
 
@@ -171,6 +214,7 @@ if (categoriaFiltro) {
         </div>
       </div>
 
+      {/* FILTROS */}
       <div className="flex space-x-4 mb-6">
         <select value={mes} onChange={(e) => setMes(e.target.value)} className="border p-2 rounded bg-white text-black">
           <option value="">Todos os meses</option>
@@ -210,6 +254,7 @@ if (categoriaFiltro) {
         </select>
       </div>
 
+      {/* BOTÕES */}
       <div className="flex space-x-4 mb-6">
         <button onClick={() => { resetForm(); setType("entrada"); setModalOpen(true); }} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
           Adicionar Entrada
@@ -220,6 +265,63 @@ if (categoriaFiltro) {
         </button>
       </div>
 
+      {/* ------------------------------------------------------ */}
+      {/* 📊 BALANCETE ANUAL */}
+      {/* ------------------------------------------------------ */}
+      <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
+        <h2 className="text-xl font-bold mb-4">Balancete {ano}</h2>
+
+        <p className="text-lg mb-4">
+          <strong>Saldo do Ano:</strong>{" "}
+          <span className={saldoAno >= 0 ? "text-green-400" : "text-red-400"}>
+            {saldoAno.toFixed(2)} €
+          </span>
+        </p>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border border-secondary">
+            <thead className="bg-secondary text-primary">
+              <tr>
+                <th className="p-2 border">Categoria</th>
+                <th className="p-2 border">Mês</th>
+                <th className="p-2 border">Total</th>
+                <th className="p-2 border">Acumulado</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {Object.keys(balancete).map((cat) =>
+                Object.keys(balancete[cat]).map((mes) => (
+                  <tr key={`${cat}-${mes}`} className="border-t border-gray-700">
+                    <td className="p-2 capitalize">{cat}</td>
+                    <td className="p-2">{mes}</td>
+                    <td
+                      className={`p-2 font-semibold ${
+                        balancete[cat][mes] >= 0 ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      {balancete[cat][mes].toFixed(2)} €
+                    </td>
+                    <td
+                      className={`p-2 font-bold ${
+                        acumuladoPorCategoria[cat] >= 0
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {acumuladoPorCategoria[cat].toFixed(2)} €
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ------------------------------------------------------ */}
+      {/* TABELA DE MOVIMENTOS */}
+      {/* ------------------------------------------------------ */}
       <div className="bg-primary text-white rounded-lg shadow-md overflow-hidden overflow-x-auto">
         <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-secondary text-primary">
@@ -267,6 +369,9 @@ if (categoriaFiltro) {
         </table>
       </div>
 
+      {/* ------------------------------------------------------ */}
+      {/* MODAL */}
+      {/* ------------------------------------------------------ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
