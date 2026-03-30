@@ -133,7 +133,7 @@ export default function Estatisticas() {
         </div>
       </div>
 
-      {/* TABELA COMPLETA */}
+      {/* TABELA COMPLETA — ORDENADA POR MINUTOS */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-secondary bg-primary">
           <thead>
@@ -149,19 +149,25 @@ export default function Estatisticas() {
           </thead>
 
           <tbody>
-            {members.map((m) => (
-              <tr key={m.id} className="text-center">
-                <td className="p-3 border border-secondary">{m.name}</td>
-                <td className="p-3 border border-secondary">{stats[m.id]?.presencas || 0}</td>
-                <td className="p-3 border border-secondary">{stats[m.id]?.faltas || 0}</td>
-                <td className="p-3 border border-secondary">
-                  {stats[m.id]?.percentagem || 0}%
-                </td>
-                <td className="p-3 border border-secondary">{stats[m.id]?.goals || 0}</td>
-                <td className="p-3 border border-secondary">{stats[m.id]?.minutes || 0}</td>
-                <td className="p-3 border border-secondary">{stats[m.id]?.capitaincies || 0}</td>
-              </tr>
-            ))}
+            {[...members]
+              .sort(
+                (a, b) =>
+                  (stats[b.id]?.minutes || 0) -
+                  (stats[a.id]?.minutes || 0)
+              )
+              .map((m) => (
+                <tr key={m.id} className="text-center">
+                  <td className="p-3 border border-secondary">{m.name}</td>
+                  <td className="p-3 border border-secondary">{stats[m.id]?.presencas || 0}</td>
+                  <td className="p-3 border border-secondary">{stats[m.id]?.faltas || 0}</td>
+                  <td className="p-3 border border-secondary">
+                    {stats[m.id]?.percentagem || 0}%
+                  </td>
+                  <td className="p-3 border border-secondary">{stats[m.id]?.goals || 0}</td>
+                  <td className="p-3 border border-secondary">{stats[m.id]?.minutes || 0}</td>
+                  <td className="p-3 border border-secondary">{stats[m.id]?.capitaincies || 0}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
