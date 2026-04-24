@@ -3,7 +3,7 @@ import { PageTitle, Card, Input, Select, Button } from "../lib/ui";
 import { supabase } from "../supabaseClient";
 
 /* ============================================================
-   FUNÇÕES SUPABASE (substituem completamente a pasta services/)
+   FUNÇÕES SUPABASE
    ============================================================ */
 
 async function getMembers() {
@@ -61,6 +61,7 @@ export default function Pagamentos() {
   const [month, setMonth] = useState<number | "">("");
   const [year, setYear] = useState(new Date().getFullYear());
   const [amount, setAmount] = useState<number | "">("");
+  const [method, setMethod] = useState("cash"); // NOVO
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
@@ -77,7 +78,6 @@ export default function Pagamentos() {
       setPayments(p);
       setMembers(m);
     } catch (err: any) {
-      console.error("Erro no load:", err);
       setError(err.message);
     }
   }
@@ -87,7 +87,7 @@ export default function Pagamentos() {
     setError("");
 
     try {
-      const data = { member_id: memberId, month, year, amount };
+      const data = { member_id: memberId, month, year, amount, method };
 
       if (editingId) {
         await updatePayment(editingId, data);
@@ -99,6 +99,7 @@ export default function Pagamentos() {
       setMemberId("");
       setMonth("");
       setAmount("");
+      setMethod("cash");
       load();
     } catch (err: any) {
       setError(err.message);
@@ -110,6 +111,7 @@ export default function Pagamentos() {
     setMemberId(payment.member_id);
     setMonth(payment.month);
     setAmount(payment.amount);
+    setMethod(payment.method || "cash");
   }
 
   async function handleDelete(id: string) {
@@ -131,11 +133,9 @@ export default function Pagamentos() {
         </div>
       )}
 
-      {/* CARD PRINCIPAL */}
       <Card>
         <div className="space-y-4">
 
-          {/* ANO */}
           <div>
             <label className="block font-semibold mb-1">Ano:</label>
             <Select
@@ -153,10 +153,8 @@ export default function Pagamentos() {
             </Select>
           </div>
 
-          {/* FORMULÁRIO */}
           <form onSubmit={handleSubmit} className="space-y-3">
 
-            {/* SÓCIO */}
             <Select
               value={memberId}
               onChange={(e) => setMemberId(e.target.value)}
@@ -170,7 +168,6 @@ export default function Pagamentos() {
               ))}
             </Select>
 
-            {/* MÊS */}
             <Select
               value={month}
               onChange={(e) => setMonth(Number(e.target.value))}
@@ -187,7 +184,6 @@ export default function Pagamentos() {
               ))}
             </Select>
 
-            {/* VALOR */}
             <Input
               type="number"
               placeholder="Valor (€)"
@@ -196,7 +192,16 @@ export default function Pagamentos() {
               required
             />
 
-            {/* BOTÃO */}
+            {/* NOVO CAMPO: MÉTODO DE PAGAMENTO */}
+            <Select
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+              required
+            >
+              <option value="cash">Cash</option>
+              <option value="banco">Banco</option>
+            </Select>
+
             <Button variant="secondary">
               {editingId ? "Guardar Alterações" : "Adicionar Pagamento"}
             </Button>
@@ -204,7 +209,6 @@ export default function Pagamentos() {
         </div>
       </Card>
 
-      {/* BOTÃO MOSTRAR LISTA */}
       <Button
         onClick={() => setShowList(!showList)}
         variant="primary"
@@ -213,7 +217,6 @@ export default function Pagamentos() {
         {showList ? "Esconder Pagamentos" : "Lista de Pagamentos"}
       </Button>
 
-      {/* LISTAGEM */}
       {showList && (
         <Card>
           <table className="w-full border text-xs leading-tight">
@@ -223,6 +226,7 @@ export default function Pagamentos() {
                 <th className="border p-1">Mês</th>
                 <th className="border p-1">Ano</th>
                 <th className="border p-1">Valor</th>
+                <th className="border p-1">Método</th>
                 <th className="border p-1">Ações</th>
               </tr>
             </thead>
@@ -237,6 +241,7 @@ export default function Pagamentos() {
                     <td className="border p-1">{p.month}</td>
                     <td className="border p-1">{p.year}</td>
                     <td className="border p-1">{p.amount} €</td>
+                    <td className="border p-1 capitalize">{p.method}</td>
                     <td className="border p-1 space-x-1">
                       <Button
                         onClick={() => startEdit(p)}
