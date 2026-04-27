@@ -9,13 +9,20 @@ export default function Jantar() {
   const [memberId, setMemberId] = useState("");
   const [date, setDate] = useState("");
   const [opponent, setOpponent] = useState("");
+  const [value, setValue] = useState("");
 
   const [editId, setEditId] = useState(null);
+
+  // FILTROS AVANÇADOS
+  const [filterDate, setFilterDate] = useState("");
+  const [filterOpponent, setFilterOpponent] = useState("");
+  const [filterMinValue, setFilterMinValue] = useState("");
+  const [filterMaxValue, setFilterMaxValue] = useState("");
 
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  const totalPago = dinners.length * 20;
+  const totalPago = dinners.reduce((acc, d) => acc + Number(d.value || 0), 0);
 
   useEffect(() => {
     loadMembers();
@@ -24,29 +31,30 @@ export default function Jantar() {
   }, []);
 
   async function loadMembers() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("members")
       .select("*")
       .order("name", { ascending: true });
 
-    if (!error) setMembers(data);
+    if (data) setMembers(data);
   }
 
   async function loadDinners() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("dinner_payments")
-      .select("*");
+      .select("*")
+      .order("date", { ascending: true });
 
-    if (!error) setDinners(data);
+    if (data) setDinners(data);
   }
 
   async function loadGames() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("games")
       .select("id, opponent")
       .order("id", { ascending: false });
 
-    if (!error) setGames(data);
+    if (data) setGames(data);
   }
 
   function getMemberName(id) {
@@ -59,6 +67,7 @@ export default function Jantar() {
     setMemberId(d.member_id);
     setDate(d.date);
     setOpponent(d.opponent);
+    setValue(d.value);
   }
 
   async function deleteDinner(id) {
@@ -70,7 +79,7 @@ export default function Jantar() {
     setError("");
     setSuccess("");
 
-    if (!memberId || !date || !opponent) {
+    if (!memberId || !date || !opponent || !value) {
       setError("Preenche todos os campos.");
       return;
     }
@@ -82,6 +91,7 @@ export default function Jantar() {
           member_id: memberId,
           date,
           opponent,
+          value: Number(value),
         })
         .eq("id", editId);
 
@@ -93,9 +103,9 @@ export default function Jantar() {
     } else {
       const { error } = await supabase.from("dinner_payments").insert({
         member_id: memberId,
-        value: Number(20),
         date,
         opponent,
+        value: Number(value),
       });
 
       if (!error) {
@@ -107,7 +117,24 @@ export default function Jantar() {
     setMemberId("");
     setDate("");
     setOpponent("");
+    setValue("");
   }
+
+  // FILTROS AVANÇADOS
+  const filteredDinners = dinners.filter((d) => {
+    return (
+      (filterDate ? d.date === filterDate : true) &&
+      (filterOpponent ? d.opponent === filterOpponent : true) &&
+      (filterMinValue ? Number(d.value) >= Number(filterMinValue) : true) &&
+      (filterMaxValue ? Number(d.value) <= Number(filterMaxValue) : true)
+    );
+  });
+
+  // TOTAL POR ADVERSÁRIO
+  const totalPorAdversario = filteredDinners.reduce((acc, d) => {
+    acc[d.opponent] = (acc[d.opponent] || 0) + Number(d.value);
+    return acc;
+  }, {});
 
   return (
     <div className="p-6 bg-bg text-text min-h-screen">
@@ -153,6 +180,15 @@ export default function Jantar() {
         ))}
       </select>
 
+      <label className="block mb-2">Valor (€):</label>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="border p-2 bg-bg text-text rounded w-full mb-4"
+        placeholder="Ex: 20"
+      />
+
       <button
         onClick={saveDinner}
         className="bg-secondary text-primary font-semibold px-4 py-2 rounded shadow hover:bg-accent transition"
@@ -160,17 +196,80 @@ export default function Jantar() {
         {editId ? "Guardar Alterações" : "Registar Jantar"}
       </button>
 
-      {/* TOTAL PAGO */}
+      {/* TOTAL GERAL */}
       <div className="mt-6 text-lg font-bold text-secondary">
         Total pago por todos os sócios: {totalPago}€
       </div>
 
-      {/* LISTA DE PAGAMENTOS */}
+      {/* FILTROS AVANÇADOS */}
+      <h2 className="text-lg font-bold mt-6 mb-2">Filtros</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          className="border p-2 bg-bg text-text rounded"
+        />
+
+        <select
+          value={filterOpponent}
+          onChange={(e) => setFilterOpponent(e.target.value)}
+          className="border p-2 bg-bg text-text rounded"
+        >
+          <option value="">Todos os adversários</option>
+          {games.map((g) => (
+            <option key={g.id} value={g.opponent}>
+              {g.opponent}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="number"
+          placeholder="Valor mínimo"
+          value={filterMinValue}
+          onChange={(e) => setFilterMinValue(e.target.value)}
+          className="border p-2 bg-bg text-text rounded"
+        />
+
+        <input
+          type="number"
+          placeholder="Valor máximo"
+          value={filterMaxValue}
+          onChange={(e) => setFilterMaxValue(e.target.value)}
+          className="border p-2 bg-bg text-text rounded"
+        />
+      </div>
+
+      {/* TOTAIS POR ADVERSÁRIO */}
+      <h2 className="text-lg font-bold mt-6 mb-2">Total por adversário</h2>
+
+      <div className="overflow-x-auto rounded border border-gray-700 bg-primary p-2 mb-6">
+        <table className="w-full text-left text-white text-sm">
+          <thead className="bg-primary text-white font-semibold">
+            <tr>
+              <th className="border p-2">Adversário</th>
+              <th className="border p-2">Total (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.keys(totalPorAdversario).map((adv) => (
+              <tr key={adv}>
+                <td className="border p-2">{adv}</td>
+                <td className="border p-2">{totalPorAdversario[adv]}€</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* LISTA DE PAGAMENTOS FILTRADOS */}
       <h2 className="text-lg font-bold mt-6 mb-2">Pagamentos registados</h2>
 
       <div className="overflow-x-auto rounded border border-gray-700 bg-primary p-2">
         <table className="w-full text-left text-white text-sm">
-          <thead className="bg-primary text-white font-semibold" translate="no">
+          <thead className="bg-primary text-white font-semibold">
             <tr>
               <th className="border p-2">Sócio</th>
               <th className="border p-2">Data</th>
@@ -181,12 +280,12 @@ export default function Jantar() {
           </thead>
 
           <tbody>
-            {dinners.map((d) => (
-              <tr key={d.id} translate="no">
+            {filteredDinners.map((d) => (
+              <tr key={d.id}>
                 <td className="border p-2">{getMemberName(d.member_id)}</td>
                 <td className="border p-2">{d.date}</td>
                 <td className="border p-2">{d.opponent}</td>
-                <td className="border p-2">20€</td>
+                <td className="border p-2">{d.value}€</td>
                 <td className="border p-2 space-x-2">
                   <button
                     onClick={() => startEdit(d)}
@@ -205,10 +304,10 @@ export default function Jantar() {
               </tr>
             ))}
 
-            {dinners.length === 0 && (
+            {filteredDinners.length === 0 && (
               <tr>
                 <td className="border p-2 text-center" colSpan={5}>
-                  Nenhum jantar registado.
+                  Nenhum jantar encontrado com os filtros aplicados.
                 </td>
               </tr>
             )}
