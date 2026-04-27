@@ -6,6 +6,10 @@ export default function RelatorioJantares() {
   const [dinners, setDinners] = useState([]);
   const [error, setError] = useState("");
 
+  // FILTROS
+  const [filterDate, setFilterDate] = useState("");
+  const [filterOpponent, setFilterOpponent] = useState("");
+
   useEffect(() => {
     loadData();
   }, []);
@@ -39,15 +43,28 @@ export default function RelatorioJantares() {
     setDinners(dinnersData || []);
   }
 
-  function getPaymentsForMember(id) {
-    return dinners.filter((d) => d.member_id === id);
-  }
+  // LISTA FILTRADA
+  const filteredDinners = dinners.filter((d) => {
+    return (
+      (filterDate ? d.date === filterDate : true) &&
+      (filterOpponent ? d.opponent === filterOpponent : true)
+    );
+  });
 
-  // Soma robusta (funciona mesmo se algum registo antigo não tiver value)
-  const totalPago = dinners.reduce(
+  // TOTAL GERAL
+  const totalPago = filteredDinners.reduce(
     (sum, d) => sum + (typeof d.value === "number" ? d.value : 20),
     0
   );
+
+  // ADVERSÁRIOS ÚNICOS
+  const adversariosUnicos = [...new Set(dinners.map((d) => d.opponent))];
+
+  // TOTAL POR ADVERSÁRIO
+  const totalPorAdversario = filteredDinners.reduce((acc, d) => {
+    acc[d.opponent] = (acc[d.opponent] || 0) + Number(d.value || 0);
+    return acc;
+  }, {});
 
   return (
     <div className="p-6 bg-bg text-text min-h-screen">
@@ -55,6 +72,68 @@ export default function RelatorioJantares() {
 
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
+      {/* FILTROS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+        <div>
+          <label className="block mb-1 font-semibold">Filtrar por data:</label>
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="border p-2 bg-bg text-text rounded w-full"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-semibold">Filtrar por adversário:</label>
+          <select
+            value={filterOpponent}
+            onChange={(e) => setFilterOpponent(e.target.value)}
+            className="border p-2 bg-bg text-text rounded w-full"
+          >
+            <option value="">Todos</option>
+            {adversariosUnicos.map((adv) => (
+              <option key={adv} value={adv}>
+                {adv}
+              </option>
+            ))}
+          </select>
+        </div>
+
+      </div>
+
+      {/* TOTAL POR ADVERSÁRIO */}
+      <h2 className="text-lg font-bold mt-6 mb-2">Total por adversário</h2>
+
+      <div className="overflow-x-auto rounded border border-gray-700 bg-primary p-2 mb-6">
+        <table className="w-full text-left text-white text-sm">
+          <thead className="bg-primary text-white font-semibold">
+            <tr>
+              <th className="border p-2">Adversário</th>
+              <th className="border p-2">Total (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.keys(totalPorAdversario).map((adv) => (
+              <tr key={adv}>
+                <td className="border p-2">{adv}</td>
+                <td className="border p-2">{totalPorAdversario[adv]}€</td>
+              </tr>
+            ))}
+
+            {Object.keys(totalPorAdversario).length === 0 && (
+              <tr>
+                <td className="border p-2 text-center" colSpan={2}>
+                  Nenhum resultado com os filtros aplicados.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* TABELA PRINCIPAL */}
       <div className="overflow-x-auto rounded border border-gray-700 bg-primary p-2">
         <table className="w-full text-left text-white text-sm">
           <thead className="bg-primary text-white font-semibold" translate="no">
@@ -68,9 +147,8 @@ export default function RelatorioJantares() {
 
           <tbody>
             {members.map((m) => {
-              const pagos = getPaymentsForMember(m.id);
+              const pagos = filteredDinners.filter((d) => d.member_id === m.id);
 
-              // Sócio sem pagamentos
               if (pagos.length === 0) {
                 return (
                   <tr key={m.id} translate="no">
@@ -82,7 +160,6 @@ export default function RelatorioJantares() {
                 );
               }
 
-              // Sócio com pagamentos
               return pagos.map((p, i) => (
                 <tr key={p.id} translate="no">
                   {i === 0 && (
@@ -102,7 +179,7 @@ export default function RelatorioJantares() {
         </table>
       </div>
 
-      {/* TOTAL */}
+      {/* TOTAL GERAL */}
       <div className="mt-4 text-lg font-bold text-secondary">
         Total pago: {totalPago}€
       </div>
