@@ -16,7 +16,7 @@ async function getMembers() {
   return data;
 }
 
-async function getPaymentsByYear(year: number) {
+async function getPaymentsByYear(year) {
   const { data, error } = await supabase
     .from("payments")
     .select("*")
@@ -27,12 +27,7 @@ async function getPaymentsByYear(year: number) {
   return data;
 }
 
-async function addPayment(data: any) {
-  const { error } = await supabase.from("payments").insert(data);
-  if (error) throw error;
-}
-
-async function updatePayment(id: string, data: any) {
+async function updatePayment(id, data) {
   const { error } = await supabase
     .from("payments")
     .update(data)
@@ -41,7 +36,7 @@ async function updatePayment(id: string, data: any) {
   if (error) throw error;
 }
 
-async function deletePaymentById(id: string) {
+async function deletePaymentById(id) {
   const { error } = await supabase
     .from("payments")
     .delete()
@@ -57,12 +52,14 @@ async function deletePaymentById(id: string) {
 export default function Pagamentos() {
   const [payments, setPayments] = useState([]);
   const [members, setMembers] = useState([]);
+
   const [memberId, setMemberId] = useState("");
-  const [month, setMonth] = useState<number | "">("");
+  const [months, setMonths] = useState([]); // AGORA ARRAY
   const [year, setYear] = useState(new Date().getFullYear());
-  const [amount, setAmount] = useState<number | "">("");
-  const [method, setMethod] = useState("cash"); // NOVO
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState("cash");
+
+  const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
 
   const [showList, setShowList] = useState(false);
@@ -77,51 +74,88 @@ export default function Pagamentos() {
       const m = await getMembers();
       setPayments(p);
       setMembers(m);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message);
     }
   }
 
-  async function handleSubmit(e: any) {
+  /* ============================================================
+     SUBMETER FORMULÁRIO
+     ============================================================ */
+
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
     try {
-      const data = { member_id: memberId, month, year, amount, method };
-
+      // EDITAR — apenas 1 mês
       if (editingId) {
+        const data = {
+          member_id: memberId,
+          month: months[0],
+          year,
+          amount,
+          method,
+        };
+
         await updatePayment(editingId, data);
         setEditingId(null);
-      } else {
-        await addPayment(data);
       }
 
+      // ADICIONAR — vários meses
+      else {
+        const inserts = months.map((m) => ({
+          member_id: memberId,
+          month: m,
+          year,
+          amount,
+          method,
+        }));
+
+        const { error } = await supabase.from("payments").insert(inserts);
+        if (error) throw error;
+      }
+
+      // limpar
       setMemberId("");
-      setMonth("");
+      setMonths([]);
       setAmount("");
       setMethod("cash");
+
       load();
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message);
     }
   }
 
-  function startEdit(payment: any) {
+  /* ============================================================
+     EDITAR
+     ============================================================ */
+
+  function startEdit(payment) {
     setEditingId(payment.id);
     setMemberId(payment.member_id);
-    setMonth(payment.month);
+    setMonths([payment.month]); // agora array
     setAmount(payment.amount);
     setMethod(payment.method || "cash");
   }
 
-  async function handleDelete(id: string) {
+  /* ============================================================
+     APAGAR
+     ============================================================ */
+
+  async function handleDelete(id) {
     try {
       await deletePaymentById(id);
       load();
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message);
     }
   }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
 
   return (
     <>
@@ -136,6 +170,7 @@ export default function Pagamentos() {
       <Card>
         <div className="space-y-4">
 
+          {/* ANO */}
           <div>
             <label className="block font-semibold mb-1">Ano:</label>
             <Select
@@ -153,27 +188,33 @@ export default function Pagamentos() {
             </Select>
           </div>
 
+          {/* FORMULÁRIO */}
           <form onSubmit={handleSubmit} className="space-y-3">
 
+            {/* SÓCIO */}
             <Select
               value={memberId}
               onChange={(e) => setMemberId(e.target.value)}
               required
             >
               <option value="">Selecione o sócio</option>
-              {members.map((m: any) => (
+              {members.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
                 </option>
               ))}
             </Select>
 
+            {/* MESES — MULTI SELECT */}
             <Select
-              value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
+              multiple
+              value={months}
+              onChange={(e) =>
+                setMonths([...e.target.selectedOptions].map((o) => Number(o.value)))
+              }
               required
             >
-              <option value="">Selecione o mês</option>
+              <option disabled>Selecione os meses</option>
               {[
                 "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
                 "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -184,6 +225,7 @@ export default function Pagamentos() {
               ))}
             </Select>
 
+            {/* VALOR */}
             <Input
               type="number"
               placeholder="Valor (€)"
@@ -192,7 +234,7 @@ export default function Pagamentos() {
               required
             />
 
-            {/* NOVO CAMPO: MÉTODO DE PAGAMENTO */}
+            {/* MÉTODO */}
             <Select
               value={method}
               onChange={(e) => setMethod(e.target.value)}
@@ -203,12 +245,13 @@ export default function Pagamentos() {
             </Select>
 
             <Button variant="secondary">
-              {editingId ? "Guardar Alterações" : "Adicionar Pagamento"}
+              {editingId ? "Guardar Alterações" : "Adicionar Pagamentos"}
             </Button>
           </form>
         </div>
       </Card>
 
+      {/* BOTÃO LISTA */}
       <Button
         onClick={() => setShowList(!showList)}
         variant="primary"
@@ -217,6 +260,7 @@ export default function Pagamentos() {
         {showList ? "Esconder Pagamentos" : "Lista de Pagamentos"}
       </Button>
 
+      {/* LISTA */}
       {showList && (
         <Card>
           <table className="w-full border text-xs leading-tight">
@@ -232,8 +276,8 @@ export default function Pagamentos() {
             </thead>
 
             <tbody>
-              {payments.map((p: any) => {
-                const member = members.find((m: any) => m.id === p.member_id);
+              {payments.map((p) => {
+                const member = members.find((m) => m.id === p.member_id);
 
                 return (
                   <tr key={p.id} className="hover:bg-gray-800/40">
