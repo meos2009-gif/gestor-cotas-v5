@@ -244,7 +244,7 @@ export default function Contabilidade() {
           <option value="despesas bancarias">Despesas Bancárias</option>
           <option value="jantar">Jantar</option>
           <option value="aluguer">Aluguer</option>
-          <option value="manutenção">Manutenção</option>
+         <option value="manutencao">Manutenção</option> 
         </select>
 
         <select value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)} className="border p-2 rounded bg-white text-black">
@@ -389,17 +389,19 @@ export default function Contabilidade() {
             <input type="date" className="w-full border p-2 rounded mb-4" value={date} onChange={(e) => setDate(e.target.value)} />
 
             <label className="block mb-2 text-sm font-medium">Categoria</label>
-            <select className="w-full border p-2 rounded mb-4" value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="seguros">Seguros</option>
-              <option value="portagens">Portagens</option>
-              <option value="combustivel">Combustível</option>
-              <option value="outros">Outros</option>
-              <option value="cotas">Cotas</option>
-              <option value="patrocinios">Patrocínios</option>
-              <option value="despesas bancarias">Despesas Bancárias</option>
-              <option value="jantar">Jantar</option>
-              <option value="aluguer">Aluguer</option>
-              <option value="manutenção">Manutenção</option>
+<select className="w-full border p-2 rounded mb-4" value={category} onChange={(e) => setCategory(e.target.value)}>
+  <option value="seguros">Seguros</option>
+  <option value="portagens">Portagens</option>
+  <option value="combustivel">Combustível</option>
+  <option value="outros">Outros</option>
+  <option value="cotas">Cotas</option>
+  <option value="patrocinios">Patrocínios</option>
+  <option value="despesas bancarias">Despesas Bancárias</option>
+  <option value="jantar">Jantar</option>
+  <option value="aluguer">Aluguer</option>
+  <option value="manutencao">Manutenção</option> 
+</select>
+
             </select>
 
             <label className="block mb-2 text-sm font-medium">Descrição</label>
