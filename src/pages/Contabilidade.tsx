@@ -244,6 +244,7 @@ export default function Contabilidade() {
           <option value="despesas bancarias">Despesas Bancárias</option>
           <option value="jantar">Jantar</option>
           <option value="aluguer">Aluguer</option>
+          <option value="manutenção">Manutenção</option>
         </select>
 
         <select value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)} className="border p-2 rounded bg-white text-black">
@@ -398,6 +399,7 @@ export default function Contabilidade() {
               <option value="despesas bancarias">Despesas Bancárias</option>
               <option value="jantar">Jantar</option>
               <option value="aluguer">Aluguer</option>
+              <option value="manutenção">Manutenção</option>
             </select>
 
             <label className="block mb-2 text-sm font-medium">Descrição</label>
