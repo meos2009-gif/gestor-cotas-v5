@@ -402,8 +402,6 @@ export default function Contabilidade() {
   <option value="manutencao">Manutenção</option> 
 </select>
 
-            </select>
-
             <label className="block mb-2 text-sm font-medium">Descrição</label>
             <input type="text" className="w-full border p-2 rounded mb-4" value={description} onChange={(e) => setDescription(e.target.value)} />
 
