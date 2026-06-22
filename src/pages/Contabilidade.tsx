@@ -135,11 +135,29 @@ export default function Contabilidade() {
     setModalOpen(true);
   }
 
+  // -----------------------------
+  // BALANCETE CORRIGIDO
+  // -----------------------------
+
+  const categoriasFixas = [
+    "seguros",
+    "portagens",
+    "combustivel",
+    "outros",
+    "cotas",
+    "patrocinios",
+    "despesas bancarias",
+    "jantar",
+    "aluguer",
+    "manutencao"
+  ];
+
   const mesAtual = new Date().getMonth() + 1;
   const mesSelecionado = mes ? Number(mes) : mesAtual;
+  const anoSelecionado = Number(ano);
 
   const balancete = {};
-  const anoSelecionado = Number(ano);
+  categoriasFixas.forEach((c) => (balancete[c] = 0));
 
   allMovements.forEach((m) => {
     const d = new Date(m.date);
@@ -149,24 +167,20 @@ export default function Contabilidade() {
     if (mAno !== anoSelecionado) return;
     if (mMes !== mesSelecionado) return;
 
-    const cat = m.category;
-    if (!balancete[cat]) balancete[cat] = 0;
-
     const valor = m.type === "entrada" ? Number(m.value) : -Number(m.value);
-    balancete[cat] += valor;
+    balancete[m.category] += valor;
   });
 
   const acumuladoPorCategoria = {};
+  categoriasFixas.forEach((c) => (acumuladoPorCategoria[c] = 0));
+
   allMovements.forEach((m) => {
     const d = new Date(m.date);
     const mAno = d.getFullYear();
     if (mAno !== anoSelecionado) return;
 
-    const cat = m.category;
-    if (!acumuladoPorCategoria[cat]) acumuladoPorCategoria[cat] = 0;
-
     const valor = m.type === "entrada" ? Number(m.value) : -Number(m.value);
-    acumuladoPorCategoria[cat] += valor;
+    acumuladoPorCategoria[m.category] += valor;
   });
 
   const saldoMesBalancete = Object.values(balancete).reduce(
@@ -244,7 +258,7 @@ export default function Contabilidade() {
           <option value="despesas bancarias">Despesas Bancárias</option>
           <option value="jantar">Jantar</option>
           <option value="aluguer">Aluguer</option>
-         <option value="manutencao">Manutenção</option> 
+          <option value="manutencao">Manutenção</option>
         </select>
 
         <select value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)} className="border p-2 rounded bg-white text-black">
@@ -294,7 +308,7 @@ export default function Contabilidade() {
             </thead>
 
             <tbody>
-              {Object.keys(balancete).map((cat) => (
+              {categoriasFixas.map((cat) => (
                 <tr key={cat} className="border-t border-gray-700">
                   <td className="p-2 capitalize">{cat}</td>
 
@@ -317,14 +331,6 @@ export default function Contabilidade() {
                   </td>
                 </tr>
               ))}
-
-              {Object.keys(balancete).length === 0 && (
-                <tr>
-                  <td colSpan="3" className="p-3 text-center text-white">
-                    Sem movimentos neste mês.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
@@ -389,18 +395,18 @@ export default function Contabilidade() {
             <input type="date" className="w-full border p-2 rounded mb-4" value={date} onChange={(e) => setDate(e.target.value)} />
 
             <label className="block mb-2 text-sm font-medium">Categoria</label>
-<select className="w-full border p-2 rounded mb-4" value={category} onChange={(e) => setCategory(e.target.value)}>
-  <option value="seguros">Seguros</option>
-  <option value="portagens">Portagens</option>
-  <option value="combustivel">Combustível</option>
-  <option value="outros">Outros</option>
-  <option value="cotas">Cotas</option>
-  <option value="patrocinios">Patrocínios</option>
-  <option value="despesas bancarias">Despesas Bancárias</option>
-  <option value="jantar">Jantar</option>
-  <option value="aluguer">Aluguer</option>
-  <option value="manutencao">Manutenção</option> 
-</select>
+            <select className="w-full border p-2 rounded mb-4" value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="seguros">Seguros</option>
+              <option value="portagens">Portagens</option>
+              <option value="combustivel">Combustível</option>
+              <option value="outros">Outros</option>
+              <option value="cotas">Cotas</option>
+              <option value="patrocinios">Patrocínios</option>
+              <option value="despesas bancarias">Despesas Bancárias</option>
+              <option value="jantar">Jantar</option>
+              <option value="aluguer">Aluguer</option>
+              <option value="manutencao">Manutenção</option>
+            </select>
 
             <label className="block mb-2 text-sm font-medium">Descrição</label>
             <input type="text" className="w-full border p-2 rounded mb-4" value={description} onChange={(e) => setDescription(e.target.value)} />
@@ -412,15 +418,23 @@ export default function Contabilidade() {
             <input type="number" className="w-full border p-2 rounded mb-4" value={value} onChange={(e) => setValue(e.target.value)} />
 
             <div className="flex justify-between mt-4">
-              <button onClick={() => { setModalOpen(false); resetForm(); }} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
-                Cancelar
-              </button>
+  <button
+    onClick={() => {
+      setModalOpen(false);
+      resetForm();
+    }}
+    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+  >
+    Cancelar
+  </button>
 
-              <button onClick={editingMovement ? updateMovement : saveMovement} className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary">
-                {editingMovement ? "Guardar Alterações" : "Guardar"}
-              </button>
+  <button
+    onClick={editingMovement ? updateMovement : saveMovement}
+    className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+  >
+    {editingMovement ? "Guardar Alterações" : "Guardar"}
+  </button>
             </div>
-
           </div>
         </div>
       )}
