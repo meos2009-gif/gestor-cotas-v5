@@ -28,6 +28,16 @@ const MESES = [
 ];
 
 /* ============================================================
+   DATA ATUAL
+============================================================ */
+
+function dataHoje() {
+  return new Date()
+    .toISOString()
+    .split("T")[0];
+}
+
+/* ============================================================
    FUNÇÕES SUPABASE
 ============================================================ */
 
@@ -77,7 +87,7 @@ async function deletePaymentById(id) {
 }
 
 /* ============================================================
-   COMPONENTE PRINCIPAL
+   COMPONENTE
 ============================================================ */
 
 export default function Pagamentos() {
@@ -97,6 +107,9 @@ export default function Pagamentos() {
     useState(
       new Date().getFullYear()
     );
+
+  const [paymentDate, setPaymentDate] =
+    useState(dataHoje());
 
   const [amount, setAmount] =
     useState("");
@@ -135,12 +148,15 @@ export default function Pagamentos() {
       setMembers(m || []);
 
     } catch (err) {
-      setError(err.message);
+      setError(
+        err?.message ||
+        "Erro ao carregar dados."
+      );
     }
   }
 
   /* ============================================================
-     LIMPAR MESES QUANDO MUDA SÓCIO OU ANO
+     LIMPAR MESES
   ============================================================ */
 
   useEffect(() => {
@@ -154,7 +170,7 @@ export default function Pagamentos() {
   ]);
 
   /* ============================================================
-     MESES JÁ PAGOS PELO SÓCIO
+     MESES JÁ PAGOS
   ============================================================ */
 
   const mesesPagos = useMemo(() => {
@@ -179,14 +195,17 @@ export default function Pagamentos() {
   ]);
 
   /* ============================================================
-     MESES EM FALTA
-
-     EM EDIÇÃO:
-     mantém disponível o mês do pagamento
-     que está a ser editado.
+     MESES DISPONÍVEIS
   ============================================================ */
 
   const mesesDisponiveis = useMemo(() => {
+    const lista = MESES.map(
+      (nome, index) => ({
+        numero: index + 1,
+        nome,
+      })
+    );
+
     if (editingId) {
       const pagamentoEmEdicao =
         payments.find(
@@ -194,13 +213,8 @@ export default function Pagamentos() {
             payment.id === editingId
         );
 
-      return MESES.map(
-        (nome, index) => ({
-          numero: index + 1,
-          nome,
-        })
-      ).filter((mes) => {
-        return (
+      return lista.filter(
+        (mes) =>
           !mesesPagos.includes(
             mes.numero
           ) ||
@@ -208,16 +222,10 @@ export default function Pagamentos() {
             Number(
               pagamentoEmEdicao?.month
             )
-        );
-      });
+      );
     }
 
-    return MESES.map(
-      (nome, index) => ({
-        numero: index + 1,
-        nome,
-      })
-    ).filter(
+    return lista.filter(
       (mes) =>
         !mesesPagos.includes(
           mes.numero
@@ -230,15 +238,11 @@ export default function Pagamentos() {
     payments,
   ]);
 
-  /* ============================================================
-     MESES EM FALTA
-  ============================================================ */
-
   const quantidadeMesesEmFalta =
     mesesDisponiveis.length;
 
   /* ============================================================
-     SUBMETER FORMULÁRIO
+     SUBMETER
   ============================================================ */
 
   async function handleSubmit(e) {
@@ -260,7 +264,17 @@ export default function Pagamentos() {
       return;
     }
 
-    if (!amount || Number(amount) <= 0) {
+    if (!paymentDate) {
+      setError(
+        "Indique a data de pagamento."
+      );
+      return;
+    }
+
+    if (
+      !amount ||
+      Number(amount) <= 0
+    ) {
       setError(
         "Indique um valor válido."
       );
@@ -268,6 +282,7 @@ export default function Pagamentos() {
     }
 
     try {
+
       /* ========================================================
          EDITAR
       ======================================================== */
@@ -277,6 +292,7 @@ export default function Pagamentos() {
           member_id: memberId,
           month: months[0],
           year,
+          payment_date: paymentDate,
           amount: Number(amount),
           method,
         };
@@ -290,15 +306,10 @@ export default function Pagamentos() {
       }
 
       /* ========================================================
-         ADICIONAR VÁRIOS MESES
+         ADICIONAR
       ======================================================== */
 
       else {
-        /*
-          Segurança adicional:
-          confirma novamente quais os meses
-          já pagos antes de inserir.
-        */
 
         const mesesParaInserir =
           months.filter(
@@ -323,6 +334,8 @@ export default function Pagamentos() {
               member_id: memberId,
               month: Number(mes),
               year,
+              payment_date:
+                paymentDate,
               amount: Number(amount),
               method,
             })
@@ -337,23 +350,27 @@ export default function Pagamentos() {
       }
 
       /* ========================================================
-         LIMPAR FORMULÁRIO
+         LIMPAR
       ======================================================== */
 
       setMemberId("");
       setMonths([]);
+      setPaymentDate(dataHoje());
       setAmount("");
       setMethod("cash");
 
       await load();
 
     } catch (err) {
-      setError(err.message);
+      setError(
+        err?.message ||
+        "Ocorreu um erro ao guardar o pagamento."
+      );
     }
   }
 
   /* ============================================================
-     EDITAR
+     EDITAR PAGAMENTO
   ============================================================ */
 
   function startEdit(payment) {
@@ -366,6 +383,11 @@ export default function Pagamentos() {
     setMonths([
       Number(payment.month),
     ]);
+
+    setPaymentDate(
+      payment.payment_date ||
+      dataHoje()
+    );
 
     setAmount(
       String(payment.amount)
@@ -382,13 +404,14 @@ export default function Pagamentos() {
   }
 
   /* ============================================================
-     CANCELAR EDIÇÃO
+     CANCELAR
   ============================================================ */
 
   function cancelEdit() {
     setEditingId(null);
     setMemberId("");
     setMonths([]);
+    setPaymentDate(dataHoje());
     setAmount("");
     setMethod("cash");
     setError("");
@@ -420,7 +443,10 @@ export default function Pagamentos() {
       await load();
 
     } catch (err) {
-      setError(err.message);
+      setError(
+        err?.message ||
+        "Erro ao apagar pagamento."
+      );
     }
   }
 
@@ -448,6 +474,25 @@ export default function Pagamentos() {
     if (!editingId) {
       setMonths([]);
     }
+  }
+
+  /* ============================================================
+     FORMATAR DATA
+  ============================================================ */
+
+  function formatarData(data) {
+    if (!data) {
+      return "—";
+    }
+
+    const partes =
+      String(data).split("-");
+
+    if (partes.length !== 3) {
+      return data;
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
 
   /* ============================================================
@@ -481,6 +526,7 @@ export default function Pagamentos() {
       {/* FORMULÁRIO */}
 
       <Card>
+
         <div className="
           space-y-4
         ">
@@ -488,6 +534,7 @@ export default function Pagamentos() {
           {/* ANO */}
 
           <div>
+
             <label className="
               block
               font-semibold
@@ -498,11 +545,15 @@ export default function Pagamentos() {
 
             <Select
               value={year}
-              onChange={handleYearChange}
+              onChange={
+                handleYearChange
+              }
             >
+
               {Array.from(
                 { length: 5 }
               ).map((_, i) => {
+
                 const y =
                   new Date()
                     .getFullYear() - i;
@@ -516,10 +567,10 @@ export default function Pagamentos() {
                   </option>
                 );
               })}
-            </Select>
-          </div>
 
-          {/* FORMULÁRIO */}
+            </Select>
+
+          </div>
 
           <form
             onSubmit={handleSubmit}
@@ -529,6 +580,7 @@ export default function Pagamentos() {
             {/* SÓCIO */}
 
             <div>
+
               <label className="
                 block
                 font-semibold
@@ -544,24 +596,30 @@ export default function Pagamentos() {
                 }
                 required
               >
+
                 <option value="">
                   Selecione o sócio
                 </option>
 
                 {members.map((m) => (
+
                   <option
                     key={m.id}
                     value={m.id}
                   >
                     {m.name}
                   </option>
+
                 ))}
+
               </Select>
+
             </div>
 
-            {/* MESES EM FALTA */}
+            {/* MESES */}
 
             {memberId && (
+
               <div>
 
                 <label className="
@@ -587,8 +645,8 @@ export default function Pagamentos() {
                     px-3
                     py-3
                   ">
-                    Este sócio já tem todos os
-                    meses de {year} pagos.
+                    Este sócio já tem todos
+                    os meses de {year} pagos.
                   </div>
 
                 ) : (
@@ -629,58 +687,80 @@ export default function Pagamentos() {
 
                       {mesesDisponiveis.map(
                         (mes) => (
+
                           <option
                             key={mes.numero}
                             value={mes.numero}
                           >
                             {mes.nome}
                           </option>
+
                         )
                       )}
 
                     </Select>
 
                     {!editingId && (
+
                       <p className="
                         text-xs
                         text-gray-400
                         mt-2
                       ">
                         Só aparecem os meses
-                        que ainda não foram pagos.
-                        Pode selecionar vários
-                        meses.
+                        que ainda não foram
+                        pagos. Pode selecionar
+                        vários meses.
                       </p>
+
                     )}
 
                   </>
+
                 )}
 
               </div>
+
             )}
 
-            {/* AVISO SE TODOS PAGOS */}
+            {/* DATA DE PAGAMENTO */}
 
-            {memberId &&
-              !editingId &&
-              quantidadeMesesEmFalta ===
-                0 && (
+            <div>
+
+              <label className="
+                block
+                font-semibold
+                mb-1
+              ">
+                Data de pagamento:
+              </label>
+
+              <Input
+                type="date"
+                value={paymentDate}
+                onChange={(e) =>
+                  setPaymentDate(
+                    e.target.value
+                  )
+                }
+                required
+              />
 
               <p className="
-                text-sm
+                text-xs
                 text-gray-400
+                mt-1
               ">
-                Não é possível adicionar
-                novos pagamentos enquanto
-                todos os meses deste ano
-                estiverem pagos.
+                Data em que o pagamento foi
+                efetivamente recebido.
               </p>
 
-            )}
+            </div>
 
             {/* VALOR */}
 
             <div>
+
               <label className="
                 block
                 font-semibold
@@ -702,11 +782,13 @@ export default function Pagamentos() {
                 }
                 required
               />
+
             </div>
 
             {/* MÉTODO */}
 
             <div>
+
               <label className="
                 block
                 font-semibold
@@ -724,6 +806,7 @@ export default function Pagamentos() {
                 }
                 required
               >
+
                 <option value="cash">
                   Cash
                 </option>
@@ -731,7 +814,9 @@ export default function Pagamentos() {
                 <option value="banco">
                   Banco
                 </option>
+
               </Select>
+
             </div>
 
             {/* BOTÕES */}
@@ -757,6 +842,7 @@ export default function Pagamentos() {
               </Button>
 
               {editingId && (
+
                 <Button
                   type="button"
                   onClick={cancelEdit}
@@ -764,6 +850,7 @@ export default function Pagamentos() {
                 >
                   Cancelar
                 </Button>
+
               )}
 
             </div>
@@ -771,6 +858,7 @@ export default function Pagamentos() {
           </form>
 
         </div>
+
       </Card>
 
       {/* BOTÃO LISTA */}
@@ -790,6 +878,7 @@ export default function Pagamentos() {
       {/* LISTA */}
 
       {showList && (
+
         <Card>
 
           <div className="
@@ -835,6 +924,13 @@ export default function Pagamentos() {
                     border
                     p-1
                   ">
+                    Data Pagamento
+                  </th>
+
+                  <th className="
+                    border
+                    p-1
+                  ">
                     Valor
                   </th>
 
@@ -863,7 +959,7 @@ export default function Pagamentos() {
                   <tr>
 
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="
                         border
                         p-4
@@ -880,6 +976,7 @@ export default function Pagamentos() {
                 ) : (
 
                   payments.map((p) => {
+
                     const member =
                       members.find(
                         (m) =>
@@ -890,6 +987,7 @@ export default function Pagamentos() {
                       );
 
                     return (
+
                       <tr
                         key={p.id}
                         className="
@@ -918,6 +1016,15 @@ export default function Pagamentos() {
                           p-1
                         ">
                           {p.year}
+                        </td>
+
+                        <td className="
+                          border
+                          p-1
+                        ">
+                          {formatarData(
+                            p.payment_date
+                          )}
                         </td>
 
                         <td className="
@@ -957,7 +1064,9 @@ export default function Pagamentos() {
 
                           <Button
                             onClick={() =>
-                              handleDelete(p.id)
+                              handleDelete(
+                                p.id
+                              )
                             }
                             variant="accent"
                             className="
@@ -974,6 +1083,7 @@ export default function Pagamentos() {
                         </td>
 
                       </tr>
+
                     );
                   })
 
@@ -986,6 +1096,7 @@ export default function Pagamentos() {
           </div>
 
         </Card>
+
       )}
 
     </>
