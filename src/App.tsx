@@ -44,6 +44,12 @@ export default function App() {
         <Route path="/contabilidade" element={<Contabilidade />} />
         <Route path="/estatisticas" element={<Estatisticas />} />
         <Route path="/resultado/:gameId" element={<Convocatoria />} />
+       {/* CONVOCATÓRIA */}
+       <Route path="/jogos/:gameId" element={<Convocatoria />} />
+
+           {/* INSERIR RESULTADO — NOVO */}
+            <Route path="/resultado/:gameId" element={<Convocatoria />} />
+
 
         {/* JOGOS — DIVIDIDOS POR ÉPOCA */}
         <Route path="/jogos-25-26" element={<Jogos />} />
