@@ -1,43 +1,44 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-
-const jogos2026_27 = [
-  { id: 1, data: "2026-09-19", adversario: "TORNEIO TRIANGULAR (a)", local: "C. SENHORIM" },
-  { id: 2, data: "2026-09-26", adversario: "GIL VICENTE", local: "FAFE" },
-  { id: 3, data: "2026-10-03", adversario: "TAIPAS", local: "TAIPAS" },
-  { id: 4, data: "2026-10-10", adversario: "FERROVIÁRIO FONTAINHAS", local: "FAFE" },
-  { id: 5, data: "2026-10-24", adversario: "BEIRA VOUGA", local: "AVEIRO" },
-  { id: 6, data: "2026-11-07", adversario: "SABROSA", local: "FAFE" },
-  { id: 7, data: "2026-11-21", adversario: "VILA REAL", local: "V. REAL" },
-  { id: 8, data: "2026-12-12", adversario: "P. BRANDAO", local: "P. BRANDAO" },
-  { id: 9, data: "2026-12-19", adversario: "JANTAR DE NATAL", local: "" },
-
-  { id: 10, data: "2027-01-09", adversario: "MONDINENSE 2008", local: "FAFE" },
-  { id: 11, data: "2027-01-23", adversario: "MOURISQUENSE", local: "FAFE" },
-  { id: 12, data: "2027-02-13", adversario: "UNIDOS ORIENTAL", local: "FAFE" },
-  { id: 13, data: "2027-02-27", adversario: "P. BRANDAO", local: "FAFE" },
-  { id: 14, data: "2027-03-13", adversario: "SABROSA", local: "SABROSA" },
-  { id: 15, data: "2027-03-20", adversario: "VILA REAL", local: "FAFE" },
-  { id: 16, data: "2027-04-10", adversario: "MOURISQUENSE", local: "MOURISCA" },
-  { id: 17, data: "2027-04-24", adversario: "TORNEIO CIDADE DE FAFE", local: "" },
-  { id: 18, data: "2027-05-08", adversario: "BEIRA VOUGA", local: "FAFE" },
-  { id: 19, data: "2027-05-22", adversario: "MONDINENSE 2008", local: "MONDIM" },
-  { id: 20, data: "2027-06-10", adversario: "VIAGEM", local: "" },
-  { id: 21, data: "2027-06-26", adversario: "CANAS DE SENHORIM", local: "FAFE" }
-];
+import { supabase } from "../lib/supabaseClient"; // ajusta se estiver noutra pasta
 
 export default function Calendario2026() {
+  const [jogos, setJogos] = useState([]);
   const [ano, setAno] = useState("");
   const [mes, setMes] = useState("");
   const navigate = useNavigate();
 
-  const proximoJogo = useMemo(() => {
-    const hoje = new Date();
-    return jogos2026_27.find(j => new Date(j.data) >= hoje);
+  // 🔥 Buscar jogos da época 26/27
+  useEffect(() => {
+    async function fetchGames() {
+      const { data, error } = await supabase
+        .from("games")
+        .select("*")
+        .order("game_date", { ascending: true });
+
+      if (!error) {
+        // Filtrar só jogos da época 26/27
+        const filtrados = data.filter((g) => {
+          const year = new Date(g.game_date).getFullYear();
+          return year === 2026 || year === 2027;
+        });
+
+        setJogos(filtrados);
+      }
+    }
+
+    fetchGames();
   }, []);
 
-  const jogosFiltrados = jogos2026_27.filter((j) => {
-    const d = new Date(j.data);
+  // 🔥 Próximo jogo
+  const proximoJogo = useMemo(() => {
+    const hoje = new Date();
+    return jogos.find((j) => new Date(j.game_date) >= hoje);
+  }, [jogos]);
+
+  // 🔥 Filtros por ano e mês
+  const jogosFiltrados = jogos.filter((j) => {
+    const d = new Date(j.game_date);
     const anoJogo = d.getFullYear().toString();
     const mesJogo = String(d.getMonth() + 1).padStart(2, "0");
 
@@ -51,15 +52,17 @@ export default function Calendario2026() {
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Calendário 2026/2027</h1>
 
+      {/* Próximo jogo */}
       {proximoJogo && (
         <div className="bg-secondary text-primary p-4 rounded mb-6 shadow">
           <h2 className="text-lg font-bold">Próximo Jogo</h2>
-          <p className="mt-2 font-semibold">{proximoJogo.adversario}</p>
-          <p>{proximoJogo.data}</p>
-          <p className="text-sm">{proximoJogo.local || "—"}</p>
+          <p className="mt-2 font-semibold">{proximoJogo.opponent}</p>
+          <p>{proximoJogo.game_date}</p>
+          <p className="text-sm">{proximoJogo.location || "—"}</p>
         </div>
       )}
 
+      {/* Filtros */}
       <div className="flex space-x-4 mb-6">
         <select
           value={ano}
@@ -87,25 +90,26 @@ export default function Calendario2026() {
         </select>
       </div>
 
+      {/* Lista de jogos */}
       <div className="space-y-3">
         {jogosFiltrados.map((j) => {
-          const isCasa = j.local.toUpperCase() === "FAFE";
+          const isCasa = j.location?.toUpperCase() === "FAFE";
 
           return (
             <div
               key={j.id}
               className="p-4 bg-primary text-white rounded shadow border border-gray-700"
             >
-              <p className="text-lg font-bold">{j.adversario}</p>
-              <p>{j.data}</p>
+              <p className="text-lg font-bold">{j.opponent}</p>
+              <p>{j.game_date}</p>
               <p className={isCasa ? "text-green-400" : "text-red-400"}>
-                {isCasa ? "Casa" : "Fora"} — {j.local || "—"}
+                {isCasa ? "Casa" : "Fora"} — {j.location || "—"}
               </p>
 
-              {/* BOTÕES IGUAIS AO 25/26 */}
+              {/* Botões */}
               <div className="flex gap-3 mt-4">
                 <button
-                  onClick={() => navigate(`/resultado/${j.id}`)
+                  onClick={() => navigate(`/jogos/${j.id}`)}
                   className="bg-secondary text-primary px-3 py-1 rounded hover:bg-accent"
                 >
                   Convocatória
