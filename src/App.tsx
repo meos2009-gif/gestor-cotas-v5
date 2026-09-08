@@ -15,9 +15,10 @@ import Estatisticas from "./pages/Estatisticas";
 import Contabilidade from "./pages/Contabilidade";
 
 // NOVOS
-import Jogos from "./pages/Jogos";               // 25/26
-import Calendario2026 from "./pages/Calendario2026"; // 26/27
+import Jogos from "./pages/Jogos";               
+import Calendario2026 from "./pages/Calendario2026"; 
 import Convocatoria from "./pages/Convocatoria";
+import Resultado from "./pages/Resultado";
 
 export default function App() {
   return (
@@ -43,7 +44,8 @@ export default function App() {
         <Route path="/tesouraria" element={<Tesouraria />} />
         <Route path="/contabilidade" element={<Contabilidade />} />
         <Route path="/estatisticas" element={<Estatisticas />} />
-        <Route path="/resultado/:gameId" element={<Convocatoria />} />
+
+        {/* ROTAS CORRETAS */}
         <Route path="/jogos/:gameId" element={<Convocatoria />} />
         <Route path="/resultado/:gameId" element={<Resultado />} />
 
@@ -53,9 +55,6 @@ export default function App() {
 
         {/* PÁGINA ANTIGA /jogos → redireciona para a época atual */}
         <Route path="/jogos" element={<Navigate to="/jogos-26-27" replace />} />
-
-        {/* CONVOCATÓRIA */}
-        <Route path="/jogos/:gameId" element={<Convocatoria />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
