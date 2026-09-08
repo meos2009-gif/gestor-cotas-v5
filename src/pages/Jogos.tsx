@@ -1,45 +1,31 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const jogos2025_26 = [
-  {
-    id: 1,
-    data: "2025-09-20",
-    adversario: "TAIPAS",
-    local: "FAFE",
-    convocatoria: ["Jogador A", "Jogador B", "Jogador C"],
-    golos_fafe: 2,
-    golos_adv: 1,
-    observacoes: "Bom jogo, domínio total."
-  },
-  {
-    id: 2,
-    data: "2025-09-27",
-    adversario: "VILA REAL",
-    local: "V. REAL",
-    convocatoria: ["Jogador A", "Jogador D"],
-    golos_fafe: 0,
-    golos_adv: 3,
-    observacoes: "Jogo difícil fora."
-  },
-  {
-    id: 3,
-    data: "2025-10-04",
-    adversario: "MOURISQUENSE",
-    local: "FAFE",
-    convocatoria: ["Jogador A", "Jogador B"],
-    golos_fafe: 4,
-    golos_adv: 0,
-    observacoes: "Grande vitória!"
-  },
+  { data: "2025-09-20", adversario: "TAIPAS", local: "FAFE" },
+  { data: "2025-09-27", adversario: "VILA REAL", local: "V. REAL" },
+  { data: "2025-10-04", adversario: "MOURISQUENSE", local: "FAFE" },
+  { data: "2025-10-18", adversario: "BEIRA VOUGA", local: "AVEIRO" },
+  { data: "2025-11-01", adversario: "MONDINENSE 2008", local: "MONDIM" },
+  { data: "2025-11-15", adversario: "SABROSA", local: "FAFE" },
+  { data: "2025-11-29", adversario: "TAIPAS", local: "TAIPAS" },
+  { data: "2025-12-13", adversario: "P. BRANDAO", local: "FAFE" },
+  { data: "2025-12-20", adversario: "JANTAR DE NATAL", local: "" },
 
-  // … (continua igual ao teu calendário)
+  { data: "2026-01-10", adversario: "UNIDOS ORIENTAL", local: "FAFE" },
+  { data: "2026-01-24", adversario: "VILA REAL", local: "FAFE" },
+  { data: "2026-02-07", adversario: "BEIRA VOUGA", local: "FAFE" },
+  { data: "2026-02-21", adversario: "MONDINENSE 2008", local: "MONDIM" },
+  { data: "2026-03-07", adversario: "SABROSA", local: "SABROSA" },
+  { data: "2026-03-21", adversario: "TAIPAS", local: "FAFE" },
+  { data: "2026-04-11", adversario: "MOURISQUENSE", local: "MOURISCA" },
+  { data: "2026-04-25", adversario: "TORNEIO CIDADE DE FAFE", local: "" },
+  { data: "2026-05-09", adversario: "P. BRANDAO", local: "P. BRANDAO" },
+  { data: "2026-05-23", adversario: "CANAS DE SENHORIM", local: "FAFE" }
 ];
 
 export default function Calendario2025_26() {
   const [ano, setAno] = useState("");
   const [mes, setMes] = useState("");
-  const navigate = useNavigate();
 
   const proximoJogo = useMemo(() => {
     const hoje = new Date();
@@ -98,12 +84,12 @@ export default function Calendario2025_26() {
       </div>
 
       <div className="space-y-3">
-        {jogosFiltrados.map((j) => {
+        {jogosFiltrados.map((j, i) => {
           const isCasa = j.local.toUpperCase() === "FAFE";
 
           return (
             <div
-              key={j.id}
+              key={i}
               className="p-4 bg-primary text-white rounded shadow border border-gray-700"
             >
               <p className="text-lg font-bold">{j.adversario}</p>
@@ -111,43 +97,13 @@ export default function Calendario2025_26() {
               <p className={isCasa ? "text-green-400" : "text-red-400"}>
                 {isCasa ? "Casa" : "Fora"} — {j.local || "—"}
               </p>
-
-              {/* RESULTADO */}
-              <p className="mt-2 font-semibold">
-                Resultado: Fafe {j.golos_fafe} - {j.golos_adv} {j.adversario}
-              </p>
-
-              {/* OBSERVAÇÕES */}
-              <p className="text-sm italic">{j.observacoes}</p>
-
-              {/* CONVOCATÓRIA */}
-              <div className="mt-3">
-                <p className="font-bold">Convocatória:</p>
-                <ul className="list-disc ml-6">
-                  {j.convocatoria.map((nome, idx) => (
-                    <li key={idx}>{nome}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="flex gap-3 mt-4">
-                <button
-                  onClick={() => navigate(`/jogos/${j.id}`)}
-                  className="bg-secondary text-primary px-3 py-1 rounded hover:bg-accent"
-                >
-                  Convocatória
-                </button>
-
-                <button
-                  onClick={() => navigate(`/resultado/${j.id}`)}
-                  className="bg-accent text-white px-3 py-1 rounded hover:bg-secondary"
-                >
-                  Inserir Resultado
-                </button>
-              </div>
             </div>
           );
         })}
+
+        {jogosFiltrados.length === 0 && (
+          <p className="text-gray-500">Nenhum jogo encontrado.</p>
+        )}
       </div>
     </div>
   );
