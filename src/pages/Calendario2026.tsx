@@ -20,8 +20,8 @@ export default function Calendario2026() {
         const filtrados = data.filter((g) => {
           const d = new Date(g.game_date);
           return (
-            d >= new Date("2026-09-19") && // início da época
-            d <= new Date("2027-06-26")    // fim da época
+            d >= new Date("2026-09-01") &&   // início da época 26/27
+            d <= new Date("2027-08-31")      // fim da época 26/27
           );
         });
 
@@ -32,13 +32,11 @@ export default function Calendario2026() {
     fetchGames();
   }, []);
 
-  // Próximo jogo
   const proximoJogo = useMemo(() => {
     const hoje = new Date();
     return jogos.find((j) => new Date(j.game_date) >= hoje);
   }, [jogos]);
 
-  // Filtros por ano e mês
   const jogosFiltrados = jogos.filter((j) => {
     const d = new Date(j.game_date);
     const anoJogo = d.getFullYear().toString();
