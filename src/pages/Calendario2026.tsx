@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
- // ajusta se estiver noutra pasta
 
 export default function Calendario2026() {
   const [jogos, setJogos] = useState([]);
@@ -9,7 +8,7 @@ export default function Calendario2026() {
   const [mes, setMes] = useState("");
   const navigate = useNavigate();
 
-  // 🔥 Buscar jogos da época 26/27
+  // Buscar jogos da época 26/27
   useEffect(() => {
     async function fetchGames() {
       const { data, error } = await supabase
@@ -18,10 +17,12 @@ export default function Calendario2026() {
         .order("game_date", { ascending: true });
 
       if (!error) {
-        // Filtrar só jogos da época 26/27
         const filtrados = data.filter((g) => {
-          const year = new Date(g.game_date).getFullYear();
-          return year === 2026 || year === 2027;
+          const d = new Date(g.game_date);
+          return (
+            d >= new Date("2026-09-19") && // início da época
+            d <= new Date("2027-06-26")    // fim da época
+          );
         });
 
         setJogos(filtrados);
@@ -31,13 +32,13 @@ export default function Calendario2026() {
     fetchGames();
   }, []);
 
-  // 🔥 Próximo jogo
+  // Próximo jogo
   const proximoJogo = useMemo(() => {
     const hoje = new Date();
     return jogos.find((j) => new Date(j.game_date) >= hoje);
   }, [jogos]);
 
-  // 🔥 Filtros por ano e mês
+  // Filtros por ano e mês
   const jogosFiltrados = jogos.filter((j) => {
     const d = new Date(j.game_date);
     const anoJogo = d.getFullYear().toString();
@@ -53,7 +54,6 @@ export default function Calendario2026() {
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Calendário 2026/2027</h1>
 
-      {/* Próximo jogo */}
       {proximoJogo && (
         <div className="bg-secondary text-primary p-4 rounded mb-6 shadow">
           <h2 className="text-lg font-bold">Próximo Jogo</h2>
@@ -63,7 +63,6 @@ export default function Calendario2026() {
         </div>
       )}
 
-      {/* Filtros */}
       <div className="flex space-x-4 mb-6">
         <select
           value={ano}
@@ -91,7 +90,6 @@ export default function Calendario2026() {
         </select>
       </div>
 
-      {/* Lista de jogos */}
       <div className="space-y-3">
         {jogosFiltrados.map((j) => {
           const isCasa = j.location?.toUpperCase() === "FAFE";
@@ -107,7 +105,6 @@ export default function Calendario2026() {
                 {isCasa ? "Casa" : "Fora"} — {j.location || "—"}
               </p>
 
-              {/* Botões */}
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => navigate(`/jogos/${j.id}`)}

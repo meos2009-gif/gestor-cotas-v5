@@ -1,238 +1,131 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-interface Game {
-  id: string;
-  game_date: string;
-  opponent: string;
-  local: string | null;
-  goals_home: number | null;
-  goals_away: number | null;
-}
-
 export default function Jogos() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [jogos, setJogos] = useState([]);
+  const [ano, setAno] = useState("");
+  const [mes, setMes] = useState("");
+  const navigate = useNavigate();
 
-  const [editing, setEditing] = useState<string | null>(null);
-  const [golosFafe, setGolosFafe] = useState<number | null>(null);
-  const [golosAdv, setGolosAdv] = useState<number | null>(null);
-
+  // Buscar jogos da época 25/26
   useEffect(() => {
-    async function loadGames() {
+    async function fetchGames() {
       const { data, error } = await supabase
         .from("games")
         .select("*")
         .order("game_date", { ascending: true });
 
-      if (error) {
-        console.error("Erro ao carregar jogos:", error);
-        return;
-      }
+      if (!error) {
+        const filtrados = data.filter((g) => {
+          const d = new Date(g.game_date);
+          return (
+            d >= new Date("2025-09-20") && // início da época
+            d <= new Date("2026-06-30")    // fim da época
+          );
+        });
 
-      setGames(data || []);
-      setLoading(false);
+        setJogos(filtrados);
+      }
     }
 
-    loadGames();
+    fetchGames();
   }, []);
 
-  async function guardarResultado(id: string) {
-    const home =
-      golosFafe === null || golosFafe === "" ? null : Number(golosFafe);
-    const away =
-      golosAdv === null || golosAdv === "" ? null : Number(golosAdv);
+  const proximoJogo = useMemo(() => {
+    const hoje = new Date();
+    return jogos.find((j) => new Date(j.game_date) >= hoje);
+  }, [jogos]);
 
-    const { error } = await supabase
-      .from("games")
-      .update({
-        goals_home: home,
-        goals_away: away,
-      })
-      .eq("id", id);
+  const jogosFiltrados = jogos.filter((j) => {
+    const d = new Date(j.game_date);
+    const anoJogo = d.getFullYear().toString();
+    const mesJogo = String(d.getMonth() + 1).padStart(2, "0");
 
-    if (error) {
-      console.error("Erro Supabase:", error.message);
-      alert("Erro ao gravar: " + error.message);
-      return;
-    }
-
-    setGames((prev) =>
-      prev.map((g) =>
-        g.id === id
-          ? { ...g, goals_home: home, goals_away: away }
-          : g
-      )
+    return (
+      (ano === "" || ano === anoJogo) &&
+      (mes === "" || mes === mesJogo)
     );
-
-    setEditing(null);
-  }
-
-  if (loading) return <p className="p-6">A carregar jogos...</p>;
-
-  // -----------------------------
-  // 📊 ESTATÍSTICAS DA ÉPOCA
-  // -----------------------------
-  const jogosComResultado = games.filter(
-    (g) =>
-      g.goals_home !== null &&
-      g.goals_away !== null
-  );
-
-  const vitorias = jogosComResultado.filter(
-    (g) => g.goals_home! > g.goals_away!
-  ).length;
-
-  const empates = jogosComResultado.filter(
-    (g) => g.goals_home! === g.goals_away!
-  ).length;
-
-  const derrotas = jogosComResultado.filter(
-    (g) => g.goals_home! < g.goals_away!
-  ).length;
-
-  const golosMarcados = jogosComResultado.reduce(
-    (acc, g) => acc + (g.goals_home || 0),
-    0
-  );
-
-  const golosSofridos = jogosComResultado.reduce(
-    (acc, g) => acc + (g.goals_away || 0),
-    0
-  );
+  });
 
   return (
     <div className="p-6">
-      <h2 className="text-3xl font-bold mb-6 text-secondary">Jogos</h2>
+      <h1 className="text-xl font-bold mb-4">Calendário 2025/2026</h1>
 
-      {/* 📊 ESTATÍSTICAS */}
-      <div className="bg-secondary text-white p-4 rounded-lg mb-6 shadow-md">
-        <h3 className="text-xl font-bold mb-2">Estatísticas da Época</h3>
+      {proximoJogo && (
+        <div className="bg-secondary text-primary p-4 rounded mb-6 shadow">
+          <h2 className="text-lg font-bold">Próximo Jogo</h2>
+          <p className="mt-2 font-semibold">{proximoJogo.opponent}</p>
+          <p>{proximoJogo.game_date}</p>
+          <p className="text-sm">{proximoJogo.location || "—"}</p>
+        </div>
+      )}
 
-        <p><strong>Vitórias:</strong> {vitorias}</p>
-        <p><strong>Empates:</strong> {empates}</p>
-        <p><strong>Derrotas:</strong> {derrotas}</p>
+      <div className="flex space-x-4 mb-6">
+        <select
+          value={ano}
+          onChange={(e) => setAno(e.target.value)}
+          className="border p-2 rounded bg-white text-black"
+        >
+          <option value="">Todos os anos</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
 
-        <p className="mt-2"><strong>Golos Marcados:</strong> {golosMarcados}</p>
-        <p><strong>Golos Sofridos:</strong> {golosSofridos}</p>
-
-        <p className="mt-2">
-          <strong>Diferença de Golos:</strong> {golosMarcados - golosSofridos}
-        </p>
+        <select
+          value={mes}
+          onChange={(e) => setMes(e.target.value)}
+          className="border p-2 rounded bg-white text-black"
+        >
+          <option value="">Todos os meses</option>
+          {[
+            ["01", "Jan"], ["02", "Fev"], ["03", "Mar"], ["04", "Abr"],
+            ["05", "Mai"], ["06", "Jun"], ["07", "Jul"], ["08", "Ago"],
+            ["09", "Set"], ["10", "Out"], ["11", "Nov"], ["12", "Dez"]
+          ].map(([v, label]) => (
+            <option key={v} value={v}>{label}</option>
+          ))}
+        </select>
       </div>
 
-      {/* LISTA DE JOGOS */}
-      {games.map((g) => {
-        const isHome = (g.local || "").toUpperCase() === "FAFE";
+      <div className="space-y-3">
+        {jogosFiltrados.map((j) => {
+          const isCasa = j.location?.toUpperCase() === "FAFE";
 
-        const temResultado =
-          g.goals_home !== null &&
-          g.goals_away !== null;
-
-        const cor =
-          !temResultado
-            ? "text-gray-400"
-            : g.goals_home! > g.goals_away!
-            ? "text-green-400"
-            : g.goals_home! < g.goals_away!
-            ? "text-red-400"
-            : "text-yellow-400";
-
-        return (
-          <div
-            key={g.id}
-            className="border border-secondary bg-primary p-4 rounded-lg shadow-md mb-4"
-          >
-            <h3 className="text-xl font-bold">{g.opponent}</h3>
-            <p>{g.game_date}</p>
-
-            {g.local && (
-              <p
-                className="text-sm mt-1 font-semibold"
-                style={{
-                  color: isHome ? "#0A1A2F" : "#D97904",
-                }}
-              >
-                {isHome ? "Casa" : "Fora"} — {g.local}
+          return (
+            <div
+              key={j.id}
+              className="p-4 bg-primary text-white rounded shadow border border-gray-700"
+            >
+              <p className="text-lg font-bold">{j.opponent}</p>
+              <p>{j.game_date}</p>
+              <p className={isCasa ? "text-green-400" : "text-red-400"}>
+                {isCasa ? "Casa" : "Fora"} — {j.location || "—"}
               </p>
-            )}
 
-            {/* RESULTADO */}
-            <div className={`mt-3 font-bold ${cor}`}>
-              {temResultado ? (
-                <p>
-                  Fafe A60 {g.goals_home} – {g.goals_away} {g.opponent}
-                </p>
-              ) : (
-                <p>Por jogar</p>
-              )}
-            </div>
-
-            {/* EDITAR RESULTADO INLINE */}
-            {editing === g.id ? (
-              <div className="mt-3 flex gap-2 items-center">
-                <input
-                  type="number"
-                  placeholder="Fafe"
-                  className="w-16 p-1 rounded bg-white text-black"
-                  value={golosFafe ?? ""}
-                  onChange={(e) =>
-                    setGolosFafe(
-                      e.target.value === "" ? null : Number(e.target.value)
-                    )
-                  }
-                />
-                <span className="font-bold">–</span>
-                <input
-                  type="number"
-                  placeholder="Adv"
-                  className="w-16 p-1 rounded bg-white text-black"
-                  value={golosAdv ?? ""}
-                  onChange={(e) =>
-                    setGolosAdv(
-                      e.target.value === "" ? null : Number(e.target.value)
-                    )
-                  }
-                />
-
+              <div className="flex gap-3 mt-4">
                 <button
-                  onClick={() => guardarResultado(g.id)}
-                  className="bg-green-600 text-white px-3 py-1 rounded"
+                  onClick={() => navigate(`/jogos/${j.id}`)}
+                  className="bg-secondary text-primary px-3 py-1 rounded hover:bg-accent"
                 >
-                  Guardar
+                  Convocatória
                 </button>
 
                 <button
-                  onClick={() => setEditing(null)}
-                  className="bg-gray-500 text-white px-3 py-1 rounded"
+                  onClick={() => navigate(`/resultado/${j.id}`)}
+                  className="bg-accent text-white px-3 py-1 rounded hover:bg-secondary"
                 >
-                  Cancelar
+                  Inserir Resultado
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setEditing(g.id);
-                  setGolosFafe(g.goals_home);
-                  setGolosAdv(g.goals_away);
-                }}
-                className="mt-3 inline-block bg-accent text-white px-4 py-2 rounded-md"
-              >
-                Inserir Resultado
-              </button>
-            )}
+            </div>
+          );
+        })}
 
-            {/* CONVOCATÓRIA */}
-            <Link
-              to={`/jogos/${g.id}`}
-              className="mt-3 inline-block bg-secondary text-white px-4 py-2 rounded-md ml-2"
-            >
-              Abrir Convocatória
-            </Link>
-          </div>
-        );
-      })}
+        {jogosFiltrados.length === 0 && (
+          <p className="text-gray-500">Nenhum jogo encontrado.</p>
+        )}
+      </div>
     </div>
   );
 }
