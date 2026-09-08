@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 
 const jogos2026_27 = [
-  { data: "2026-09-12", adversario: "UNIDOS ORIENTAL", local: "PORTO" },
   { data: "2026-09-19", adversario: "TORNEIO TRIANGULAR (a)", local: "C. SENHORIM" },
   { data: "2026-09-26", adversario: "GIL VICENTE", local: "FAFE" },
   { data: "2026-10-03", adversario: "TAIPAS", local: "TAIPAS" },

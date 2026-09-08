@@ -107,7 +107,29 @@ export default function MainLayout() {
             )}
           </div>
 
-          <NavLink to="/jogos" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Jogos</NavLink>
+          {/* JOGOS — DIVIDIDO POR ÉPOCA */}
+          <div>
+            <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">Jogos</p>
+
+            <div className="ml-4 flex flex-col gap-2">
+              <NavLink
+                to="/jogos-25-26"
+                className="hover:text-secondary"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Jogos 2025/2026
+              </NavLink>
+
+              <NavLink
+                to="/jogos-26-27"
+                className="hover:text-secondary"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Jogos 2026/2027
+              </NavLink>
+            </div>
+          </div>
+
           <NavLink to="/tesouraria" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Tesouraria</NavLink>
           <NavLink to="/contabilidade" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Contabilidade</NavLink>
           <NavLink to="/config" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Configurações</NavLink>
@@ -138,19 +160,24 @@ export default function MainLayout() {
           <NavLink to="/pagamentos" className="hover:text-secondary">Pagamento de Cotas</NavLink>
           <NavLink to="/jantar" className="hover:text-secondary">Pagamento de Jantares</NavLink>
 
-          <NavLink to="/jogos" className="hover:text-secondary">Jogos</NavLink>
+          {/* JOGOS — DIVIDIDO POR ÉPOCA */}
+          <div className="mt-4">
+            <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">Jogos</p>
+
+            <NavLink to="/jogos-25-26" className="hover:text-secondary block">
+              Jogos 2025/2026
+            </NavLink>
+
+            <NavLink to="/jogos-26-27" className="hover:text-secondary block">
+              Jogos 2026/2027
+            </NavLink>
+          </div>
+
           <NavLink to="/tesouraria" className="hover:text-secondary">Tesouraria</NavLink>
           <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
           <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
 
           <NavLink to="/estatisticas" className="hover:text-secondary">Estatísticas da Equipa</NavLink>
-
-          <button
-            onClick={handleLogout}
-            className="bg-accent hover:bg-secondary px-4 py-2 rounded-md text-white mt-6"
-          >
-            Terminar Sessão
-          </button>
         </aside>
 
         {/* CONTEÚDO */}
@@ -159,7 +186,7 @@ export default function MainLayout() {
         </main>
       </div>
 
-      {/* CONTEÚDO MOBILE (SEM TAPAR O MENU) */}
+      {/* CONTEÚDO MOBILE */}
       <main className="md:hidden flex-1 p-6">
         <Outlet />
       </main>
