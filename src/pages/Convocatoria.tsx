@@ -33,7 +33,6 @@ export default function Convocatoria() {
         <p className="text-sm">{jogo.competition}</p>
       </div>
 
-      {/* RESULTADO */}
       {jogo.goals_home !== null && jogo.goals_away !== null && (
         <div className="mt-6 bg-secondary text-primary p-4 rounded shadow">
           <h2 className="font-bold text-lg mb-2">Resultado</h2>
