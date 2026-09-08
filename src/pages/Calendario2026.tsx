@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabaseClient"; // ajusta se estiver noutra pasta
+import { supabase } from "../supabaseClient";
+ // ajusta se estiver noutra pasta
 
 export default function Calendario2026() {
   const [jogos, setJogos] = useState([]);
