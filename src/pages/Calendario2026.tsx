@@ -105,7 +105,7 @@ export default function Calendario2026() {
               {/* BOTÕES IGUAIS AO 25/26 */}
               <div className="flex gap-3 mt-4">
                 <button
-                  onClick={() => navigate(`/jogos/${j.id}`)}
+                  onClick={() => navigate(`/resultado/${j.id}`)
                   className="bg-secondary text-primary px-3 py-1 rounded hover:bg-accent"
                 >
                   Convocatória
