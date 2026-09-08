@@ -2,13 +2,13 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-export default function Calendario2026() {
+export default function Jogos() {
   const [jogos, setJogos] = useState([]);
   const [ano, setAno] = useState("");
   const [mes, setMes] = useState("");
   const navigate = useNavigate();
 
-  // Buscar jogos da época 26/27
+  // Buscar jogos da época 25/26
   useEffect(() => {
     async function fetchGames() {
       const { data, error } = await supabase
@@ -20,8 +20,8 @@ export default function Calendario2026() {
         const filtrados = data.filter((g) => {
           const d = new Date(g.game_date);
           return (
-            d >= new Date("2026-09-01") &&   // início da época 26/27
-            d <= new Date("2027-08-31")      // fim da época 26/27
+            d >= new Date("2025-09-01") &&   // início da época 25/26
+            d <= new Date("2026-08-31")      // fim da época 25/26
           );
         });
 
@@ -50,7 +50,7 @@ export default function Calendario2026() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Calendário 2026/2027</h1>
+      <h1 className="text-xl font-bold mb-4">Calendário 2025/2026</h1>
 
       {proximoJogo && (
         <div className="bg-secondary text-primary p-4 rounded mb-6 shadow">
@@ -68,8 +68,8 @@ export default function Calendario2026() {
           className="border p-2 rounded bg-white text-black"
         >
           <option value="">Todos os anos</option>
+          <option value="2025">2025</option>
           <option value="2026">2026</option>
-          <option value="2027">2027</option>
         </select>
 
         <select
