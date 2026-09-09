@@ -5,8 +5,11 @@ import { Link } from "react-router-dom";
 interface Game {
   id: string;
   opponent: string;
-  date: string;
-  local: string;
+  location: string;
+  competition: string;
+  goals_home: number | null;
+  goals_away: number | null;
+  game_date: string | null;
   season: string;
 }
 
@@ -19,7 +22,7 @@ export default function Calendario2026_27() {
         .from("games")
         .select("*")
         .eq("season", "26/27")
-        .order("date", { ascending: true });
+        .order("game_date", { ascending: true });
 
       if (error) {
         console.error("Erro ao carregar jogos:", error);
@@ -47,9 +50,27 @@ export default function Calendario2026_27() {
             className="border border-secondary bg-primary p-4 rounded-lg shadow-md"
           >
             <h3 className="text-xl font-semibold">{g.opponent}</h3>
-            <p className="opacity-80">{g.date}</p>
-            <p className="font-bold">{g.local}</p>
 
+            <p className="opacity-80">
+              {g.game_date ? g.game_date : "Data não registada"}
+            </p>
+
+            <p className="font-bold">
+              {g.location ? g.location : "Local não registado"}
+            </p>
+
+            {/* RESULTADO */}
+            {(g.goals_home !== null && g.goals_away !== null) ? (
+              <div className="mt-3 p-3 bg-secondary text-primary rounded">
+                <p className="font-bold">
+                  Fafe {g.goals_home} - {g.goals_away} {g.opponent}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm opacity-60">Sem resultado registado</p>
+            )}
+
+            {/* BOTÕES */}
             <div className="flex gap-3 mt-4">
               <Link
                 to={`/convocatoria/${g.id}`}
