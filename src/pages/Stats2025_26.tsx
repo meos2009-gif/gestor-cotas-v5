@@ -27,7 +27,9 @@ export default function Stats2025_26() {
           called,
           captain,
           game_id,
-          games!inner(season)
+          games (
+            season
+          )
         `)
         .eq("games.season", "25/26");
 
@@ -36,7 +38,7 @@ export default function Stats2025_26() {
         return;
       }
 
-      console.log("ATTENDANCE 25/26:", data);
+      console.log("DEBUG 25/26:", data);
 
       const mapa = new Map<string, Stats>();
 
@@ -57,9 +59,9 @@ export default function Stats2025_26() {
 
         s.total_goals += row.goals ?? 0;
         s.total_minutes += row.minutes ?? 0;
-        s.presencas += row.present ? 1 : 0;
-        s.convocatorias += row.called ? 1 : 0;
-        s.capitao += row.captain ? 1 : 0;
+        s.presencas += row.present === true ? 1 : 0;
+        s.convocatorias += row.called === true ? 1 : 0;
+        s.capitao += row.captain === true ? 1 : 0;
       });
 
       setStats(Array.from(mapa.values()).sort((a, b) => b.total_goals - a.total_goals));
