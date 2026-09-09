@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
 export default function MainLayout() {
@@ -99,7 +99,7 @@ export default function MainLayout() {
             )}
           </div>
 
-          {/* JOGOS — ROTAS CORRETAS */}
+          {/* JOGOS */}
           <div>
             <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">Jogos</p>
 
@@ -125,7 +125,29 @@ export default function MainLayout() {
           <NavLink to="/tesouraria" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Tesouraria</NavLink>
           <NavLink to="/contabilidade" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Contabilidade</NavLink>
           <NavLink to="/config" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Configurações</NavLink>
-          <NavLink to="/estatisticas" className="hover:text-secondary" onClick={() => setSidebarOpen(false)}>Estatísticas da Equipa</NavLink>
+
+          {/* ESTATÍSTICAS MOBILE */}
+          <div>
+            <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">Estatísticas da Equipa</p>
+
+            <div className="ml-4 flex flex-col gap-2">
+              <NavLink
+                to="/stats/25-26"
+                className="hover:text-secondary"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Época 25/26
+              </NavLink>
+
+              <NavLink
+                to="/stats/26-27"
+                className="hover:text-secondary"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Época 26/27
+              </NavLink>
+            </div>
+          </div>
 
           <button
             onClick={handleLogout}
@@ -150,7 +172,7 @@ export default function MainLayout() {
           <NavLink to="/pagamentos" className="hover:text-secondary">Pagamento de Cotas</NavLink>
           <NavLink to="/jantar" className="hover:text-secondary">Pagamento de Jantares</NavLink>
 
-          {/* JOGOS — ROTAS CORRETAS */}
+          {/* JOGOS */}
           <div className="mt-4">
             <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">Jogos</p>
 
@@ -167,23 +189,24 @@ export default function MainLayout() {
           <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
           <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
 
+          {/* ESTATÍSTICAS DESKTOP */}
           <div className="mt-4">
-  <h3 className="text-lg font-bold text-secondary mb-2">Estatísticas da Equipa</h3>
+            <h3 className="text-lg font-bold text-secondary mb-2">Estatísticas da Equipa</h3>
 
-  <Link
-    to="/stats/25-26"
-    className="block px-4 py-2 rounded hover:bg-secondary hover:text-white"
-  >
-    Época 25/26
-  </Link>
+            <NavLink
+              to="/stats/25-26"
+              className="block px-4 py-2 rounded hover:bg-secondary hover:text-white"
+            >
+              Época 25/26
+            </NavLink>
 
-  <Link
-    to="/stats/26-27"
-    className="block px-4 py-2 rounded hover:bg-secondary hover:text-white"
-  >
-    Época 26/27
-  </Link>
-</div>
+            <NavLink
+              to="/stats/26-27"
+              className="block px-4 py-2 rounded hover:bg-secondary hover:text-white"
+            >
+              Época 26/27
+            </NavLink>
+          </div>
 
         </aside>
 
