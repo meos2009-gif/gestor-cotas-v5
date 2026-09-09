@@ -2,16 +2,29 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Link } from "react-router-dom";
 
+interface Game {
+  id: string;
+  opponent: string;
+  date: string;
+  local: string;
+  season: string;
+}
+
 export default function Calendario2025_26() {
-  const [games, setGames] = useState([]);
+  const [games, setGames] = useState<Game[]>([]);
 
   useEffect(() => {
     async function loadGames() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("games")
         .select("*")
         .eq("season", "25/26")
         .order("date", { ascending: true });
+
+      if (error) {
+        console.error("Erro ao carregar jogos:", error);
+        return;
+      }
 
       setGames(data || []);
     }
@@ -23,6 +36,10 @@ export default function Calendario2025_26() {
     <div className="p-6 mt-6">
       <h2 className="text-3xl font-bold mb-4 text-secondary">Época 2025/26</h2>
 
+      {games.length === 0 && (
+        <p className="opacity-70">Nenhum jogo encontrado para esta época.</p>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {games.map((g) => (
           <div
@@ -33,7 +50,6 @@ export default function Calendario2025_26() {
             <p className="opacity-80">{g.date}</p>
             <p className="font-bold">{g.local}</p>
 
-            {/* BOTÕES */}
             <div className="flex gap-3 mt-4">
               <Link
                 to={`/convocatoria/${g.id}`}
