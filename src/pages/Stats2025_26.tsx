@@ -16,12 +16,53 @@ export default function Stats2025_26() {
 
   useEffect(() => {
     async function loadStats() {
-      const { data, error } = await supabase.rpc("stats_epoca", {
-        epoca: "25/26"
+      const { data, error } = await supabase
+        .from("game_attendance")
+        .select(`
+          member_id,
+          member_name,
+          goals,
+          minutes,
+          present,
+          called,
+          captain,
+          game_id,
+          games!inner(season)
+        `)
+        .eq("games.season", "25/26");
+
+      if (error) {
+        console.error("Erro ao carregar estatísticas:", error);
+        return;
+      }
+
+      console.log("ATTENDANCE 25/26:", data);
+
+      const mapa = new Map<string, Stats>();
+
+      data.forEach((row: any) => {
+        if (!mapa.has(row.member_id)) {
+          mapa.set(row.member_id, {
+            member_id: row.member_id,
+            member_name: row.member_name,
+            total_goals: 0,
+            total_minutes: 0,
+            presencas: 0,
+            convocatorias: 0,
+            capitao: 0,
+          });
+        }
+
+        const s = mapa.get(row.member_id)!;
+
+        s.total_goals += row.goals ?? 0;
+        s.total_minutes += row.minutes ?? 0;
+        s.presencas += row.present ? 1 : 0;
+        s.convocatorias += row.called ? 1 : 0;
+        s.capitao += row.captain ? 1 : 0;
       });
 
-      if (error) console.error("Erro ao carregar estatísticas:", error);
-      else setStats(data);
+      setStats(Array.from(mapa.values()).sort((a, b) => b.total_goals - a.total_goals));
     }
 
     loadStats();
