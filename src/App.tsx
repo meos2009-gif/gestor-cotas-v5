@@ -15,8 +15,8 @@ import Estatisticas from "./pages/Estatisticas";
 import Contabilidade from "./pages/Contabilidade";
 
 // NOVOS
-import Jogos from "./pages/Jogos";               
-import Calendario2026 from "./pages/Calendario2026"; 
+import Calendario2025_26 from "./pages/Calendario2025_26";
+import Calendario2026_27 from "./pages/Calendario2026_27";
 import Convocatoria from "./pages/Convocatoria";
 import Resultado from "./pages/Resultado";
 
@@ -34,6 +34,7 @@ export default function App() {
       >
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
+        {/* Páginas principais */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/socios" element={<Socios />} />
         <Route path="/pagamentos" element={<Pagamentos />} />
@@ -45,16 +46,16 @@ export default function App() {
         <Route path="/contabilidade" element={<Contabilidade />} />
         <Route path="/estatisticas" element={<Estatisticas />} />
 
-        {/* ROTAS CORRETAS */}
-        <Route path="/jogos/:gameId" element={<Convocatoria />} />
+        {/* CALENDÁRIOS POR ÉPOCA */}
+        <Route path="/calendario-25-26" element={<Calendario2025_26 />} />
+        <Route path="/calendario-26-27" element={<Calendario2026_27 />} />
+
+        {/* CONVOCATÓRIA E RESULTADO */}
+        <Route path="/convocatoria/:gameId" element={<Convocatoria />} />
         <Route path="/resultado/:gameId" element={<Resultado />} />
 
-        {/* JOGOS — DIVIDIDOS POR ÉPOCA */}
-        <Route path="/jogos-25-26" element={<Jogos />} />
-        <Route path="/jogos-26-27" element={<Calendario2026 />} />
-
-        {/* PÁGINA ANTIGA /jogos → redireciona para a época atual */}
-        <Route path="/jogos" element={<Navigate to="/jogos-26-27" replace />} />
+        {/* REDIRECIONAR /jogos → época atual */}
+        <Route path="/jogos" element={<Navigate to="/calendario-26-27" replace />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -113,7 +113,7 @@ export default function MainLayout() {
 
             <div className="ml-4 flex flex-col gap-2">
               <NavLink
-                to="/jogos-25-26"
+                to="/calendario-25-26"
                 className="hover:text-secondary"
                 onClick={() => setSidebarOpen(false)}
               >
@@ -121,7 +121,7 @@ export default function MainLayout() {
               </NavLink>
 
               <NavLink
-                to="/jogos-26-27"
+                to="/calendario-26-27"
                 className="hover:text-secondary"
                 onClick={() => setSidebarOpen(false)}
               >
@@ -164,11 +164,11 @@ export default function MainLayout() {
           <div className="mt-4">
             <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">Jogos</p>
 
-            <NavLink to="/jogos-25-26" className="hover:text-secondary block">
+            <NavLink to="/calendario-25-26" className="hover:text-secondary block">
               Jogos 2025/2026
             </NavLink>
 
-            <NavLink to="/jogos-26-27" className="hover:text-secondary block">
+            <NavLink to="/calendario-26-27" className="hover:text-secondary block">
               Jogos 2026/2027
             </NavLink>
           </div>
