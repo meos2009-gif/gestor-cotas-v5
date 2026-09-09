@@ -93,7 +93,7 @@ export default function Convocatoria() {
       {game && (
         <div className="mb-6 text-lg opacity-80">
           <div><strong>Jogo:</strong> {game.opponent}</div>
-          <div><strong>Data:</strong> {game.date}</div> {/* CORRIGIDO */}
+          <div><strong>Data:</strong> {game.date}</div>
           <div
             style={{
               color: isHome ? "#0A1A2F" : "#D97904",
