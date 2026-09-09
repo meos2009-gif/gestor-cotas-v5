@@ -13,6 +13,8 @@ import RelatorioJantares from "./pages/RelatorioJantares";
 import Tesouraria from "./pages/Tesouraria";
 import Estatisticas from "./pages/Estatisticas";
 import Contabilidade from "./pages/Contabilidade";
+import Stats2025_26 from "./pages/Stats2025_26";
+import Stats2026_27 from "./pages/Stats2026_27";
 
 // NOVOS
 import Calendario2025_26 from "./pages/Calendario2025_26";
@@ -45,6 +47,9 @@ export default function App() {
         <Route path="/tesouraria" element={<Tesouraria />} />
         <Route path="/contabilidade" element={<Contabilidade />} />
         <Route path="/estatisticas" element={<Estatisticas />} />
+        <Route path="/stats/25-26" element={<Stats2025_26 />} />
+        <Route path="/stats/26-27" element={<Stats2026_27 />} />
+
 
         {/* CALENDÁRIOS POR ÉPOCA */}
         <Route path="/calendario-25-26" element={<Calendario2025_26 />} />

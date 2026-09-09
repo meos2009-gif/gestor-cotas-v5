@@ -167,7 +167,24 @@ export default function MainLayout() {
           <NavLink to="/contabilidade" className="hover:text-secondary">Contabilidade</NavLink>
           <NavLink to="/config" className="hover:text-secondary">Configurações</NavLink>
 
-          <NavLink to="/estatisticas" className="hover:text-secondary">Estatísticas da Equipa</NavLink>
+          <div className="mt-4">
+  <h3 className="text-lg font-bold text-secondary mb-2">Estatísticas da Equipa</h3>
+
+  <Link
+    to="/stats/25-26"
+    className="block px-4 py-2 rounded hover:bg-secondary hover:text-white"
+  >
+    Época 25/26
+  </Link>
+
+  <Link
+    to="/stats/26-27"
+    className="block px-4 py-2 rounded hover:bg-secondary hover:text-white"
+  >
+    Época 26/27
+  </Link>
+</div>
+
         </aside>
 
         <main className="flex-1 p-6">
