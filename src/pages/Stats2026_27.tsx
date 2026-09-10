@@ -11,7 +11,7 @@ interface Stats {
   capitao: number;
 }
 
-export default function Stats2026_27() {
+export default function Stats26_27() {
   const [stats, setStats] = useState<Stats[]>([]);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Stats2026_27() {
           game_id,
           games(season)
         `)
-        .eq("games.season", "26/27");
+        .eq("games.season", "26/27");   // ⭐ AQUI GARANTIMOS A ÉPOCA CERTA
 
       if (error) {
         console.error("Erro ao carregar estatísticas:", error);

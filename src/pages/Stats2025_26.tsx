@@ -11,7 +11,7 @@ interface Stats {
   capitao: number;
 }
 
-export default function Stats2025_26() {
+export default function Stats25_26() {
   const [stats, setStats] = useState<Stats[]>([]);
 
   useEffect(() => {
@@ -27,9 +27,7 @@ export default function Stats2025_26() {
           called,
           captain,
           game_id,
-          games (
-            season
-          )
+          games(season)
         `)
         .eq("games.season", "25/26");
 
@@ -37,8 +35,6 @@ export default function Stats2025_26() {
         console.error("Erro ao carregar estatísticas:", error);
         return;
       }
-
-      console.log("DEBUG 25/26:", data);
 
       const mapa = new Map<string, Stats>();
 
@@ -59,12 +55,15 @@ export default function Stats2025_26() {
 
         s.total_goals += row.goals ?? 0;
         s.total_minutes += row.minutes ?? 0;
-        s.presencas += row.present === true ? 1 : 0;
-        s.convocatorias += row.called === true ? 1 : 0;
-        s.capitao += row.captain === true ? 1 : 0;
+        s.presencas += row.present ? 1 : 0;
+        s.convocatorias += row.called ? 1 : 0;
+        s.capitao += row.captain ? 1 : 0;
       });
 
-      setStats(Array.from(mapa.values()).sort((a, b) => b.total_goals - a.total_goals));
+      // ⭐ ORDENAR POR PRESENÇAS
+      setStats(
+        Array.from(mapa.values()).sort((a, b) => b.presencas - a.presencas)
+      );
     }
 
     loadStats();
@@ -84,10 +83,10 @@ export default function Stats2025_26() {
           >
             <h3 className="text-xl font-semibold">{s.member_name}</h3>
 
-            <p><strong>Golos:</strong> {s.total_goals}</p>
-            <p><strong>Minutos:</strong> {s.total_minutes}</p>
             <p><strong>Presenças:</strong> {s.presencas}</p>
             <p><strong>Convocatórias:</strong> {s.convocatorias}</p>
+            <p><strong>Golos:</strong> {s.total_goals}</p>
+            <p><strong>Minutos:</strong> {s.total_minutes}</p>
             <p><strong>Capitão:</strong> {s.capitao}</p>
           </div>
         ))}
