@@ -11,28 +11,39 @@ interface Stats {
   capitao: number;
 }
 
-export default function Stats25_26() {
+export default function Stats2025_26() {
   const [stats, setStats] = useState<Stats[]>([]);
 
   useEffect(() => {
     async function loadStats() {
+
+      // 1️⃣ Buscar IDs dos jogos da época 25/26
+      const { data: games, error: gamesError } = await supabase
+        .from("games")
+        .select("id")
+        .eq("season", "25/26");
+
+      if (gamesError) {
+        console.error("Erro ao carregar jogos 25/26:", gamesError);
+        return;
+      }
+
+      const gameIds = games.map((g) => g.id);
+
+      if (gameIds.length === 0) {
+        console.warn("Não há jogos na época 25/26");
+        setStats([]);
+        return;
+      }
+
+      // 2️⃣ Buscar estatísticas APENAS desses jogos
       const { data, error } = await supabase
         .from("game_attendance")
-        .select(`
-          member_id,
-          member_name,
-          goals,
-          minutes,
-          present,
-          called,
-          captain,
-          game_id,
-          games(season)
-        `)
-        .eq("games.season", "25/26");
+        .select("member_id, member_name, goals, minutes, present, called, captain, game_id")
+        .in("game_id", gameIds); // ⭐ GARANTE QUE SÓ VEM 25/26
 
       if (error) {
-        console.error("Erro ao carregar estatísticas:", error);
+        console.error("Erro ao carregar estatísticas 25/26:", error);
         return;
       }
 
@@ -60,7 +71,7 @@ export default function Stats25_26() {
         s.capitao += row.captain ? 1 : 0;
       });
 
-      // ⭐ ORDENAR POR PRESENÇAS
+      // 3️⃣ Ordenar por presenças
       setStats(
         Array.from(mapa.values()).sort((a, b) => b.presencas - a.presencas)
       );

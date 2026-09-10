@@ -13,28 +13,38 @@ interface Stats {
 
 export default function Stats26_27() {
   const [stats, setStats] = useState<Stats[]>([]);
+
   useEffect(() => {
     async function loadStats() {
-      cconst { data, error } = await supabase
-  .from("game_attendance")
-  .select(`
-    member_id,
-    member_name,
-    goals,
-    minutes,
-    present,
-    called,
-    captain,
-    game_id,
-    games!inner (
-      season
-    )
-  `)
-  .eq("games.season", "26/27");
-  // ⭐ AQUI GARANTIMOS A ÉPOCA CERTA
+      // 1. Buscar IDs dos jogos da época 26/27
+      const { data: games, error: gamesError } = await supabase
+        .from("games")
+        .select("id")
+        .eq("season", "26/27");
+
+      if (gamesError) {
+        console.error("Erro ao carregar jogos 26/27:", gamesError);
+        return;
+      }
+
+      const gameIds = games.map((g) => g.id);
+
+      if (gameIds.length === 0) {
+        console.warn("Não há jogos na época 26/27");
+        setStats([]);
+        return;
+      }
+
+      // 2. Buscar presenças só desses jogos
+      const { data, error } = await supabase
+        .from("game_attendance")
+        .select(
+          "member_id, member_name, goals, minutes, present, called, captain, game_id"
+        )
+        .in("game_id", gameIds); // ⭐ aqui garantimos que só vem 26/27
 
       if (error) {
-        console.error("Erro ao carregar estatísticas:", error);
+        console.error("Erro ao carregar estatísticas 26/27:", error);
         return;
       }
 
@@ -62,7 +72,6 @@ export default function Stats26_27() {
         s.capitao += row.captain ? 1 : 0;
       });
 
-      // ⭐ ORDENAR POR PRESENÇAS
       setStats(
         Array.from(mapa.values()).sort((a, b) => b.presencas - a.presencas)
       );
