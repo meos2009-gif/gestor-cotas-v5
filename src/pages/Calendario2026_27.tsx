@@ -2,6 +2,13 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../supabaseClient";
 import { Link } from "react-router-dom";
 
+interface SubGame {
+  opponent: string;
+  hora?: string;
+  goals_home?: number | null;
+  goals_away?: number | null;
+}
+
 interface Game {
   id: string;
   opponent: string;
@@ -11,6 +18,7 @@ interface Game {
   goals_away: number | null;
   game_date: string | null;
   season: string;
+  subGames?: SubGame[];
 }
 
 export default function Calendario2026_27() {
@@ -29,56 +37,94 @@ export default function Calendario2026_27() {
         return;
       }
 
-      setGames(data || []);
+      // INJETAR SUB-JOGOS APENAS NO TORNEIO
+      const jogosComSub = (data || []).map((g) => {
+        if (g.opponent === "TORNEIO DE CANAS DE SENHORIM") {
+          return {
+            ...g,
+            subGames: [
+              {
+                opponent: "CANAS DE SENHORIM - FAFE",
+                hora: "10:00",
+                goals_home: 2,
+                goals_away: 1
+              },
+              {
+                opponent: "FAFE - C.A. MOLELOS",
+                hora: "11:30",
+                goals_home: 1,
+                goals_away: 1
+              }
+            ]
+          };
+        }
+        return g;
+      });
+
+      setGames(jogosComSub);
     }
 
     loadGames();
   }, []);
 
   // -----------------------------
-  // CÁLCULO DAS ESTATÍSTICAS
+  // CÁLCULO DAS ESTATÍSTICAS (AGORA INCLUI SUB-JOGOS)
   // -----------------------------
- const stats = useMemo(() => {
-  let vitorias = 0;
-  let empates = 0;
-  let derrotas = 0;
-  let golosMarcados = 0;
-  let golosSofridos = 0;
+  const stats = useMemo(() => {
+    let vitorias = 0;
+    let empates = 0;
+    let derrotas = 0;
+    let golosMarcados = 0;
+    let golosSofridos = 0;
 
-  games.forEach((g) => {
-    // IGNORAR jogos sem resultado real
-    if (
-      g.goals_home === null ||
-      g.goals_away === null ||
-      (g.goals_home === 0 && g.goals_away === 0)
-    ) {
-      return;
-    }
+    games.forEach((g) => {
+      // JOGOS NORMAIS
+      if (
+        g.goals_home !== null &&
+        g.goals_away !== null &&
+        !(g.goals_home === 0 && g.goals_away === 0)
+      ) {
+        golosMarcados += g.goals_home;
+        golosSofridos += g.goals_away;
 
-    // CONTAR APENAS RESULTADOS REAIS
-    golosMarcados += g.goals_home;
-    golosSofridos += g.goals_away;
+        if (g.goals_home > g.goals_away) vitorias++;
+        else if (g.goals_home === g.goals_away) empates++;
+        else derrotas++;
+      }
 
-    if (g.goals_home > g.goals_away) vitorias++;
-    else if (g.goals_home === g.goals_away) empates++;
-    else derrotas++;
-  });
+      // SUB-JOGOS DO TORNEIO
+      if (g.subGames) {
+        g.subGames.forEach((sj) => {
+          if (
+            sj.goals_home !== null &&
+            sj.goals_away !== null
+          ) {
+            golosMarcados += sj.goals_home;
+            golosSofridos += sj.goals_away;
 
-  const jogosComResultado = vitorias + empates + derrotas;
-  const pontos = vitorias * 3 + empates * 1;
-  const diferenca = golosMarcados - golosSofridos;
+            if (sj.goals_home > sj.goals_away) vitorias++;
+            else if (sj.goals_home === sj.goals_away) empates++;
+            else derrotas++;
+          }
+        });
+      }
+    });
 
-  return {
-    vitorias,
-    empates,
-    derrotas,
-    golosMarcados,
-    golosSofridos,
-    diferenca,
-    pontos,
-    jogosComResultado,
-  };
-}, [games]);
+    const jogosComResultado = vitorias + empates + derrotas;
+    const pontos = vitorias * 3 + empates * 1;
+    const diferenca = golosMarcados - golosSofridos;
+
+    return {
+      vitorias,
+      empates,
+      derrotas,
+      golosMarcados,
+      golosSofridos,
+      diferenca,
+      pontos,
+      jogosComResultado,
+    };
+  }, [games]);
 
   // -----------------------------
   // COR DO CARTÃO POR RESULTADO
@@ -132,7 +178,7 @@ export default function Calendario2026_27() {
               {g.location ? g.location : "Local não registado"}
             </p>
 
-            {/* RESULTADO */}
+            {/* RESULTADO DO JOGO PRINCIPAL */}
             {(g.goals_home !== null && g.goals_away !== null && (g.goals_home > 0 || g.goals_away > 0)) ? (
               <div className="mt-3 p-3 bg-white text-black rounded">
                 <p className="font-bold">
@@ -143,7 +189,38 @@ export default function Calendario2026_27() {
               <p className="mt-3 text-sm opacity-60 text-white">Sem resultado registado</p>
             )}
 
-            {/* BOTÕES */}
+            {/* SUB-JOGOS DO TORNEIO */}
+            {g.subGames && (
+              <div className="mt-3 bg-white text-black p-3 rounded">
+                <p className="font-bold mb-2">Jogos do Torneio:</p>
+
+                {g.subGames.map((sj, idx) => (
+                  <div key={idx} className="border-b border-gray-300 py-2">
+                    <p className="font-semibold">{sj.opponent}</p>
+                    {sj.hora && <p className="text-sm">Hora: {sj.hora}</p>}
+
+                    {/* Resultado do sub-jogo */}
+                    {(sj.goals_home !== null && sj.goals_away !== null) ? (
+                      <p className="mt-1 font-bold">
+                        Fafe {sj.goals_home} - {sj.goals_away} {sj.opponent}
+                      </p>
+                    ) : (
+                      <p className="text-sm opacity-60">Sem resultado</p>
+                    )}
+
+                    {/* Botão de convocatória do sub-jogo */}
+                    <Link
+                      to={`/convocatoria/${g.id}?sub=${idx}`}
+                      className="inline-block mt-2 bg-accent hover:bg-secondary text-white px-3 py-1 rounded-md text-sm"
+                    >
+                      Convocatória
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* BOTÕES DO JOGO PRINCIPAL */}
             <div className="flex gap-3 mt-4">
               <Link
                 to={`/convocatoria/${g.id}`}
