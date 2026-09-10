@@ -38,39 +38,47 @@ export default function Calendario2026_27() {
   // -----------------------------
   // CÁLCULO DAS ESTATÍSTICAS
   // -----------------------------
-  const stats = useMemo(() => {
-    let vitorias = 0;
-    let empates = 0;
-    let derrotas = 0;
-    let golosMarcados = 0;
-    let golosSofridos = 0;
+ const stats = useMemo(() => {
+  let vitorias = 0;
+  let empates = 0;
+  let derrotas = 0;
+  let golosMarcados = 0;
+  let golosSofridos = 0;
 
-    games.forEach((g) => {
-      if (g.goals_home === null || g.goals_away === null) return;
+  games.forEach((g) => {
+    // IGNORAR jogos sem resultado real
+    if (
+      g.goals_home === null ||
+      g.goals_away === null ||
+      (g.goals_home === 0 && g.goals_away === 0)
+    ) {
+      return;
+    }
 
-      golosMarcados += g.goals_home;
-      golosSofridos += g.goals_away;
+    // CONTAR APENAS RESULTADOS REAIS
+    golosMarcados += g.goals_home;
+    golosSofridos += g.goals_away;
 
-      if (g.goals_home > g.goals_away) vitorias++;
-      else if (g.goals_home === g.goals_away) empates++;
-      else derrotas++;
-    });
+    if (g.goals_home > g.goals_away) vitorias++;
+    else if (g.goals_home === g.goals_away) empates++;
+    else derrotas++;
+  });
 
-    const jogosComResultado = vitorias + empates + derrotas;
-    const pontos = vitorias * 3 + empates * 1;
-    const diferenca = golosMarcados - golosSofridos;
+  const jogosComResultado = vitorias + empates + derrotas;
+  const pontos = vitorias * 3 + empates * 1;
+  const diferenca = golosMarcados - golosSofridos;
 
-    return {
-      vitorias,
-      empates,
-      derrotas,
-      golosMarcados,
-      golosSofridos,
-      diferenca,
-      pontos,
-      jogosComResultado,
-    };
-  }, [games]);
+  return {
+    vitorias,
+    empates,
+    derrotas,
+    golosMarcados,
+    golosSofridos,
+    diferenca,
+    pontos,
+    jogosComResultado,
+  };
+}, [games]);
 
   // -----------------------------
   // COR DO CARTÃO POR RESULTADO
