@@ -13,23 +13,25 @@ interface Stats {
 
 export default function Stats26_27() {
   const [stats, setStats] = useState<Stats[]>([]);
-
   useEffect(() => {
     async function loadStats() {
-      const { data, error } = await supabase
-        .from("game_attendance")
-        .select(`
-          member_id,
-          member_name,
-          goals,
-          minutes,
-          present,
-          called,
-          captain,
-          game_id,
-          games(season)
-        `)
-        .eq("games.season", "26/27");   // ⭐ AQUI GARANTIMOS A ÉPOCA CERTA
+      cconst { data, error } = await supabase
+  .from("game_attendance")
+  .select(`
+    member_id,
+    member_name,
+    goals,
+    minutes,
+    present,
+    called,
+    captain,
+    game_id,
+    games!inner (
+      season
+    )
+  `)
+  .eq("games.season", "26/27");
+  // ⭐ AQUI GARANTIMOS A ÉPOCA CERTA
 
       if (error) {
         console.error("Erro ao carregar estatísticas:", error);
