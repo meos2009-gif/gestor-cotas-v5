@@ -125,7 +125,7 @@ export default function Calendario2026_27() {
             </p>
 
             {/* RESULTADO */}
-            {(g.goals_home !== null && g.goals_away !== null) ? (
+            {(g.goals_home !== null && g.goals_away !== null && (g.goals_home > 0 || g.goals_away > 0)) ? (
               <div className="mt-3 p-3 bg-white text-black rounded">
                 <p className="font-bold">
                   Fafe {g.goals_home} - {g.goals_away} {g.opponent}
