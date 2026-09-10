@@ -11,7 +11,7 @@ interface Stats {
   capitao: number;
 }
 
-export default function Stats2025_26() {
+export default function Stats25_26() {
   const [stats, setStats] = useState<Stats[]>([]);
 
   useEffect(() => {
