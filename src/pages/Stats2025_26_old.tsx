@@ -11,7 +11,7 @@ interface Stats {
   capitao: number;
 }
 
-export default function Stats2026_27() {
+export default function Stats2025_26() {
   const [stats, setStats] = useState<Stats[]>([]);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Stats2026_27() {
           game_id,
           games(season)
         `)
-        .eq("games.season", "26/27");
+        .eq("games.season", "25/26");
 
       if (error) {
         console.error("Erro ao carregar estatísticas:", error);
@@ -72,7 +72,7 @@ export default function Stats2026_27() {
   return (
     <div className="p-6 mt-6">
       <h2 className="text-3xl font-bold mb-4 text-secondary">
-        Estatísticas da Equipa — Época 26/27
+        Estatísticas da Equipa — Época 25/26
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
