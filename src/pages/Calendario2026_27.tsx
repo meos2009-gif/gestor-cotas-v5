@@ -2,13 +2,6 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../supabaseClient";
 import { Link } from "react-router-dom";
 
-interface SubGame {
-  opponent: string;
-  hora?: string;
-  goals_home?: number | null;
-  goals_away?: number | null;
-}
-
 interface Game {
   id: string;
   opponent: string;
@@ -18,7 +11,7 @@ interface Game {
   goals_away: number | null;
   game_date: string | null;
   season: string;
-  subGames?: SubGame[];
+  subGames?: Game[];
 }
 
 export default function Calendario2026_27() {
@@ -26,7 +19,8 @@ export default function Calendario2026_27() {
 
   useEffect(() => {
     async function loadGames() {
-      const { data, error } = await supabase
+      // 1️⃣ Buscar todos os jogos da época
+      const { data: jogos, error } = await supabase
         .from("games")
         .select("*")
         .eq("season", "26/27")
@@ -37,26 +31,32 @@ export default function Calendario2026_27() {
         return;
       }
 
-      // INJETAR SUB-JOGOS APENAS NO TORNEIO
-      const jogosComSub = (data || []).map((g) => {
-        if (g.opponent === "TORNEIO DE CANAS DE SENHORIM") {
-          return {
-            ...g,
-            subGames: [
-              {
-                opponent: "CANAS DE SENHORIM - FAFE",
-                hora: "10:00",
-                goals_home: 2,
-                goals_away: 1
-              },
-              {
-                opponent: "FAFE - C.A. MOLELOS",
-                hora: "11:30",
-                goals_home: 1,
-                goals_away: 1
-              }
-            ]
-          };
+      // 2️⃣ Identificar o torneio
+      const torneio = jogos.find(
+        (g) => g.opponent === "TORNEIO DE CANAS DE SENHORIM"
+      );
+
+      if (!torneio) {
+        setGames(jogos);
+        return;
+      }
+
+      // 3️⃣ Buscar sub-jogos reais do torneio
+      const { data: subJogos, error: subError } = await supabase
+        .from("games")
+        .select("*")
+        .eq("season", "26/27")
+        .eq("competition", "Torneio de Canas de Senhorim")
+        .order("game_date", { ascending: true });
+
+      if (subError) {
+        console.error("Erro ao carregar sub-jogos:", subError);
+      }
+
+      // 4️⃣ Ligar sub-jogos ao torneio
+      const jogosComSub = jogos.map((g) => {
+        if (g.id === torneio.id) {
+          return { ...g, subGames: subJogos || [] };
         }
         return g;
       });
@@ -68,7 +68,7 @@ export default function Calendario2026_27() {
   }, []);
 
   // -----------------------------
-  // CÁLCULO DAS ESTATÍSTICAS (AGORA INCLUI SUB-JOGOS)
+  // ESTATÍSTICAS (inclui sub-jogos reais)
   // -----------------------------
   const stats = useMemo(() => {
     let vitorias = 0;
@@ -78,12 +78,8 @@ export default function Calendario2026_27() {
     let golosSofridos = 0;
 
     games.forEach((g) => {
-      // JOGOS NORMAIS
-      if (
-        g.goals_home !== null &&
-        g.goals_away !== null &&
-        !(g.goals_home === 0 && g.goals_away === 0)
-      ) {
+      // Jogos normais
+      if (g.goals_home !== null && g.goals_away !== null) {
         golosMarcados += g.goals_home;
         golosSofridos += g.goals_away;
 
@@ -92,13 +88,10 @@ export default function Calendario2026_27() {
         else derrotas++;
       }
 
-      // SUB-JOGOS DO TORNEIO
+      // Sub-jogos reais
       if (g.subGames) {
         g.subGames.forEach((sj) => {
-          if (
-            sj.goals_home !== null &&
-            sj.goals_away !== null
-          ) {
+          if (sj.goals_home !== null && sj.goals_away !== null) {
             golosMarcados += sj.goals_home;
             golosSofridos += sj.goals_away;
 
@@ -127,7 +120,7 @@ export default function Calendario2026_27() {
   }, [games]);
 
   // -----------------------------
-  // COR DO CARTÃO POR RESULTADO
+  // COR DO CARTÃO
   // -----------------------------
   function getCardColor(g: Game) {
     if (g.goals_home === null || g.goals_away === null) return "bg-primary";
@@ -141,7 +134,7 @@ export default function Calendario2026_27() {
     <div className="p-6 mt-6">
       <h2 className="text-3xl font-bold mb-4 text-secondary">Época 2026/27</h2>
 
-      {/* ESTATÍSTICAS DA ÉPOCA */}
+      {/* ESTATÍSTICAS */}
       <div className="mb-6 p-4 bg-secondary text-primary rounded-lg shadow-md">
         <h3 className="text-xl font-bold mb-2">Estatísticas da Época</h3>
 
@@ -158,10 +151,6 @@ export default function Calendario2026_27() {
       </div>
 
       {/* LISTA DE JOGOS */}
-      {games.length === 0 && (
-        <p className="opacity-70">Nenhum jogo encontrado para esta época.</p>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {games.map((g) => (
           <div
@@ -171,15 +160,15 @@ export default function Calendario2026_27() {
             <h3 className="text-xl font-semibold text-white">{g.opponent}</h3>
 
             <p className="opacity-80 text-white">
-              {g.game_date ? g.game_date : "Data não registada"}
+              {g.game_date || "Data não registada"}
             </p>
 
             <p className="font-bold text-white">
-              {g.location ? g.location : "Local não registado"}
+              {g.location || "Local não registado"}
             </p>
 
-            {/* RESULTADO DO JOGO PRINCIPAL */}
-            {(g.goals_home !== null && g.goals_away !== null && (g.goals_home > 0 || g.goals_away > 0)) ? (
+            {/* Resultado do jogo principal */}
+            {(g.goals_home !== null && g.goals_away !== null) ? (
               <div className="mt-3 p-3 bg-white text-black rounded">
                 <p className="font-bold">
                   Fafe {g.goals_home} - {g.goals_away} {g.opponent}
@@ -189,17 +178,16 @@ export default function Calendario2026_27() {
               <p className="mt-3 text-sm opacity-60 text-white">Sem resultado registado</p>
             )}
 
-            {/* SUB-JOGOS DO TORNEIO */}
-            {g.subGames && (
+            {/* SUB-JOGOS REAIS */}
+            {g.subGames && g.subGames.length > 0 && (
               <div className="mt-3 bg-white text-black p-3 rounded">
                 <p className="font-bold mb-2">Jogos do Torneio:</p>
 
-                {g.subGames.map((sj, idx) => (
-                  <div key={idx} className="border-b border-gray-300 py-2">
+                {g.subGames.map((sj) => (
+                  <div key={sj.id} className="border-b border-gray-300 py-2">
                     <p className="font-semibold">{sj.opponent}</p>
-                    {sj.hora && <p className="text-sm">Hora: {sj.hora}</p>}
+                    <p className="text-sm">Hora: {sj.game_date?.split("T")[1] || "—"}</p>
 
-                    {/* Resultado do sub-jogo */}
                     {(sj.goals_home !== null && sj.goals_away !== null) ? (
                       <p className="mt-1 font-bold">
                         Fafe {sj.goals_home} - {sj.goals_away} {sj.opponent}
@@ -208,9 +196,8 @@ export default function Calendario2026_27() {
                       <p className="text-sm opacity-60">Sem resultado</p>
                     )}
 
-                    {/* Botão de convocatória do sub-jogo */}
                     <Link
-                      to={`/convocatoria/${g.id}?sub=${idx}`}
+                      to={`/convocatoria/${sj.id}`}
                       className="inline-block mt-2 bg-accent hover:bg-secondary text-white px-3 py-1 rounded-md text-sm"
                     >
                       Convocatória

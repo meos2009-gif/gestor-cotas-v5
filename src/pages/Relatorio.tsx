@@ -307,27 +307,41 @@ export default function Relatorio() {
             </thead>
 
             <tbody>
-              {membersFiltrados.map((member) => (
-                <tr key={member.id}>
-                  <td className="border p-1 text-left text-white w-[260px] max-w-[260px] break-words">
-                    {member.name}
-                  </td>
+  {membersFiltrados.map((member) => {
+    const mesAtual = new Date().getMonth() + 1; // 1–12
 
-                  {Array.from({ length: 12 }).map((_, monthIndex) => (
-                    <td
-                      key={monthIndex}
-                      className="border p-1 font-bold text-base w-[36px] text-center text-white"
-                    >
-                      {hasPayment(member.id, monthIndex + 1) ? (
-                        <span className="text-green-400">✓</span>
-                      ) : (
-                        <span className="text-white">–</span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+    return (
+      <tr key={member.id}>
+        <td className="border p-1 text-left text-white w-[260px] max-w-[260px] break-words">
+          {member.name}
+        </td>
+
+        {Array.from({ length: 12 }).map((_, monthIndex) => {
+          const mes = monthIndex + 1;
+          const pagou = hasPayment(member.id, mes);
+
+          // COR DA CÉLULA
+          let cellClass = "border p-1 font-bold text-base w-[36px] text-center ";
+
+          if (pagou) {
+            cellClass += "bg-green-600 text-white"; // pago
+          } else if (mes <= mesAtual) {
+            cellClass += "bg-red-600 text-white"; // atraso
+          } else {
+            cellClass += "bg-gray-700 text-white opacity-70"; // futuro
+          }
+
+          return (
+            <td key={monthIndex} className={cellClass}>
+              {pagou ? "✓" : "–"}
+            </td>
+          );
+        })}
+      </tr>
+    );
+  })}
+</tbody>
+
           </table>
         </div>
       )}
