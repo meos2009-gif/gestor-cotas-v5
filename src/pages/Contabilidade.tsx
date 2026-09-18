@@ -150,6 +150,7 @@ export default function Contabilidade() {
     "jantar",
     "aluguer",
     "manutencao"
+    "subsidios"
   ];
 
   const mesAtual = new Date().getMonth() + 1;
