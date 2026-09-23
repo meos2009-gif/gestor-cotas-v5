@@ -11,13 +11,12 @@ interface Stats {
   capitao: number;
 }
 
-export default function Stats2026_27() {
+export default function Stats26_27() {
   const [stats, setStats] = useState<Stats[]>([]);
 
   useEffect(() => {
     async function loadStats() {
-
-      // 1️⃣ Buscar IDs dos jogos da época 26/27
+      // 1. Buscar IDs dos jogos da época 26/27
       const { data: games, error: gamesError } = await supabase
         .from("games")
         .select("id")
@@ -36,11 +35,13 @@ export default function Stats2026_27() {
         return;
       }
 
-      // 2️⃣ Buscar estatísticas APENAS desses jogos
+      // 2. Buscar presenças só desses jogos
       const { data, error } = await supabase
         .from("game_attendance")
-        .select("member_id, member_name, goals, minutes, present, called, captain, game_id")
-        .in("game_id", gameIds); // ⭐ GARANTE QUE SÓ VEM 26/27
+        .select(
+          "member_id, member_name, goals, minutes, present, called, captain, game_id"
+        )
+        .in("game_id", gameIds); // ⭐ aqui garantimos que só vem 26/27
 
       if (error) {
         console.error("Erro ao carregar estatísticas 26/27:", error);
@@ -71,7 +72,6 @@ export default function Stats2026_27() {
         s.capitao += row.captain ? 1 : 0;
       });
 
-      // 3️⃣ Ordenar por presenças
       setStats(
         Array.from(mapa.values()).sort((a, b) => b.presencas - a.presencas)
       );
