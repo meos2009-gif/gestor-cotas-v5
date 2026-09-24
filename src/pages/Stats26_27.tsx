@@ -16,35 +16,34 @@ export default function Stats26_27() {
 
   useEffect(() => {
     async function loadStats() {
-      // 1. Buscar IDs dos jogos da época 26/27
+      // Jogos da época
       const { data: games, error: gamesError } = await supabase
         .from("games")
         .select("id")
         .eq("season", "26/27");
 
       if (gamesError) {
-        console.error("Erro ao carregar jogos 26/27:", gamesError);
+        console.error("Erro ao carregar jogos:", gamesError);
         return;
       }
 
-      const gameIds = games.map((g) => g.id);
+      const gameIds = games?.map((g) => g.id) || [];
+      const totalJogos = gameIds.length;
 
-      if (gameIds.length === 0) {
-        console.warn("Não há jogos na época 26/27");
+      if (totalJogos === 0) {
         setStats([]);
         return;
       }
 
-      // 2. Buscar presenças só desses jogos
       const { data, error } = await supabase
         .from("game_attendance")
         .select(
-          "member_id, member_name, goals, minutes, present, called, captain, game_id"
+          "member_id, member_name, goals, minutes, called, captain, game_id"
         )
-        .in("game_id", gameIds); // ⭐ aqui garantimos que só vem 26/27
+        .in("game_id", gameIds);
 
       if (error) {
-        console.error("Erro ao carregar estatísticas 26/27:", error);
+        console.error("Erro ao carregar estatísticas:", error);
         return;
       }
 
@@ -54,11 +53,11 @@ export default function Stats26_27() {
         if (!mapa.has(row.member_id)) {
           mapa.set(row.member_id, {
             member_id: row.member_id,
-            member_name: row.member_name,
+            member_name: row.member_name || "Sem Nome",
             total_goals: 0,
             total_minutes: 0,
             presencas: 0,
-            convocatorias: 0,
+            convocatorias: totalJogos,
             capitao: 0,
           });
         }
@@ -67,13 +66,17 @@ export default function Stats26_27() {
 
         s.total_goals += row.goals ?? 0;
         s.total_minutes += row.minutes ?? 0;
-        s.presencas += row.present ? 1 : 0;
-        s.convocatorias += row.called ? 1 : 0;
+
+        // Presença = visto ativo na convocatória
+        s.presencas += row.called ? 1 : 0;
+
         s.capitao += row.captain ? 1 : 0;
       });
 
       setStats(
-        Array.from(mapa.values()).sort((a, b) => b.presencas - a.presencas)
+        Array.from(mapa.values()).sort(
+          (a, b) => b.presencas - a.presencas
+        )
       );
     }
 
@@ -92,13 +95,29 @@ export default function Stats26_27() {
             key={s.member_id}
             className="border border-secondary bg-primary p-4 rounded-lg shadow-md"
           >
-            <h3 className="text-xl font-semibold">{s.member_name}</h3>
+            <h3 className="text-xl font-semibold">
+              {s.member_name}
+            </h3>
 
-            <p><strong>Presenças:</strong> {s.presencas}</p>
-            <p><strong>Convocatórias:</strong> {s.convocatorias}</p>
-            <p><strong>Golos:</strong> {s.total_goals}</p>
-            <p><strong>Minutos:</strong> {s.total_minutes}</p>
-            <p><strong>Capitão:</strong> {s.capitao}</p>
+            <p>
+              <strong>Presenças:</strong> {s.presencas}
+            </p>
+
+            <p>
+              <strong>Convocatórias:</strong> {s.convocatorias}
+            </p>
+
+            <p>
+              <strong>Golos:</strong> {s.total_goals}
+            </p>
+
+            <p>
+              <strong>Minutos:</strong> {s.total_minutes}
+            </p>
+
+            <p>
+              <strong>Capitão:</strong> {s.capitao}
+            </p>
           </div>
         ))}
       </div>
