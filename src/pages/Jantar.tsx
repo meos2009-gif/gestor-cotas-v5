@@ -1,6 +1,47 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 
+
+// Calendário independente do seletor nativo do navegador.
+function CalendarField({ label, value, onChange }: { label: string; value: string; onChange: (date: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [month, setMonth] = useState(() => {
+    const d = value ? new Date(`${value}T12:00:00`) : new Date();
+    return Number.isNaN(d.getTime()) ? new Date() : d;
+  });
+  const year = month.getFullYear();
+  const monthIndex = month.getMonth();
+  const days = new Date(year, monthIndex + 1, 0).getDate();
+  const offset = (new Date(year, monthIndex, 1).getDay() + 6) % 7;
+  const dateString = (day: number) => `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const display = value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value.slice(8, 10)}/${value.slice(5, 7)}/${value.slice(0, 4)}` : "Selecionar data";
+  const changeMonth = (delta: number) => setMonth(new Date(year, monthIndex + delta, 1));
+  return (
+    <div className="relative min-w-0">
+      <span className="block mb-1">{label}</span>
+      <button type="button" aria-label={`${label}: abrir calendário`} aria-expanded={open} onClick={() => { if (!open) { const d = value ? new Date(`${value}T12:00:00`) : new Date(); setMonth(Number.isNaN(d.getTime()) ? new Date() : d); } setOpen(!open); }} className="w-full flex justify-between items-center border border-gray-500/40 rounded p-2 bg-bg text-text text-left">
+        <span>{display}</span><span aria-hidden="true">📅</span>
+      </button>
+      {open && <div className="absolute z-50 top-full left-0 mt-1 w-[min(320px,calc(100vw-48px))] rounded-lg border border-gray-400 bg-white text-gray-900 shadow-xl p-3">
+        <div className="flex items-center justify-between mb-3">
+          <button type="button" aria-label="Mês anterior" onClick={() => changeMonth(-1)} className="p-2 rounded hover:bg-gray-100">‹</button>
+          <strong>{new Intl.DateTimeFormat("pt-PT", { month: "long", year: "numeric" }).format(month)}</strong>
+          <button type="button" aria-label="Mês seguinte" onClick={() => changeMonth(1)} className="p-2 rounded hover:bg-gray-100">›</button>
+        </div>
+        <div className="grid grid-cols-7 gap-1 text-center text-sm">
+          {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map(d => <span key={d} className="font-semibold p-1">{d}</span>)}
+          {Array.from({ length: offset }, (_, i) => <span key={`empty-${i}`} />)}
+          {Array.from({ length: days }, (_, i) => { const day = i + 1; const iso = dateString(day); return <button type="button" key={day} aria-label={`Selecionar ${day} de ${monthIndex + 1} de ${year}`} aria-pressed={value === iso} onClick={() => { onChange(iso); setOpen(false); }} className={`rounded p-2 hover:bg-blue-100 ${value === iso ? "bg-blue-700 text-white hover:bg-blue-800" : ""}`}>{day}</button>; })}
+        </div>
+        <div className="flex justify-between mt-3 pt-2 border-t text-sm">
+          <button type="button" className="px-2 py-1 underline" onClick={() => { onChange(""); setOpen(false); }}>Limpar</button>
+          <button type="button" className="px-2 py-1 underline" onClick={() => { const now = new Date(); onChange(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`); setOpen(false); }}>Hoje</button>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
 export default function Jantar() {
   const [members, setMembers] = useState<any[]>([]);
   const [dinners, setDinners] = useState<any[]>([]);
@@ -58,7 +99,7 @@ export default function Jantar() {
     resetMessages();
     const amount = Number(value);
     if (!date || !opponent || value.trim() === "" || !Number.isFinite(amount) || amount <= 0) {
-      setError("Indica uma data válida (DD/MM/AAAA), o adversário e um valor superior a zero."); return;
+      setError("Seleciona uma data no calendário, o adversário e um valor superior a zero."); return;
     }
     const ids = selected.filter(id => !existing.has(id));
     if (!ids.length) { setError("Seleciona pelo menos um sócio ainda sem pagamento neste jantar."); return; }
@@ -88,7 +129,7 @@ export default function Jantar() {
   async function saveEdit() {
     resetMessages();
     if (!editMemberId || !editDate || !editOpponent || editValue.trim() === "" || !Number.isFinite(Number(editValue)) || Number(editValue) <= 0) {
-      setError("Indica uma data válida (DD/MM/AAAA) e preenche os restantes campos da edição."); return;
+      setError("Seleciona uma data no calendário e preenche os restantes campos da edição."); return;
     }
     if (dinners.some(d => d.id !== editId && String(d.member_id) === editMemberId && d.date === editDate && d.opponent === editOpponent)) {
       setError("Este sócio já tem um pagamento neste jantar."); return;
@@ -118,7 +159,7 @@ export default function Jantar() {
       <section className="rounded-lg border border-gray-500/30 p-4 space-y-4">
         <h2 className="text-lg font-bold">Registar vários pagamentos</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label className="block">Data do jantar<input type="date" className={`${field} mt-1`} value={date} onChange={e => { setDate(e.target.value); setSelected([]); }} /></label>
+          <CalendarField label="Data do jantar" value={date} onChange={next => { setDate(next); setSelected([]); }} />
           <label className="block">Adversário<select className={`${field} mt-1`} value={opponent} onChange={e => { setOpponent(e.target.value); setSelected([]); }}><option value="">Selecionar adversário</option>{opponentOptions.map(o => <option key={o} value={o}>{o}</option>)}</select></label>
           <label className="block">Valor por sócio (€)<input type="number" min="0.01" step="0.01" className={`${field} mt-1`} value={value} onChange={e => setValue(e.target.value)} placeholder="Ex.: 15" /></label>
         </div>
@@ -150,7 +191,7 @@ export default function Jantar() {
         <h2 className="font-bold text-lg">Editar pagamento</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <label>Sócio<select className={field} value={editMemberId} onChange={e => setEditMemberId(e.target.value)}>{members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
-          <label>Data<input className={field} type="date" value={editDate} onChange={e => setEditDate(e.target.value)} /></label>
+          <CalendarField label="Data" value={editDate} onChange={setEditDate} />
           <label>Adversário<select className={field} value={editOpponent} onChange={e => setEditOpponent(e.target.value)}>{opponentOptions.map(o => <option key={o} value={o}>{o}</option>)}</select></label>
           <label>Valor (€)<input className={field} type="number" min="0.01" step="0.01" value={editValue} onChange={e => setEditValue(e.target.value)} /></label>
         </div>
@@ -161,7 +202,7 @@ export default function Jantar() {
       <section className="space-y-3">
         <h2 className="text-lg font-bold">Filtros</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input aria-label="Filtrar por data" type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className={field} />
+          <CalendarField label="Filtrar por data" value={filterDate} onChange={setFilterDate} />
           <select aria-label="Filtrar por adversário" value={filterOpponent} onChange={e => setFilterOpponent(e.target.value)} className={field}><option value="">Todos os adversários</option>{opponentOptions.map(o => <option key={o} value={o}>{o}</option>)}</select>
           <input aria-label="Valor mínimo" type="number" placeholder="Valor mínimo" value={filterMinValue} onChange={e => setFilterMinValue(e.target.value)} className={field} />
           <input aria-label="Valor máximo" type="number" placeholder="Valor máximo" value={filterMaxValue} onChange={e => setFilterMaxValue(e.target.value)} className={field} />
