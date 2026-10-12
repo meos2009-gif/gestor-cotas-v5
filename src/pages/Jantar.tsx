@@ -1,38 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 
-// Campo de data editável por teclado, convertido para ISO antes de guardar.
-function toDisplayDate(iso: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
-  const [y, m, d] = iso.split("-");
-  return `${d}/${m}/${y}`;
-}
-function toISODate(display: string) {
-  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(display.trim());
-  if (!match) return "";
-  const [, d, m, y] = match;
-  const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
-  if (date.getUTCFullYear() !== Number(y) || date.getUTCMonth() + 1 !== Number(m) || date.getUTCDate() !== Number(d)) return "";
-  return `${y}-${m}-${d}`;
-}
-
 export default function Jantar() {
   const [members, setMembers] = useState<any[]>([]);
   const [dinners, setDinners] = useState<any[]>([]);
   const [games, setGames] = useState<any[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [date, setDate] = useState("");
-  const [dateInput, setDateInput] = useState("");
   const [opponent, setOpponent] = useState("");
   const [value, setValue] = useState("");
   const [editId, setEditId] = useState<any>(null);
   const [editMemberId, setEditMemberId] = useState("");
   const [editDate, setEditDate] = useState("");
-  const [editDateInput, setEditDateInput] = useState("");
   const [editOpponent, setEditOpponent] = useState("");
   const [editValue, setEditValue] = useState("");
   const [filterDate, setFilterDate] = useState("");
-  const [filterDateInput, setFilterDateInput] = useState("");
   const [filterOpponent, setFilterOpponent] = useState("");
   const [filterMinValue, setFilterMinValue] = useState("");
   const [filterMaxValue, setFilterMaxValue] = useState("");
@@ -59,7 +41,7 @@ export default function Jantar() {
   const visibleMembers = members.filter(m => String(m.name || "").toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   const available = visibleMembers.filter(m => !existing.has(String(m.id)));
   const filteredDinners = dinners.filter(d =>
-    (!filterDateInput || (filterDate !== "" && d.date === filterDate)) && (!filterOpponent || d.opponent === filterOpponent) &&
+    (!filterDate || d.date === filterDate) && (!filterOpponent || d.opponent === filterOpponent) &&
     (filterMinValue === "" || Number(d.value) >= Number(filterMinValue)) &&
     (filterMaxValue === "" || Number(d.value) <= Number(filterMaxValue))
   );
@@ -101,7 +83,7 @@ export default function Jantar() {
   }
   function startEdit(d: any) {
     resetMessages(); setEditId(d.id); setEditMemberId(String(d.member_id));
-    setEditDate(d.date); setEditDateInput(toDisplayDate(d.date)); setEditOpponent(d.opponent); setEditValue(String(d.value));
+    setEditDate(d.date); setEditOpponent(d.opponent); setEditValue(String(d.value));
   }
   async function saveEdit() {
     resetMessages();
@@ -136,7 +118,7 @@ export default function Jantar() {
       <section className="rounded-lg border border-gray-500/30 p-4 space-y-4">
         <h2 className="text-lg font-bold">Registar vários pagamentos</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label className="block">Data do jantar<input type="text" inputMode="numeric" placeholder="DD/MM/AAAA" maxLength={10} className={`${field} mt-1`} value={dateInput} onChange={e => { const v = e.target.value; setDateInput(v); setDate(toISODate(v)); setSelected([]); }} /></label>
+          <label className="block">Data do jantar<input type="date" className={`${field} mt-1`} value={date} onChange={e => { setDate(e.target.value); setSelected([]); }} /></label>
           <label className="block">Adversário<select className={`${field} mt-1`} value={opponent} onChange={e => { setOpponent(e.target.value); setSelected([]); }}><option value="">Selecionar adversário</option>{opponentOptions.map(o => <option key={o} value={o}>{o}</option>)}</select></label>
           <label className="block">Valor por sócio (€)<input type="number" min="0.01" step="0.01" className={`${field} mt-1`} value={value} onChange={e => setValue(e.target.value)} placeholder="Ex.: 15" /></label>
         </div>
@@ -168,7 +150,7 @@ export default function Jantar() {
         <h2 className="font-bold text-lg">Editar pagamento</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <label>Sócio<select className={field} value={editMemberId} onChange={e => setEditMemberId(e.target.value)}>{members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
-          <label>Data<input className={field} type="text" inputMode="numeric" placeholder="DD/MM/AAAA" maxLength={10} value={editDateInput} onChange={e => { setEditDateInput(e.target.value); setEditDate(toISODate(e.target.value)); }} /></label>
+          <label>Data<input className={field} type="date" value={editDate} onChange={e => setEditDate(e.target.value)} /></label>
           <label>Adversário<select className={field} value={editOpponent} onChange={e => setEditOpponent(e.target.value)}>{opponentOptions.map(o => <option key={o} value={o}>{o}</option>)}</select></label>
           <label>Valor (€)<input className={field} type="number" min="0.01" step="0.01" value={editValue} onChange={e => setEditValue(e.target.value)} /></label>
         </div>
@@ -179,7 +161,7 @@ export default function Jantar() {
       <section className="space-y-3">
         <h2 className="text-lg font-bold">Filtros</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input aria-label="Filtrar por data" type="text" inputMode="numeric" placeholder="DD/MM/AAAA" maxLength={10} value={filterDateInput} onChange={e => { setFilterDateInput(e.target.value); setFilterDate(toISODate(e.target.value)); }} className={field} />
+          <input aria-label="Filtrar por data" type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className={field} />
           <select aria-label="Filtrar por adversário" value={filterOpponent} onChange={e => setFilterOpponent(e.target.value)} className={field}><option value="">Todos os adversários</option>{opponentOptions.map(o => <option key={o} value={o}>{o}</option>)}</select>
           <input aria-label="Valor mínimo" type="number" placeholder="Valor mínimo" value={filterMinValue} onChange={e => setFilterMinValue(e.target.value)} className={field} />
           <input aria-label="Valor máximo" type="number" placeholder="Valor máximo" value={filterMaxValue} onChange={e => setFilterMaxValue(e.target.value)} className={field} />
