@@ -41,6 +41,14 @@ export default function Tesouraria() {
     loadMovements();
   }, []);
 
+  // A mesma ordenação cronológica é usada na tabela e no saldo acumulado.
+  // Em movimentos da mesma data, o ID determina a ordem de apresentação.
+  function compararMovimentos(a, b) {
+    const porData = String(a.date || "").slice(0, 10).localeCompare(String(b.date || "").slice(0, 10));
+    if (porData !== 0) return porData;
+    return String(a.id ?? "").localeCompare(String(b.id ?? ""), undefined, { numeric: true });
+  }
+
   // FILTRAGEM NO FRONTEND
   useEffect(() => {
     let filtered = [...allMovements];
@@ -60,7 +68,7 @@ export default function Tesouraria() {
       filtered = filtered.filter((m) => m.type === tipoFiltro);
     }
 
-    setMovements(filtered);
+    setMovements(filtered.sort(compararMovimentos));
   }, [mes, ano, categoriaFiltro, tipoFiltro, allMovements]);
 
   // Saldo acumulado de caixa após cada movimento, incluindo os meses anteriores.
@@ -68,10 +76,7 @@ export default function Tesouraria() {
   const saldosPorMovimento = new Map();
   let saldoCorrente = 0;
   [...allMovements]
-    .sort((a, b) => {
-      const porData = String(a.date || "").localeCompare(String(b.date || ""));
-      return porData || String(a.id).localeCompare(String(b.id));
-    })
+    .sort(compararMovimentos)
     .forEach((m) => {
       saldoCorrente += (m.type === "entrada" ? 1 : -1) * Number(m.value || 0);
       saldosPorMovimento.set(m.id, saldoCorrente);
