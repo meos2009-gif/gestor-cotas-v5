@@ -63,6 +63,20 @@ export default function Tesouraria() {
     setMovements(filtered);
   }, [mes, ano, categoriaFiltro, tipoFiltro, allMovements]);
 
+  // Saldo acumulado de caixa após cada movimento, incluindo os meses anteriores.
+  // É calculado antes dos filtros para que estes não alterem o saldo real.
+  const saldosPorMovimento = new Map();
+  let saldoCorrente = 0;
+  [...allMovements]
+    .sort((a, b) => {
+      const porData = String(a.date || "").localeCompare(String(b.date || ""));
+      return porData || String(a.id).localeCompare(String(b.id));
+    })
+    .forEach((m) => {
+      saldoCorrente += (m.type === "entrada" ? 1 : -1) * Number(m.value || 0);
+      saldosPorMovimento.set(m.id, saldoCorrente);
+    });
+
   // SALDO TOTAL
   const saldo = allMovements.reduce((acc, m) => {
     return m.type === "entrada" ? acc + Number(m.value) : acc - Number(m.value);
@@ -312,6 +326,7 @@ export default function Tesouraria() {
               <th className="p-3 text-left">Categoria</th>
               <th className="p-3 text-left">Descrição</th>
               <th className="p-3 text-right">Valor</th>
+              <th className="p-3 text-right">Saldo Acumulado</th>
               <th className="p-3 text-right">Ações</th>
             </tr>
           </thead>
@@ -319,13 +334,13 @@ export default function Tesouraria() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" className="p-4 text-center text-white">
+                <td colSpan="7" className="p-4 text-center text-white">
                   A carregar...
                 </td>
               </tr>
             ) : movements.length === 0 ? (
               <tr>
-                <td colSpan="6" className="p-4 text-center text-white">
+                <td colSpan="7" className="p-4 text-center text-white">
                   Sem movimentos registados.
                 </td>
               </tr>
@@ -345,6 +360,10 @@ export default function Tesouraria() {
                   >
                     {m.type === "entrada" ? "+" : "-"}
                     {Number(m.value).toFixed(2)} €
+                  </td>
+
+                  <td className="p-3 text-right font-bold text-secondary whitespace-nowrap">
+                    {Number(saldosPorMovimento.get(m.id) ?? 0).toFixed(2)} €
                   </td>
 
                   <td className="p-3 text-right">
