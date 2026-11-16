@@ -16,7 +16,7 @@ export default function Tesouraria() {
   const [date, setDate] = useState("");
 
   // FILTROS
-  const [mes, setMes] = useState("");
+  const [mes, setMes] = useState(String(new Date().getMonth() + 1).padStart(2, "0"));
   const [ano, setAno] = useState(new Date().getFullYear());
   const [categoriaFiltro, setCategoriaFiltro] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("");
@@ -47,12 +47,7 @@ export default function Tesouraria() {
 
     // FILTRO MÊS/ANO
     if (mes) {
-      filtered = filtered.filter((m) => {
-        const d = new Date(m.date);
-        const mMes = String(d.getMonth() + 1).padStart(2, "0");
-        const mAno = d.getFullYear();
-        return mMes === mes && mAno === Number(ano);
-      });
+      filtered = filtered.filter((m) => String(m.date || "").slice(0, 7) === `${ano}-${mes}`);
     }
 
     // FILTRO CATEGORIA
@@ -83,6 +78,31 @@ export default function Tesouraria() {
     .reduce((acc, m) => acc + Number(m.value), 0);
 
   const saldoMensal = totalEntradasMes - totalSaidasMes;
+
+  // Saldos históricos: consideram todos os movimentos, independentemente
+  // dos filtros de categoria e tipo aplicados à tabela.
+  const movimentosDoMesSelecionado = mes
+    ? allMovements.filter((m) => String(m.date || "").slice(0, 7) === `${ano}-${mes}`)
+    : [];
+
+  const entradasMesSelecionado = movimentosDoMesSelecionado
+    .filter((m) => m.type === "entrada")
+    .reduce((acc, m) => acc + Number(m.value || 0), 0);
+
+  const saidasMesSelecionado = movimentosDoMesSelecionado
+    .filter((m) => m.type === "saida")
+    .reduce((acc, m) => acc + Number(m.value || 0), 0);
+
+  const saldoAteMesSelecionado = mes
+    ? allMovements
+        .filter((m) => String(m.date || "").slice(0, 7) <= `${ano}-${mes}`)
+        .reduce((acc, m) => acc + (m.type === "entrada" ? 1 : -1) * Number(m.value || 0), 0)
+    : null;
+
+  const saldoInicioMes = saldoAteMesSelecionado === null ? null : saldoAteMesSelecionado - entradasMesSelecionado + saidasMesSelecionado;
+
+  const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  const nomeMesSelecionado = mes ? nomesMeses[Number(mes) - 1] : "";
 
   async function saveMovement() {
     if (!value || !date) return;
@@ -153,6 +173,25 @@ export default function Tesouraria() {
         <p className="text-3xl font-bold mt-2 text-secondary">
           {saldo.toFixed(2)} €
         </p>
+      </div>
+
+      {/* SALDO ACUMULADO NO FINAL DO MÊS SELECIONADO */}
+      <div className="bg-primary text-white p-6 rounded-lg shadow-md mb-6">
+        <h2 className="text-xl font-bold">Saldo de Caixa no Final do Mês</h2>
+        {mes ? (
+          <>
+            <p className="text-sm mt-2 text-gray-200">{nomeMesSelecionado} de {ano} · todos os movimentos até ao último dia do mês</p>
+            <p className="text-3xl font-bold mt-2 text-secondary">{saldoAteMesSelecionado.toFixed(2)} €</p>
+            <div className="mt-3 space-y-1 text-sm">
+              <p>Saldo inicial do mês: <span className="font-semibold">{saldoInicioMes.toFixed(2)} €</span></p>
+              <p>Entradas no mês: <span className="text-green-400 font-semibold">{entradasMesSelecionado.toFixed(2)} €</span></p>
+              <p>Saídas no mês: <span className="text-red-400 font-semibold">{saidasMesSelecionado.toFixed(2)} €</span></p>
+              <p>Movimento líquido do mês: <span className="font-semibold">{(entradasMesSelecionado - saidasMesSelecionado).toFixed(2)} €</span></p>
+            </div>
+          </>
+        ) : (
+          <p className="mt-2 text-gray-200">Seleciona um mês e um ano nos filtros abaixo para consultar o saldo histórico.</p>
+        )}
       </div>
 
       {/* TOTAIS DO MÊS */}
