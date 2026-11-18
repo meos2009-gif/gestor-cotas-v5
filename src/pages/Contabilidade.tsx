@@ -150,7 +150,8 @@ export default function Contabilidade() {
     "jantar",
     "aluguer",
     "manutencao",
-    "estado e o.e.publicos"
+    "estado e o.e.publicos",
+    "equipamentos"
      ];
 
   const mesAtual = new Date().getMonth() + 1;
@@ -261,6 +262,7 @@ export default function Contabilidade() {
           <option value="aluguer">Aluguer</option>
           <option value="manutencao">Manutenção</option>
               <option value="estado e o.e.publicos">Estado e O.E.Publicos</option>
+              <option value="equipamentos">Equipamentos</option>
           </select>
 
         <select value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)} className="border p-2 rounded bg-white text-black">
@@ -409,6 +411,7 @@ export default function Contabilidade() {
               <option value="aluguer">Aluguer</option>
               <option value="manutencao">Manutenção</option>
               <option value="estado e o.e.publicos">Estado e O.E.Publicos</option>
+              <option value="equipamentos">Equipamentos</option>
                           </select>
 
             <label className="block mb-2 text-sm font-medium">Descrição</label>
